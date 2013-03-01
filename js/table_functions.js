@@ -4,10 +4,10 @@
 // wt_class can be either null,
 //     a classname for the rows,
 //     or an array of classnames (first for the table, second for the header, and third for the row)
-// row_click_html can be either null or the html to call upon the row being clicked
-///    *NOTE* not yet implemented
+// row_click_function can be either null or the function to be clicked
+//     example: "dostuff" for "function dostuff(object){}"
 // retval: a string representing the new table
-function create_table(a_col_names, a_rows, wt_class, row_click_html) {
+function create_table(a_col_names, a_rows, wt_class, row_click_function) {
 	var table_class = "auto_table_table";
 	var header_class = "auto_table_header";
 	var row_class = "auto_table_row";
@@ -27,7 +27,7 @@ function create_table(a_col_names, a_rows, wt_class, row_click_html) {
 	s_retval += '</tr>';
 
 	for(var i = 0; i < a_rows.length; i++) {
-		s_retval += '<tr class="'+row_class+'" onmouseover="get_by_html(\'tr\',this.innerHTML).addClass(\'mouse_hover\');" onmouseout="get_by_html(\'tr\',this.innerHTML).removeClass(\'mouse_hover\');">';
+		s_retval += '<tr class="'+row_class+'" onmouseover="get_by_html(\'tr\',this.innerHTML).addClass(\'mouse_hover\');" onmouseout="get_by_html(\'tr\',this.innerHTML).removeClass(\'mouse_hover\');" onclick=\''+row_click_function+'(this);\'>';
 		a_row = a_rows[i];
 		for(var j = 0; j < a_row.length; j++) {
 			s_retval += '<td>'+a_row[j]+'</td>';

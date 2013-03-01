@@ -15,7 +15,7 @@ function draw_logout_bar() {
 
 function draw_tabs() {
 	$s_schedule_contents = '&nbsp;';
-	$s_classes_contents = '<select id=\'subject_selector\' onchange=\'draw_course_table(this.id);\'></select><br /><div id=\'classes_content\'>&nbsp;</div>';
+	$s_classes_contents = '<select id=\'subject_selector\' onchange=\'draw_course_table();\'></select><input id="add_subject_button" type="button" onclick="add_extra_subject(this);" value="Add Subject" /><input id="add_subject_all_button" type="button" onclick="add_extra_subject_all();" value="All" /><br /><div id=\'classes_content\'>&nbsp;</div>';
 	$s_lists_contents = '&nbsp;';
 	$s_settings_contents = '&nbsp;';
 	

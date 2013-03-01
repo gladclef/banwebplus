@@ -32,7 +32,7 @@ function draw_login_page() {
 	$a_page[] = "<input type='password' size='20' name='password'><br />";
 	$a_page[] = "<dev style='float:right;'><input type='button' value='Submit' onclick='send_ajax_call_from_form(\"/pages/login/login_ajax.php\",$(this).parent().parent().prop(\"id\"));' /></dev><br />";
 	$a_page[] = "</form>";
-	$a_page[] = "<form id='login_form_guest'><input type='hidden' name='username' value='guest'></input><input type='hidden' name='password' value='password'></input>or <font style='font-style:italic;font-weight:bold;font-decoration:underline;cursor:pointer;' onclick='send_ajax_call_from_form(\"/pages/login/login_ajax.php\",\"login_form_guest\");'>Login As Guest</font></form>";
+	$a_page[] = "<form id='login_form_guest'><input type='hidden' name='username' value='guest' /><input type='hidden' name='password' value='password' />or <font style='font-style:italic;font-weight:bold;font-decoration:underline;cursor:pointer;' onclick='send_ajax_call_from_form(\"/pages/login/login_ajax.php\",\"login_form_guest\");'>Login As Guest</font></form>";
 	$a_page[] = draw_page_foot();
 	return implode("\n", $a_page);
 }

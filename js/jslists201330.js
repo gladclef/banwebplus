@@ -1,4 +1,4 @@
-var subjects = [
+var subjects_201330 = [
 	['ACCT', 'Accounting'],
 	['AE', 'Aerospace Engineering'],
 	['AFAS', 'Air Force Aerospace Studies'],
@@ -67,8 +67,8 @@ var subjects = [
 	['THEA', 'Theater'],
 	['WGS', 'Women\'s and Gender Studies']
 ];
-var headers = ['Conflicts', 'Select', 'CRN', 'Course', '*Campus', 'Days', 'Time', 'Location', 'Hrs', 'Title', 'Instructor', 'Seats', 'Limit', 'Enroll'];
-var full_course_list = [
+var headers_201330 = ['Conflicts', 'Select', 'CRN', 'Course', '*Campus', 'Days', 'Time', 'Location', 'Hrs', 'Title', 'Instructor', 'Seats', 'Limit', 'Enroll'];
+var full_course_list_201330 = [
 	[
 		['63042', 'ACCT 202D-01', 'M', 'M W F', '0900-1030', 'CRAMER 123', '3', 'Fundamentals of Accounting II', 'Robert T. Guthrie', '21', '25', '4'],
 		['62829', 'ACCT 289L-01', 'M', 'M W F', '0900-1030', 'CRAMER 123', '1', 'Accounting II Lab', 'Robert T. Guthrie', '22', '25', '3'],

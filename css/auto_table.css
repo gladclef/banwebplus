@@ -28,12 +28,16 @@ tr.auto_table_row {
 	cursor:default;
 }
 
-tr.auto_table_row.mouse_hover {
-	background-color:#aaf;
-}
-
 tr.auto_table_row:nth-child(odd) {
 	background-color:#ddd;
+}
+
+tr.auto_table_row.selected {
+	background-color:yellow;
+}
+
+tr.auto_table_row.mouse_hover {
+	background-color:#aaf;
 }
 
 tr.auto_table_row.mouse_hover:nth-child(odd) {
