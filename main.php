@@ -1,7 +1,8 @@
 <?php
-require_once(dirname(__FILE__)."/resources/check_logged_in.php");
 require_once(dirname(__FILE__)."/resources/globals.php");
 require_once(dirname(__FILE__)."/resources/common_functions.php");
+my_session_start();
+require_once(dirname(__FILE__)."/resources/check_logged_in.php");
 
 function draw_logout_bar() {
 	global $global_user;
@@ -14,7 +15,7 @@ function draw_logout_bar() {
 }
 
 function draw_tabs() {
-	$s_schedule_contents = '&nbsp;';
+	$s_schedule_contents = '<table class=\'table_title\'><tr><td><div class=\'centered\'>Selected Classes</div></td></tr></table><div id=\'schedule_tab_user_schedule\'>&nbsp;</div><br /><table class=\'table_title\'><tr><td><div class=\'centered\'>Recently Selected</div></td></tr></table><div id=\'schedule_tab_user_recently_viewed_schedule\'>&nbsp;</div><input type=\'button\' style=\'display:none;\' name=\'onselect\' onclick=\'draw_schedule_tab();\' />';
 	$s_classes_contents = '<select id=\'subject_selector\' onchange=\'draw_course_table();\'></select><input id="add_subject_button" type="button" onclick="add_extra_subject(this);" value="Add Subject" /><input id="add_subject_all_button" type="button" onclick="add_extra_subject_all();" value="All" /><br /><div id=\'classes_content\'>&nbsp;</div>';
 	$s_lists_contents = '&nbsp;';
 	$s_settings_contents = '&nbsp;';
@@ -34,19 +35,24 @@ function draw_tabs() {
 	return implode("\n", $a_retval);
 }
 
-if ($global_user->exists_in_db()) {
-		echo draw_page_head();
-		echo '<script src="/js/table_functions.js"></script>';
-		echo '<script src="/js/jslists201330.js"></script>';
-		echo '<script src="/js/use_course_list.js"></script>';
-		echo '<script src="/js/common_functions.js"></script>';
-		echo '<script src="/js/tab_functions.js"></script>';
-		echo '<link href="/css/auto_table.css" rel="stylesheet" type="text/css">';
-		echo '<link href="/css/tabs.css" rel="stylesheet" type="text/css">';
-		echo draw_logout_bar();
-		echo "<br /><br /><dev id='content'>";
-		echo draw_tabs();
-		echo "</dev>";
-		echo draw_page_foot();
+if ($global_user) {
+		if ($global_user->exists_in_db()) {
+				echo draw_page_head();
+				echo '<script src="/js/table_functions.js"></script>';
+				echo '<script src="/js/jslists201330.js"></script>';
+				echo '<script src="/js/use_course_list.js"></script>';
+				echo '<script src="/js/common_functions.js"></script>';
+				echo '<script src="/js/tab_functions.js"></script>';
+				echo '<script src="/js/schedule.js"></script>';
+				echo '<link href="/css/auto_table.css" rel="stylesheet" type="text/css">';
+				echo '<link href="/css/tabs.css" rel="stylesheet" type="text/css">';
+				echo draw_logout_bar();
+				echo "<br /><br /><dev id='content'>";
+				echo draw_tabs();
+				echo "</dev>";
+				echo draw_page_foot();
+		}
+} else {
+		logout_session();
 }
 ?>

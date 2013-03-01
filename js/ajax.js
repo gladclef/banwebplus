@@ -1,11 +1,17 @@
 var send_ajax_call_retval = "";
 function send_ajax_call(php_file_name, posts) {
+	a_message = send_async_ajax_call(php_file_name, posts, false);
+	return a_message;
+}
+
+function send_async_ajax_call(php_file_name, posts, async) {
 	$.ajax({
 		url: php_file_name,
-		async: false,
+		async: async,
 		cache: false,
 		data: posts,
 		type: "POST",
+		timeout: 10000,
 		success: function(data) {
 			send_ajax_call_retval = data;
 		},
@@ -21,9 +27,11 @@ function send_ajax_call_from_form(php_file_name, form_id) {
 	var inputs = $("#"+form_id).children("input");
 	
 	var posts = {};
+	var full_posts = [];
 	for(var i = 0; i < inputs.length; i++) {
 		var name = $(inputs[i]).prop("name");
 		var value = $(inputs[i]).val();
+		full_posts.push([name, value]);
 		posts[name] = value;
 	}
 
@@ -36,6 +44,14 @@ function send_ajax_call_from_form(php_file_name, form_id) {
 		var note = commands_array[i][1];
 		if (command == "print error") {
 			set_html_and_fade_in(jerrors_label, "", "<font style='color:red;'>"+note+"</font>");
+		} else if (command == "load page with post") {
+			var posts_string = "";
+			for (var i = 0; i < full_posts.length; i++)
+				posts_string += '<input type="hidden" name="'+full_posts[i][0]+'" value="'+full_posts[i][1]+'" />';
+			var id_string = get_unique_id();
+			var create_string = '<form method="POST" action="'+note+'" id="'+id_string+'">'+posts_string+'</form>';
+			$(create_string).appendTo("body");
+			$("#"+id_string).submit();
 		} else if (command == "clear field") {
 			$("#"+form_id).children("input[name="+note+"]").val("");
 		}

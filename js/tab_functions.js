@@ -21,17 +21,19 @@ function draw_tab(s_tabname) {
 		//});
 	}
 	// get the tab and it's contents
-	var jtab_contents = $("#"+s_tabname+".tab_contents_div");
 	var jtab = get_tab_by_tabname(s_tabname);
-	var tab_contents = $(jtab.children("input")[0]).val();
-	jtab_contents.stop(false,true);
-	jtab_contents.css({opacity:0});
-	jtab_contents.show();
-	jtab_contents.animate({opacity:1},500);
+	var jtab_contents_container = $("#"+s_tabname+".tab_contents_div");
+	var selected_button = jtab_contents_container.children("input[name='onselect']");
+	jtab_contents_container.stop(false,true);
+	jtab_contents_container.css({opacity:0});
+	jtab_contents_container.show();
+	jtab_contents_container.animate({opacity:1},500);
 	// set the tab class
 	var a_tabs = $(".tab");
 	for(var i = 0; i < a_tabs.length; i++)
 		$(a_tabs[i]).removeClass("selected");
 	jtab.addClass("selected");
+	if (selected_button.length > 0)
+		selected_button.click();
 }
 

@@ -1,6 +1,6 @@
 <?php
-require_once(dirname(__FILE__)."/../../resources/common_functions.php");
 require_once(dirname(__FILE__)."/../../resources/globals.php");
+require_once(dirname(__FILE__)."/../../resources/common_functions.php");
 
 // checks the session for a logged in user
 // @retval the user object or null
@@ -8,16 +8,19 @@ function get_logged_in() {
 	global $global_user;
 	$time_before_timeout = 10; // minutes
 
-	if (!isset($_SESSION['loggedin']) || !isset($_SESSION['username']) || !isset($_SESSION['last_activity']) || !isset($_SESSION['crypt_password']))
+	if (!isset($_SESSION['loggedin']) || !isset($_SESSION['username']) || !isset($_SESSION['last_activity']) || !isset($_SESSION['crypt_password'])) {
 			return NULL;
-	if ((time()-$_SESSION['last_activity'])/60 > $time_before_timeout)
+	}
+	if ((time()-$_SESSION['last_activity'])/60 > $time_before_timeout) {
 			return NULL;
+	}
 	$_SESSION['last_activity'] = time();
 	$o_user = new user($_SESSION['username'], NULL, urldecode($_SESSION['crypt_password']));
 	if ($o_user->exists_in_db()) {
 			$global_user = $o_user;
 			return $o_user;
 	}
+	return NULL;
 }
 
 // returns a string for the login page
@@ -41,7 +44,7 @@ function check_logged_in() {
 	my_session_start();
 	
 	$o_user = get_logged_in();
-	if ($o_user == NULL)
+	if ($o_user === NULL)
 			return FALSE;
 	return TRUE;
 }

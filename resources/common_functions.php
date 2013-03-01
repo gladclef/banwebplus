@@ -19,14 +19,26 @@ function login_session($o_user) {
 	$_SESSION['last_activity'] = time();
 	$_SESSION['crypt_password'] = urlencode($o_user->get_crypt_password());
 	$_SESSION['loggedin'] = 1;
+	remove_timestamp_on_saves();
+}
+
+// removes the timestamp on all semesters so that new
+// incoming data can be written (see resources/ajax_calls.php)
+function remove_timestamp_on_saves() {
+	$a_semester_classes = user_query("SELECT `id` FROM `[table]`", array("table"=>"semester_classes"));
+	if ($a_semester_classes === FALSE)
+			return;
+	foreach($a_semester_classes as $a_semester_class)
+			user_query("UPDATE `[table]` SET `time_submitted`='0000-00-00 00:00:00' WHERE `id`='[id]'", array("table"=>"semester_classes", "id"=>$a_semester_class['id']));
 }
 
 function logout_session() {
 	my_session_start();
-	unset($_SESSION['username']);
-	unset($_SESSION['last_activity']);
-	unset($_SESSION['crypt_password']);
-	unset($_SESSION['loggedin']);
+	if (isset($_SESSION)) {
+			foreach($_SESSION as $k=>$v) {
+					$_SESSION[$k] = NULL;
+			}
+	}
 }
 
 function draw_page_head() {
@@ -37,6 +49,7 @@ function draw_page_head() {
 	$a_page[] = "<link href='/css/main.css' rel='stylesheet' type='text/css'>";
 	$a_page[] = "<link href='/css/login_logout.css' rel='stylesheet' type='text/css'>";
 	$a_page[] = '<script src="'.$global_path_to_jquery.'"></script>';
+	$a_page[] = '<script src="/js/common_functions.js"></script>';
 	$a_page[] = '<script src="/js/ajax.js"></script>';
 	$a_page[] = '<script src="/js/login_logout.js"></script>';
 	$a_page[] = "</head>";

@@ -43,3 +43,9 @@ tr.auto_table_row.mouse_hover {
 tr.auto_table_row.mouse_hover:nth-child(odd) {
 	background-color:#88f;
 }
+
+.table_title {
+	width: 100%;
+	font-size: 24px;
+	font-weight: bold;
+}

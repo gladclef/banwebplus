@@ -1,3 +1,16 @@
+function console_log(wt_log) {
+	if (window.console)
+		console.log(wt_log);
+}
+
+function get_unique_id() {
+	var retval = "id";
+	for (var i = 0; i < 1000000; i++) {
+		if ($("#"+retval+i).length == 0)
+			return retval+i;
+	}
+}
+
 function kill_children(jobject) {
 	var children = jobject.children();
 	for(var i = 0; i < children.length; i++)
@@ -23,3 +36,12 @@ jQuery.fn.outerHTML = function(s) {
         ? this.before(s).remove()
         : jQuery("<p>").append(this.eq(0).clone()).html();
 };
+
+$.strPad = function(string,length,character) {
+	var retval = string.toString();
+	if (!character) { character = '0'; }
+	while (retval.length < length) {
+		retval = character + retval;
+	}
+	return retval;
+}

@@ -10,8 +10,10 @@ if ($global_opened_db === FALSE) {
 function user_query($s_query, $a_values) {
 	global $global_user;
 
-	$username = $global_user->get_name();
-	$s_query = str_ireplace("from ", "FROM `student_$username_db`.", $s_query);
+	$username = mysql_real_escape_string($global_user->get_name());
+	$a_keyname = array("FROM", "TABLE", "INTO", "UPDATE");
+	foreach($a_keyname as $s_key)
+			$s_query = str_ireplace("$s_key ", "$s_key `student_".$username."_db`.", $s_query);
 	return db_query($s_query, $a_values);
 }
 
@@ -20,7 +22,7 @@ function replace_values_in_db_query_string($s_query, $a_values) {
 			$s_query = str_replace("[$k]", "[--$k--]", $s_query);
 	}
 	foreach($a_values as $k=>$v) {
-			$s_query = str_replace("[--$k--]", $v, $s_query);
+			$s_query = str_replace("[--$k--]", mysql_real_escape_string($v), $s_query);
 	}
 	return $s_query;
 }
