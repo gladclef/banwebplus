@@ -1,0 +1,42 @@
+function get_tab_by_tabname(s_tabname) {
+	var a_tabs = $(".tab");
+	var jtab = null;
+	for(var i = 0; i < a_tabs.length; i++){
+		if ($(a_tabs[i]).text() == s_tabname) {
+			jtab = $(a_tabs[i]);
+		}
+	}
+	return jtab;
+}
+
+function update_tab_contents() {
+	var s_tabname = $($(".tab.selected")[0]).text();
+	var jtab = get_tab_by_tabname(s_tabname);
+	$(jtab.children("input")[0]).val($("div.tab_contents").html());
+	setTimeout(
+		"update_tab_contents();",
+		500
+	);
+}
+
+function draw_tab(s_tabname) {
+	// get the tab and it's contents
+	var jtab_contents = $("div.tab_contents");
+	var jtab = get_tab_by_tabname(s_tabname);
+	var tab_contents = $(jtab.children("input")[0]).val();
+	var spacer = "<div class='spacer_for_div_contents'>&nbsp;</div>";
+	if (tab_contents.indexOf('spacer_for_div_contents') == -1)
+		tab_contents = spacer+tab_contents;
+	kill_children(jtab_contents);
+	jtab_contents.html("");
+	jtab_contents.append(tab_contents);
+	jtab_contents.stop(false,true);
+	jtab_contents.css({opacity:0});
+	jtab_contents.animate({opacity:1},500);
+	// set the tab class
+	var a_tabs = $(".tab");
+	for(var i = 0; i < a_tabs.length; i++)
+		$(a_tabs[i]).removeClass("selected");
+	jtab.addClass("selected");
+}
+

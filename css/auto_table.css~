@@ -1,0 +1,33 @@
+table.auto_table_table {
+	border:1px solid black;
+	border-radius:3px;
+	background-color:#fff;
+}
+
+tr.auto_table_header {
+	background-color:#ccc;
+	font-weight:bold;
+	text-decoration:underline;
+	cursor:pointer;
+}
+
+th.mouse_hover {
+	background-color:#aaf;
+}
+
+tr.auto_table_row {
+	background-color:#eee;
+	cursor:default;
+}
+
+tr.auto_table_row.mouse_hover {
+	background-color:#aaf;
+}
+
+tr.auto_table_row:nth-child(odd) {
+	background-color:#ddd;
+}
+
+tr.auto_table_row.mouse_hover:nth-child(odd) {
+	background-color:#88f;
+}

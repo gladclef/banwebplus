@@ -1,0 +1,3 @@
+$(
+	$(".logout_button").click("ajax_logout();");
+);
