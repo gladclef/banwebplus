@@ -36,6 +36,13 @@ class user {
 		return '';
 	}
 
+	public function has_access($s_access) {
+		if ($s_access == '')
+				return TRUE;
+		// todo
+		return FALSE;
+	}
+
 	private function set_accesses() {
 		if ($this->exists === FALSE)
 				return FALSE;

@@ -10,15 +10,52 @@ div.tab_contents {
 	font-decoration:underline;
 	margin:2px 0px;
 	text-align:center;
+	text-decoration: underline;
+	background-image: linear-gradient(top, rgb(153,153,153) 8%, rgb(230,230,230) 54%);
+	background-image: -o-linear-gradient(top, rgb(153,153,153) 8%, rgb(230,230,230) 54%);
+	background-image: -moz-linear-gradient(top, rgb(153,153,153) 8%, rgb(230,230,230) 54%);
+	background-image: -webkit-linear-gradient(top, rgb(153,153,153) 8%, rgb(230,230,230) 54%);
+	background-image: -ms-linear-gradient(top, rgb(153,153,153) 8%, rgb(230,230,230) 54%);
+	background-image: -webkit-gradient(
+		linear,
+		left top,
+		left bottom,
+		color-stop(0.08, rgb(153,153,153)),
+		color-stop(0.54, rgb(230,230,230))
+	);
 }
 
 .tab.selected {
 	background-color:#fff;
 	font-weight:bold;
+	background-image: linear-gradient(top, #fff 8%, #fff 54%);
+	background-image: -o-linear-gradient(top, #fff 8%, #fff 54%);
+	background-image: -moz-linear-gradient(top, #fff 8%, #fff 54%);
+	background-image: -webkit-linear-gradient(top, #fff 8%, #fff 54%);
+	background-image: -ms-linear-gradient(top, #fff 8%, #fff 54%);
+	background-image: -webkit-gradient(
+		linear,
+		left top,
+		left bottom,
+		color-stop(0.08, #fff),
+		color-stop(0.54, #fff)
+	);
 }
 
-.tab.mouse_over {
-	background-color:#aaf;
+.tab.mouse_hover {
+	background-color: #aaa;
+	background-image: linear-gradient(top, #ccc 8%, #aaa 54%);
+	background-image: -o-linear-gradient(top, #ccc 8%, #aaa 54%);
+	background-image: -moz-linear-gradient(top, #ccc 8%, #aaa 54%);
+	background-image: -webkit-linear-gradient(top, #ccc 8%, #aaa 54%);
+	background-image: -ms-linear-gradient(top, #ccc 8%, #aaa 54%);
+	background-image: -webkit-gradient(
+		linear,
+		left top,
+		left bottom,
+		color-stop(0.08, #ccc),
+		color-stop(0.54, #aaa)
+	);
 }
 
 div.tab_contents_div {

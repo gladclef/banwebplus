@@ -11,6 +11,8 @@ function create_table(a_col_names, a_rows, wt_class, row_click_function) {
 	var table_class = "auto_table_table";
 	var header_class = "auto_table_header";
 	var row_class = "auto_table_row";
+	var a_unique_ids = get_set_of_unique_ids(a_rows.length+a_col_names.length);
+	var a_header_ids = a_unique_ids.splice(a_rows.length);
 
 	if (jQuery.type(wt_class) == "string") {
 		row_class = wt_class;
@@ -20,14 +22,20 @@ function create_table(a_col_names, a_rows, wt_class, row_click_function) {
 		row_class = wt_class[2];
 	}
 
+	var s_header_id = a_unique_ids[a_rows.length];
 	var s_retval = '<table class="'+table_class+'"><tr class="'+header_class+'">';
 	for(var i = 0; i < a_col_names.length; i++) {
-		s_retval += '<th onclick="sort_table_by_header(this);" onmouseover="$(this).addClass(\'mouse_hover\');" onmouseout="$(this).removeClass(\'mouse_hover\');">'+a_col_names[i]+'</th>';
+		var s_id = a_header_ids[i];
+		s_retval += '<th id="'+s_id+'" onclick="sort_table_by_header(this);" onmouseover="$(\'#'+s_id+'\').addClass(\'mouse_hover\');" onmouseout="$(\'#'+s_id+'\').removeClass(\'mouse_hover\');">'+a_col_names[i]+'</th>';
 	}
 	s_retval += '</tr>';
 
 	for(var i = 0; i < a_rows.length; i++) {
-		s_retval += '<tr class="'+row_class+'" onmouseover="get_by_html(\'tr\',this.innerHTML).addClass(\'mouse_hover\');" onmouseout="get_by_html(\'tr\',this.innerHTML).removeClass(\'mouse_hover\');" onclick=\''+row_click_function+'(this);\'>';
+		var s_id = a_unique_ids[i];
+		s_retval += '<tr class="'+row_class+'" id="'+s_id+'" onmouseover="$(\'#'+s_id+'\').addClass(\'mouse_hover\');" onmouseout="$(\'#'+s_id+'\').removeClass(\'mouse_hover\');"';
+		if (row_click_function)
+			s_retval += ' onclick=\''+row_click_function+'(this);\'';
+		s_retval += '>';
 		a_row = a_rows[i];
 		for(var j = 0; j < a_row.length; j++) {
 			s_retval += '<td>'+a_row[j]+'</td>';

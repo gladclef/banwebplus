@@ -1,3 +1,13 @@
+// scrolls the horizontal scrollbar so that the screen is centered
+function scroll_to_center() {
+	var docwidth = $(document).width()+parseInt($('body').css("margin-left"));
+	var winwidth = $(window).width();
+	if (docwidth <= winwidth)
+		return;
+	var scrollto = (docwidth-winwidth)/2;
+	$('body, html').animate({scrollLeft: scrollto}, 500);
+}
+
 function console_log(wt_log) {
 	if (window.console)
 		console.log(wt_log);
@@ -9,6 +19,21 @@ function get_unique_id() {
 		if ($("#"+retval+i).length == 0)
 			return retval+i;
 	}
+}
+
+function get_set_of_unique_ids(i_count) {
+	var i_tid = get_unique_id();
+	$("<table id='"+i_tid+"'><tr><td>&nbsp;</td></tr></table>").appendTo("body");
+	var jtable = $("#"+i_tid);
+	var jrow = $(jtable.children()[0]);
+	var a_retval = [i_tid];
+	while (a_retval.length < i_count) {
+		var i_nextid = get_unique_id();
+		$("<td id='"+i_nextid+"'>&nbsp;</td>").appendTo(jrow);
+		a_retval.push(i_nextid);
+	}
+	jtable.remove();
+	return a_retval;
 }
 
 function kill_children(jobject) {
@@ -44,4 +69,27 @@ $.strPad = function(string,length,character) {
 		retval = character + retval;
 	}
 	return retval;
+}
+
+function parse_int(s_value) {
+	if (typeof(s_value) == "number")
+		return s_value;
+	if (!s_value)
+		return 0;
+	if (s_value.length == 0)
+		return 0;
+	s_value = s_value.replace(/^0*/, '');
+	return parseInt(s_value);
+}
+
+function get_date() {
+	var d = new Date();
+	var s_retval = "";
+	s_retval += $.strPad(d.getFullYear(),4)+"-";
+	s_retval += $.strPad(d.getMonth(),2)+"-";
+	s_retval += $.strPad(d.getDate(),2)+" ";
+	s_retval += $.strPad(d.getHours(),2)+":";
+	s_retval += $.strPad(d.getMinutes(),2)+":";
+	s_retval += $.strPad(d.getSeconds(),2);
+	return s_retval;
 }

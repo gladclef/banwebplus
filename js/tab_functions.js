@@ -37,3 +37,8 @@ function draw_tab(s_tabname) {
 		selected_button.click();
 }
 
+function click_tab_by_tabname(s_tabname) {
+	var jtab = get_tab_by_tabname(s_tabname);
+	if (jtab !== null)
+		jtab.click();
+}

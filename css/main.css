@@ -38,3 +38,15 @@ table.main_page_content {
 .errors {
 	font-weight: bold;
 }
+
+.popup {
+	display: block;
+	position: absolute;
+	z-index: 100;
+	background-color: #fff;
+	border: 1px dashed gray;
+	border-radius: 10px;
+	padding: 10px;
+	left: 0px;
+	top: 0px;
+}

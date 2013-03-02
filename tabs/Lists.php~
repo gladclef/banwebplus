@@ -1,0 +1,9 @@
+<?php
+
+function init_lists_tab() {
+	return '&nbsp;';
+}
+
+$tab_init_function = 'init_lists_tab';
+
+?>
