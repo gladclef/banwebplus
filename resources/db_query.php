@@ -34,10 +34,8 @@ function db_query($s_query, $a_values=NULL) {
 function open_db() {
 	$link = mysql_connect('localhost', 'banwebplus', 'MmE3YTJiOWY3OTNmMzlkNjNlNzIzMzUy');
 	if ($link) {
-			error_log("link established");
 			return TRUE;
 	} else {
-			error_log("link not established");
 			return FALSE;
 	}
 }

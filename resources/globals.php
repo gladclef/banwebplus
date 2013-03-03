@@ -1,5 +1,6 @@
 <?php
 $maindb = "banwebplus";
+$userdb = "students";
 $settings_table = "user_settings";
 
 $global_user = NULL;
