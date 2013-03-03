@@ -4,10 +4,11 @@ require_once(dirname(__FILE__)."/../resources/common_functions.php");
 require_once(dirname(__FILE__)."/../resources/db_query.php");
 
 function draw_tabs() {
+	global $maindb;
 	global $global_user;
 	$a_retval = array();
 
-	$a_tabs = db_query('SELECT * FROM `banweb_test_main`.`tabs` WHERE `_deleted`=\'0\' ORDER BY `order` ASC');
+	$a_tabs = db_query('SELECT * FROM `[maindb]`.`tabs` WHERE `_deleted`=\'0\' ORDER BY `order` ASC', array("maindb"=>$maindb));
 	$a_tabs_with_access = array();
 	foreach($a_tabs as $a_tab) {
 			if($global_user->has_access($a_tab['accesses']))
