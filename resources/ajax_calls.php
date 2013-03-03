@@ -64,11 +64,13 @@ function load_classes($s_year, $s_semester) {
 }
 
 function load_user_classes($s_year, $s_semester) {
-	// todo
+	global $global_user;
+	
+	//todo
 }
 
 function load_semester_classes($s_year, $s_semester) {
-	// todo
+	//todo
 }
 
 function update_settings($setting_type, $a_postvars) {
