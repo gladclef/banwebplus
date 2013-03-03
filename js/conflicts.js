@@ -1,0 +1,216 @@
+// takes the conflicts for the given crn
+// and draws them on that class' row
+update_class_show_conflictions_trs = null; // needed for efficiency
+update_class_show_conflictions_lastloaded = 0; // needed for efficiency
+function update_class_show_conflictions(i_class_crn) {
+	var started = (new Date()).getMilliseconds();
+	var i_crn_index = get_crn_index_from_headers(headers);
+	var a_trs = null;
+	var a_jrow = [];
+	var b_found = false;
+
+	if ((new Date()).getTime()/1000-update_class_show_conflictions_lastloaded > 1 ||
+		update_class_show_conflictions_trs == null) {
+		update_class_show_conflictions_trs = $("tr.auto_table_row");
+		update_class_show_conflictions_lastloaded = (new Date()).getTime()/1000;
+	}
+	a_trs = update_class_show_conflictions_trs;
+
+	for (var i = 0; i < a_trs.length; i++) {
+		var a_tds = document.getElementById(a_trs[i].id).childNodes;
+		if (parseInt(a_tds[i_crn_index].innerHTML) == i_class_crn) {
+			b_found = true;
+			a_jrow.push($("#"+a_trs[i].id));
+			//break;
+		}
+	}
+	//console_log(i_class_crn+": "+b_found);
+	if (!b_found)
+		return;
+
+	var normal_image = '/images/red_sphere.png';
+	var highlighted = '/images/red_sphere.png';//'/images/red_sphere_highlighted.png';
+	var i_conflicts_index = get_index_of_header("conflicts", headers);
+	//console_log(current_conflicting_classes[i_class_crn].length);
+	for (var i = 0; i < a_jrow.length; i++) {
+		var jrow = a_jrow[i];
+		if (current_conflicting_classes[i_class_crn].length > 0) {
+			edit_class_row_property(jrow, i_conflicts_index, '<div class="centered"><img src="'+normal_image+'" style="width:21px;height:21px" onmouseover="show_conflicting_classes(this,\''+jrow.prop('id')+'\');$(this).attr(\'src\',\''+highlighted+'\');" onmouseout="hide_conflicting_classes_popup();$(this).attr(\'src\',\''+normal_image+'\');"><input type="hidden" name="conflicting_classes" value="'+current_conflicting_classes[i_class_crn].join('|')+'" /></div>');
+			jrow.addClass("conflicting");
+		} else {
+			edit_class_row_property(jrow, i_conflicts_index, '');
+			jrow.removeClass("conflicting");
+		}
+	}
+}
+
+// creates a pop-up with the conflicting classes
+function show_conflicting_classes(element, row_id) {
+	var i_conflicts_index = get_index_of_header("conflicts", headers);
+	var i_crn_index = get_crn_index_from_headers(headers);
+	var i_days_index = get_index_of_header("days", headers);
+	var i_time_index = get_index_of_header("time", headers);
+	var i_title_index = get_index_of_header("title", headers);
+	var jrow = $("#"+row_id);
+	var s_text = '';
+	var button_pos = $(element).position();
+	var button_width = $(element).width();
+	var a_to_show = [i_crn_index, i_days_index, i_time_index, i_title_index];
+	var a_conflicts = $(element).siblings("input[name=conflicting_classes]").val().split('|');
+	var a_classes = get_array_of_all_classes();
+	var a_conflicting_todraw = [];
+	var a_headers = [];
+
+	// get properties of the conflicting classes
+	for (var i = 0; i < a_conflicts.length; i++) {
+		var a_current = [];
+		var i_crn = a_conflicts[i];
+		var a_class = jQuery.grep(a_classes, function(a_value) {
+			return a_value[i_crn_index] == i_crn;
+		})[0];
+		for (var j = 0; j < a_to_show.length; j++) {
+			a_current.push(a_class[a_to_show[j]]);
+		}
+		a_conflicting_todraw.push(a_current);
+	}
+	// get the headers
+	for (var i = 0; i < a_to_show.length; i++)
+		a_headers.push(headers[a_to_show[i]]);
+	
+	var s_id = "conflicting_table_popup";
+	var s_text_head = '<div id="'+s_id+'" class="popup" style="left:'+(button_pos.left+button_width)+'px;" onmouseover="show_conflicting_classes_popup();" onmouseout="hide_conflicting_classes_popup();">';
+	var s_text_body = create_table(a_headers, a_conflicting_todraw);
+	var s_text_foot = '</div>';
+	if ($("#"+s_id).length > 0) {
+		var jpopup = $("#"+s_id);
+		kill_children(jpopup);
+		jpopup.append(s_text_body);
+		show_conflicting_classes_popup();
+	} else {
+		var s_text = s_text_head + s_text_body + s_text_foot;
+		$(s_text).appendTo($('table')[0]);
+	}
+	move_conflicting_classes_popup_y(element);
+}
+
+function show_conflicting_classes_popup() {
+	var jpopup = $("#conflicting_table_popup");
+	jpopup.stop(true,true);
+	jpopup.css({opacity:1});
+	jpopup.show();
+}
+
+function hide_conflicting_classes_popup() {
+	var jpopup = $("#conflicting_table_popup");
+	jpopup.stop(true, true);
+	jpopup.animate(
+		{opacity:0},
+		500,
+		function() {
+			$("#conflicting_table_popup").hide();
+		}
+	);
+}
+
+function move_conflicting_classes_popup_y(element) {
+	var jpopup = $("#conflicting_table_popup");
+	var i_height = jpopup.height();
+	var d_button_pos = $(element).position();
+	var i_y = d_button_pos.top-i_height/2;
+	
+	if ($(window).length > 0)
+		i_y = Math.min(i_y, $(window).height());
+	i_y = Math.max(i_y, 0);
+	
+	jpopup.stop(true, true);
+	jpopup.animate({top:i_y}, 300);
+}
+
+// adds one new user class to the conflicting classes
+function calculate_conflicting_classes_add_class(i_crn, function_call) {
+	var a_conflicts = get_conflicting_classes_of_class(i_crn);
+	for (var i = 0; i < a_conflicts.length; i++) {
+		var i_conflicting = a_conflicts[i];
+		current_conflicting_classes[i_conflicting].push(i_crn);
+		if (function_call != null)
+			function_call(i_conflicting);
+	}
+}
+
+// removes one old user class from the conflicting classes
+function calculate_conflicting_classes_remove_class(i_crn, function_call) {
+	var a_conflicts = get_conflicting_classes_of_class(i_crn);
+	for (var i = 0; i < a_conflicts.length; i++) {
+		var i_conflicting = a_conflicts[i];
+		current_conflicting_classes[i_conflicting] = current_conflicting_classes[i_conflicting].filter(function(value) {
+			return value != i_crn;
+		});
+		if (function_call != null)
+			function_call(i_conflicting);
+	}
+}
+
+// searches through all classes and finds ones that conflict with the given class
+function get_conflicting_classes_of_class(i_class_crn) {
+	var i_crn_index = get_crn_index_from_headers(headers);
+	var i_day_index = get_index_of_header("days", headers);
+	var i_time_index = get_index_of_header("time", headers);
+	var a_class = get_class(i_class_crn);
+	var a_classes = get_array_of_all_classes();
+	var d_class_stats = {};
+	var a_retval = [];
+	
+	if (a_class == null)
+		return [];
+
+	d_class_stats = get_class_stats_from_class_array(a_class, i_crn_index, i_day_index, i_time_index);
+	for (var i = 0; i < a_classes.length; i++) {
+		d_other_stats = get_class_stats_from_class_array(a_classes[i], i_crn_index, i_day_index, i_time_index);
+		if (d_other_stats['id'] == d_class_stats['id'])
+			continue;
+		if (d_class_stats['days'].filter(function(value){
+			return a_classes[i][i_day_index].indexOf(value) != -1;
+		}).length == 0)
+			continue;
+		if (d_class_stats['st'] < d_other_stats['et'] && d_class_stats['et'] >= d_other_stats['st'])
+			a_retval.push(d_other_stats['id']);
+	}
+
+	return a_retval;
+}
+
+// searches through all classes and finds the ones that conflict with user selected classes
+function calculate_conflicting_classes() {
+	init_conflicting_array();
+	for (var i = 0; i < current_user_classes.length; i++) {
+		var i_class_crn = parseInt(current_user_classes[i]);
+		var a_conflicts = get_conflicting_classes_of_class(i_class_crn);
+		for (var j = 0; j < a_conflicts.length; j++) {
+			var i_conflicting = a_conflicts[j];
+			current_conflicting_classes[i_conflicting].push(i_class_crn);
+		}
+	}
+}
+
+// should be called upon table creation
+function draw_all_conflicts() {
+	calculate_conflicting_classes();
+	var a_courses_with_conflicts = [];
+	$.each(current_conflicting_classes, function(key, value) {
+		if (value.length > 0)
+			a_courses_with_conflicts.push(parseInt(key));
+	});
+	for (var i = 0; i < a_courses_with_conflicts.length; i++) {
+		i_crn = a_courses_with_conflicts[i];
+		//console_log(i_crn);
+		update_class_show_conflictions(i_crn);
+	}
+}
+
+function init_conflicting_array() {
+	var i_crn_index = get_crn_index_from_headers(headers);
+	var a_classes = get_array_of_all_classes();
+	current_conflicting_classes = {};
+	for (var i = 0; i < a_classes.length; i++)
+		current_conflicting_classes[parseInt(a_classes[i][i_crn_index])] = [];
+}
