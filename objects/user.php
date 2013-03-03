@@ -46,7 +46,7 @@ class user {
 	
 	public function update_settings($s_type, $a_settings) {
 		global $maindb;
-		if ($this->check_is_guest)
+		if ($this->check_is_guest())
 				return 'error|settings can\'t be saved as a guest';
 		
 		$query_string = 'SELECT `id` FROM `[database]`.`[table]` WHERE '.array_to_where_clause($a_settings).' AND `user_id`=\'[user_id]\' AND `type`=\'[type]\'';
