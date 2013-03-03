@@ -19,17 +19,22 @@ function login_session($o_user) {
 	$_SESSION['last_activity'] = time();
 	$_SESSION['crypt_password'] = urlencode($o_user->get_crypt_password());
 	$_SESSION['loggedin'] = 1;
+	$_SESSION['time_before_page_expires'] = (int)$o_user->get_server_setting('session_timeout');
 	remove_timestamp_on_saves();
 }
 
 // removes the timestamp on all semesters so that new
 // incoming data can be written (see resources/ajax_calls.php)
 function remove_timestamp_on_saves() {
-	$a_semester_classes = user_query("SELECT `id` FROM `[table]`", array("table"=>"semester_classes"));
+	global $maindb;
+	global $global_user;
+	$user_id = $global_user->get_id();
+	
+	$a_semester_classes = db_query("SELECT `id` FROM `[maindb]`.`[table]` WHERE `user_id`='[user_id]'", array("maindb"=>$maindb, "table"=>"semester_classes", "user_id"=>$user_id));
 	if ($a_semester_classes === FALSE)
 			return;
 	foreach($a_semester_classes as $a_semester_class)
-			user_query("UPDATE `[table]` SET `time_submitted`='0000-00-00 00:00:00' WHERE `id`='[id]'", array("table"=>"semester_classes", "id"=>$a_semester_class['id']));
+			db_query("UPDATE `[maindb]`.`[table]` SET `time_submitted`='0000-00-00 00:00:00' WHERE `id`='[id]'", array("maindb"=>$maindb, "table"=>"semester_classes", "id"=>$a_semester_class['id']));
 }
 
 function logout_session() {
@@ -37,6 +42,7 @@ function logout_session() {
 	if (isset($_SESSION)) {
 			foreach($_SESSION as $k=>$v) {
 					$_SESSION[$k] = NULL;
+					unset($_SESSION[$k]);
 			}
 	}
 }

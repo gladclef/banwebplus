@@ -25,6 +25,11 @@ function get_logged_in() {
 
 function get_session_expired() {
 	$time_before_timeout = 10; // minutes
+	if (isset($_SESSION['time_before_page_expires']))
+			if ((int)$_SESSION['time_before_page_expires'] != 0)
+					$time_before_timeout = (int)$_SESSION['time_before_page_expires'];
+	if ($time_before_timeout < 0)
+			return FALSE;
 	if ((time()-$_SESSION['last_activity'])/60 > $time_before_timeout)
 			return TRUE;
 	else

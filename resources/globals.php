@@ -1,6 +1,8 @@
 <?php
 $maindb = "banweb_test_main";
 $userdb = "students";
+$settings_table = "user_settings";
+
 $global_user = NULL;
 $global_opened_db = FALSE;
 $session_started = FALSE;

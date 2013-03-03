@@ -16,6 +16,12 @@ function send_async_ajax_call(php_file_name, posts, async) {
 			send_ajax_call_retval = data;
 		},
 		error: function(xhr, ajaxOptions, thrownError) {
+			if (parseInt(xhr.status) == 0 && thrownError) {
+				if ((thrownError+"").indexOf("NETWORK_ERR") > -1) {
+					send_ajax_call_retval = "network error encountered";
+					return;
+				}
+			}
 			alert("Error sending request: ("+xhr.status+") "+thrownError);
 			send_ajax_call_retval = "error";
 		}
@@ -24,7 +30,11 @@ function send_async_ajax_call(php_file_name, posts, async) {
 }
 
 function send_ajax_call_from_form(php_file_name, form_id) {
-	var inputs = $("#"+form_id).children("input");
+	var jform = $("#"+form_id);
+	var a_inputs = jform.find("input");
+	var a_selects = jform.find("select");
+	var a_textareas = jform.find("textarea");
+	var inputs = $.merge($.merge(a_inputs, a_selects), a_textareas);
 	
 	var posts = {};
 	var full_posts = [];
@@ -35,15 +45,18 @@ function send_ajax_call_from_form(php_file_name, form_id) {
 		posts[name] = value;
 	}
 
-	jerrors_label = $($("#"+form_id).children("label.errors"));
+	jerrors_label = $(jform.find("label.errors"));
 	set_html_and_fade_in(jerrors_label, "", "<font style='color:gray;'>Please wait...</font>");
 	var commands_array = retval_to_commands(send_ajax_call(php_file_name, posts));
+	set_html_and_fade_in(jerrors_label, "", "&nbsp;");
 	interpret_common_ajax_commands(commands_array);
 	for (var i = 0; i < commands_array.length; i++) {
 		var command = commands_array[i][0];
 		var note = commands_array[i][1];
 		if (command == "print error") {
 			set_html_and_fade_in(jerrors_label, "", "<font style='color:red;'>"+note+"</font>");
+		} else if (command == "print success") {
+			set_html_and_fade_in(jerrors_label, "", "<font style='color:black;font-weight:normal;'>"+note+"</font>");
 		} else if (command == "load page with post") {
 			var posts_string = "";
 			for (var i = 0; i < full_posts.length; i++)
@@ -53,7 +66,7 @@ function send_ajax_call_from_form(php_file_name, form_id) {
 			$(create_string).appendTo("body");
 			$("#"+id_string).submit();
 		} else if (command == "clear field") {
-			$("#"+form_id).children("input[name="+note+"]").val("");
+			jform.find("input[name="+note+"]").val("");
 		}
 	}
 }
@@ -91,9 +104,8 @@ function interpret_common_ajax_commands(commands_array) {
 function set_html_and_fade_in(jparent_object, parent_id, html) {
 	if (jparent_object === null)
 		jparent_object = $("#"+parent_id);
-	var a_childen = jparent_object.children();
-	for (var i = 0; i < a_childen.length; i++)
-		$(a_childen[i]).remove();
+	kill_children(jparent_object);
+	jparent_object.html('');
 	jparent_object.append(html);
 	jparent_object.stop(true,true);
 	jparent_object.children().css({opacity:0});
