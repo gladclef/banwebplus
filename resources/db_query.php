@@ -32,7 +32,7 @@ function db_query($s_query, $a_values=NULL) {
 }
 
 function open_db() {
-	$link = mysql_connect('localhost', 'root', 'password');
+	$link = mysql_connect('localhost', 'banwebplus', 'MmE3YTJiOWY3OTNmMzlkNjNlNzIzMzUy');
 	if ($link)
 			return TRUE;
 	else

@@ -1,6 +1,5 @@
 <?php
-$maindb = "banweb_test_main";
-$userdb = "students";
+$maindb = "banwebplus";
 $settings_table = "user_settings";
 
 $global_user = NULL;
