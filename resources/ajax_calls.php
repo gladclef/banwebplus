@@ -63,6 +63,14 @@ function load_classes($s_year, $s_semester) {
 	return $a_classes[0]['classes'];
 }
 
+function load_user_classes($s_year, $s_semester) {
+	// todo
+}
+
+function load_semester_classes($s_year, $s_semester) {
+	// todo
+}
+
 function update_settings($setting_type, $a_postvars) {
 	global $global_user;
 
@@ -82,6 +90,10 @@ if ($s_command == "save classes") {
 		echo load_classes($s_year, $s_semester);
 } else if ($s_command == "update server settings") {
 		echo update_settings("server", $_POST);
+} else if ($s_command == "load semester classes") {
+		echo load_semester_classes($s_year, $s_semester);
+} else if ($s_command == "load user classes") {
+		echo load_user_classes($s_year, $s_semester);
 } else {
 		echo "failed|bad command";
 }

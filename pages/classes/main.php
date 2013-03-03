@@ -21,6 +21,7 @@ if ($global_user) {
 				echo '<script src="/js/table_functions.js"></script>';
 				echo '<script src="/js/jslists201330.js"></script>';
 				echo '<script src="/js/use_course_list.js"></script>';
+				echo '<script src="/js/course_list.js"></script>';
 				echo '<script src="/js/conflicts.js"></script>';
 				echo '<script src="/js/common_functions.js"></script>';
 				echo '<script src="/js/tab_functions.js"></script>';
