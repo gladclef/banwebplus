@@ -10,6 +10,9 @@ class user {
 	private $exists = FALSE;
 	private $a_server_settings = array();
 	private $accesses_string = '';
+	private $a_classes = array();
+	private $a_whitelists = array();
+	private $a_blacklists = array();
 
 	function __construct($username, $password, $crypt_password) {
 		$this->name = $username;
@@ -83,9 +86,89 @@ class user {
 		return $this->access->has_access($s_access);
 	}
 
+	public function get_user_classes($s_year, $s_semester) {
+		$s_semtext = $s_year.$s_semester;
+		if (!isset($this->a_classes[$s_semtext]))
+				$this->a_classes[$s_semtext] = $this->load_user_classes($s_year, $s_semester);
+		return $this->a_classes[$s_semtext];
+	}
+	public function get_user_whitelist($s_year, $s_semester) {
+		$s_semtext = $s_year.$s_semester;
+		if (!isset($this->a_whitelists[$s_semtext]))
+				$this->a_whitelists[$s_semtext] = $this->load_user_whitelist($s_year, $s_semester);
+		return $this->a_whitelists[$s_semtext];
+	}
+	public function get_user_blacklist($s_year, $s_semester) {
+		$s_semtext = $s_year.$s_semester;
+		if (!isset($this->a_blacklists[$s_semtext]))
+				$this->a_blacklists[$s_semtext] = $this->load_user_blacklist($s_year, $s_semester);
+		return $this->a_blacklists[$s_semtext];
+	}
+	
+	public function save_user_classes($s_year, $s_semester, $s_json_saveval, $s_timestamp) {
+		return $this->save_time_depended_user_data($s_year, $s_semester, 'semester_classes', $s_json_saveval, $s_timestamp);
+	}
+	public function save_user_whitelist($s_year, $s_semester, $s_json_saveval, $s_timestamp) {
+		return $this->save_time_depended_user_data($s_year, $s_semester, 'semester_whitelist', $s_json_saveval, $s_timestamp);
+	}
+	public function save_user_blacklist($s_year, $s_semester, $s_json_saveval, $s_timestamp) {
+		return $this->save_time_depended_user_data($s_year, $s_semester, 'semester_blacklist', $s_json_saveval, $s_timestamp);
+	}
+
 	/*********************************************************************
 	 *                   P R I V A T E   F U N C T I O N S               *
 	 *********************************************************************/
+
+	private function load_user_classes($s_year, $s_semester) {
+		return $this->load_user_data($s_year, $s_semester, 'semester_classes');
+	}
+	private function load_user_whitelist($s_year, $s_semester) {
+		return $this->load_user_data($s_year, $s_semester, 'semester_whitelist');
+	}
+	private function load_user_blacklist($s_year, $s_semester) {
+		return $this->load_user_data($s_year, $s_semester, 'semester_blacklist');
+	}
+
+	private function load_user_data($s_year, $s_semester, $s_tablename) {
+		global $maindb;
+		
+		$a_queryvars = array("tablename"=>$s_tablename, "year"=>$s_year, "semester"=>$s_semester, "user_id"=>$this->get_id(), "maindb"=>$maindb);
+		$s_querystring = "SELECT `json` FROM `[maindb]`.`[tablename]` WHERE `year`='[year]' AND `semester`='[semester]' AND `user_id`='[user_id]'";
+		$a_tableval = db_query($s_querystring, $a_queryvars);
+		if ($a_tableval === FALSE || $a_tableval == '' || count($a_tableval) == 0)
+				return '';
+		$s_tableval = $a_tableval[0]['json'];
+		$a_user_data = json_decode($s_tableval);
+		
+		if (!is_array($a_user_data) || count($a_user_data) == 0)
+				return '';
+		
+		foreach($a_user_data as $k=>$a_class) {
+				$crn = $a_class->crn;
+				if (!is_numeric($crn))
+						unset($a_user_data[$k]);
+		}
+		return $a_user_data;
+	}
+
+	private function save_time_dependent_user_data($s_year, $s_semester, $s_tablename, $s_json_saveval, $s_timestamp) {
+		global $maindb;
+		$a_queryvars = array('year'=>$s_year, 'semester'=>$s_semester, 'tablename'=>$s_tablename, 'database'=>$maindb, 'timestamp'=>$s_timestamp, 'json'=>$s_json_saveval);
+		$s_querystring = "SELECT * FROM `[database]`.`[tablename]` WHERE `year`='[year]' AND `semester`='[semester]' AND `timestamp`>'[timestamp]'";
+		$a_query = db_query($s_querystring, $a_queryvars);
+		if (is_array($a_query) && count($a_query) > 0)
+				return;
+		return $this->save_user_data($s_year, $s_semester, $s_tablename, $s_json_saveval, $s_timestamp);
+	}
+	
+	private function save_user_data($s_year, $s_semester, $s_tablename, $s_json_saveval, $s_timestamp) {
+		global $maindb;
+		
+		$a_queryvars = array("tablename"=>$s_tablename, "year"=>$s_year, "semester"=>$s_semester, "user_id"=>$this->get_id(), "database"=>$maindb);
+		$s_querystring = "UPDATE `[database]`.`[tablename]` SET `json`='[json]',`time_submited`='[timestamp]' WHERE `year`='[year]' AND `semester`='[semester]' AND `user_id`='[user_id]'";
+		create_row_if_not_existing($a_queryvars);
+		db_query($s_querystring, array_merge(array('json'=>$s_json_saveval, 'timestamp'=>$s_timestamp), $a_queryvars));
+	}
 
 	private function set_accesses() {
 		if ($this->exists === FALSE)

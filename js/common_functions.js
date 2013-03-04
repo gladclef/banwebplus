@@ -8,6 +8,12 @@ function scroll_to_center() {
 	$('body, html').animate({scrollLeft: scrollto}, 500);
 }
 
+function remove_from_array_by_index(arr, i) {
+	return $.grep(arr, function(value, index) {
+		return (index != i);
+	});
+}
+
 function console_log(wt_log) {
 	if (window.console)
 		console.log(wt_log);

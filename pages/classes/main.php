@@ -17,22 +17,24 @@ function draw_logout_bar() {
 
 if ($global_user) {
 		if ($global_user->exists_in_db()) {
-				echo draw_page_head();
-				echo '<script src="/js/table_functions.js"></script>';
-				echo '<script src="/js/jslists201330.js"></script>';
-				echo '<script src="/js/use_course_list.js"></script>';
-				echo '<script src="/js/course_list.js"></script>';
-				echo '<script src="/js/conflicts.js"></script>';
-				echo '<script src="/js/common_functions.js"></script>';
-				echo '<script src="/js/tab_functions.js"></script>';
-				echo '<script src="/js/schedule.js"></script>';
-				echo '<link href="/css/auto_table.css" rel="stylesheet" type="text/css">';
-				echo '<link href="/css/tabs.css" rel="stylesheet" type="text/css">';
-				echo draw_logout_bar();
-				echo "<br /><br /><dev id='content'>";
-				echo draw_tabs();
-				echo "</dev>";
-				echo draw_page_foot();
+				$s_drawval = array();
+				$s_drawval[] = draw_page_head();
+				$s_drawval[] = '<script src="/js/table_functions.js"></script>';
+				$s_drawval[] = '<script src="/js/jslists201330.js"></script>';
+				$s_drawval[] = '<script src="/js/use_course_list.js"></script>';
+				$s_drawval[] = '<script src="/js/course_list.js"></script>';
+				$s_drawval[] = '<script src="/js/conflicts.js"></script>';
+				$s_drawval[] = '<script src="/js/common_functions.js"></script>';
+				$s_drawval[] = '<script src="/js/tab_functions.js"></script>';
+				$s_drawval[] = '<script src="/js/schedule.js"></script>';
+				$s_drawval[] = '<link href="/css/auto_table.css" rel="stylesheet" type="text/css">';
+				$s_drawval[] = '<link href="/css/tabs.css" rel="stylesheet" type="text/css">';
+				$s_drawval[] = draw_logout_bar();
+				$s_drawval[] = "<br /><br /><dev id='content'>";
+				$s_drawval[] = draw_tabs();
+				$s_drawval[] = "</dev>";
+				$s_drawval[] = draw_page_foot();
+				echo implode("\n", $s_drawval);
 		}
 } else {
 		logout_session();

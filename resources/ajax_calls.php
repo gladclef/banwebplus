@@ -35,13 +35,13 @@ class ajax {
 		}
 		// update/insert
 		if ($b_exists) {
-				db_query("UPDATE `[maindb]`.`[tablename]` SET `classes`='[classes]',`time_submitted`='[timestamp]' WHERE `id`='[id]'", $a_queryvars);
+				db_query("UPDATE `[maindb]`.`[tablename]` SET `json`='[classes]',`time_submitted`='[timestamp]' WHERE `id`='[id]'", $a_queryvars);
 				if (mysql_affected_rows() > 0)
 						return "success|updated classes";
 				else
 						return "failed|update failed";
 		} else {
-				db_query("INSERT INTO `[maindb]`.`[tablename]` (`classes`,`time_submitted`,`year`,`semester`,`user_id`) VALUES ('[classes]','[timestamp]','[year]','[semester]','[user_id]')", $a_queryvars);
+				db_query("INSERT INTO `[maindb]`.`[tablename]` (`json`,`time_submitted`,`year`,`semester`,`user_id`) VALUES ('[classes]','[timestamp]','[year]','[semester]','[user_id]')", $a_queryvars);
 				if (mysql_affected_rows() > 0)
 						return "success|inserted classes";
 				else
@@ -52,24 +52,31 @@ class ajax {
 	function load_classes($s_year, $s_semester) {
 		global $maindb;
 		global $global_user;
-		$user_id = $global_user->get_id();
 		$s_year = get_post_var('year', $s_year);
 		$s_semester = get_post_var('semester', $s_semester);
-	
-		$a_queryvars = array("tablename"=>"semester_classes", "year"=>$s_year, "semester"=>$s_semester, "user_id"=>$user_id, "maindb"=>$maindb);
-		$s_querystring = "SELECT `classes` FROM `[maindb]`.`[tablename]` WHERE `year`='[year]' AND `semester`='[semester]' AND `user_id`='[user_id]'";
-		$a_classes = db_query($s_querystring, $a_queryvars);
-		if ($a_classes == FALSE)
-				return;
-		return $a_classes[0]['classes'];
+
+		return json_encode($global_user->get_user_classes($s_year, $s_semester));
 	}
 
-	function load_user_classes($s_year, $s_semester) {
+	function list_available_semesters() {
+		require(dirname(__FILE__).'/../scraping/banweb_terms.php');
+		return json_encode($terms);
+	}
+
+	// returns array('user_classes'=>stuff, 'user_whitelist'=>stuff, 'user_blacklist'=>stuff) as JSON
+	function load_user_classes() {
+		$s_year = get_post_var('year');
+		$s_semester = get_post_var('semester');
 		global $global_user;
-		$s_year = get_post_var('year', $s_year);
-		$s_semester = get_post_var('semester', $s_semester);
-	
-		//todo
+
+		$user_classes = $global_user->get_user_classes($s_year, $s_semester);
+		$user_whitelist = $global_user->get_user_whitelist($s_year, $s_semester);
+		$user_blacklist = $global_user->get_user_blacklist($s_year, $s_semester);
+		if ($user_classes == '') $user_classes = array();
+		if ($user_whitelist == '') $user_whitelist = array();
+		if ($user_blacklist == '') $user_blacklist = array();
+		$a_user_data = array('user_classes'=>$user_classes, 'user_whitelist'=>$user_whitelist, 'user_blacklist'=>$user_blacklist);
+		return json_encode($a_user_data);
 	}
 
 	function load_semester_classes($s_year, $s_semester) {
@@ -83,8 +90,7 @@ class ajax {
 				return 'file doesn\'t exists';
 	
 		require($s_fullname);
-		$o_semesterData = new semesterData();
-		$s_semester = json_encode($o_semesterData);
+		$s_semester = semesterData::to_json();
 		return $s_semester;
 	}
 
@@ -115,6 +121,8 @@ if ($s_command != '') {
 		} else {
 				echo 'failed|bad command';
 		}
+} else {
+		echo 'failed|no command';
 }
 
 ?>

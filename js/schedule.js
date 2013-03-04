@@ -9,13 +9,15 @@ function draw_schedule_tab () {
 	if (i_crn_index < 0)
 		return;
 	// get the classes to add to the tables
-	var all_classes = get_array_of_all_classes();
+	var all_classes = o_courses.getCurrentClasses();
+	var user_classes = o_courses.getUserClasses();
+	var recently_selected_classes = o_courses.getRecentlySelected();
 	var current_classes = [];
 	var recent_classes = [];
 	for (var i = 0; i < all_classes.length; i++) {
 		var a_class = all_classes[i];
 		var i_crn = parseInt(a_class[i_crn_index]);
-		if (jQuery.inArray(i_crn, current_user_classes) >= 0)
+		if (jQuery.inArray(i_crn, user_classes) >= 0)
 			current_classes.push(a_class);
 		if (jQuery.inArray(i_crn, recently_selected_classes) >= 0)
 			recent_classes.push(a_class);

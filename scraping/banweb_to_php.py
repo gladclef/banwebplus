@@ -32,14 +32,14 @@ def translate_file(filename):
     m = __import__(filename)
     fout = file(filename+".php", "w")
     fout.write("<?php\n")
-    fout.write("class semesterData() {\n")
+    fout.write("class semesterData {\n")
     
-    fout.write("\t$name = '"+s(m.name)+"';\n")
-    fout.write("\t$subjects = array(\n")
+    fout.write("\tpublic static $name = '"+s(m.name)+"';\n")
+    fout.write("\tpublic static $subjects = array(\n")
     for subject in m.subjects:
-        fout.write("\t\t'"+s(subject[0])+"'=>'"+s(subject[1])+"';\n")
+        fout.write("\t\t'"+s(subject[0])+"'=>'"+s(subject[1])+"',\n")
     fout.write("\t);\n")
-    fout.write("\t$classes = array(\n")
+    fout.write("\tpublic static $classes = array(\n")
     
     subject_index = 0
     for subject in m.classes:
@@ -56,6 +56,10 @@ def translate_file(filename):
         subject_index += 1
     
     fout.write("\t);\n")
+    fout.write("\tpublic static function to_json() {\n")
+    fout.write("\t\t$a_retval = array('name'=>semesterData::$name, 'subjects'=>semesterData::$subjects, 'classes'=>semesterData::$classes);\n")
+    fout.write("\t\treturn json_encode($a_retval);\n")
+    fout.write("\t}\n")
     fout.write("}\n")
     fout.write("?>\n")
     fout.close()
@@ -69,17 +73,19 @@ def main():
     
     fout = file("banweb_terms.php", "w")
     fout.write("<?php\n")
-    fout.write("$terms = array();\n")
+    fout.write("$terms = array(")
     for term in banweb_terms.terms:
-        fout.write("terms[] = array('")
+        fout.write("\n\t array('")
         first = True
         for part in term:
             if (first):
                 first = False
             else:
-                fout.write(',')
+                fout.write('\',\'')
             fout.write(part)
-    fout.write("?>\n");
+        fout.write("'),")
+    fout.write("\n);")
+    fout.write("\n?>\n")
     
     for filename in filenames:
         translate_file(filename)

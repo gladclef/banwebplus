@@ -5,7 +5,9 @@ function send_ajax_call(php_file_name, posts) {
 }
 
 function send_async_ajax_call(php_file_name, posts, async) {
-	$.ajax({
+	if (typeof(async) == 'undefined')
+		async = true;
+	var ajax_object = {
 		url: php_file_name,
 		async: async,
 		cache: false,
@@ -22,10 +24,12 @@ function send_async_ajax_call(php_file_name, posts, async) {
 					return;
 				}
 			}
-			alert("Error sending request: ("+xhr.status+") "+thrownError);
+			//alert("Error sending request: ("+xhr.status+") "+thrownError);
 			send_ajax_call_retval = "error";
 		}
-	});
+	};
+	
+	$.ajax(ajax_object);
 	return send_ajax_call_retval;
 }
 
