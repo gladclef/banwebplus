@@ -84,6 +84,12 @@ typeCoursesList = function() {
 	this.getRecentlySelected = function() {
 		return recently_selected_classes[semester];
 	}
+	this.getWhitelist = function() {
+		return current_whitelist[semester];
+	}
+	this.getBlacklist = function() {
+		return current_blacklist[semester];
+	}
 	
 	// returns an array('subject'=>subject, 'index'=>index in subject, 'course'=>array of the course)
 	this.getClassByCRN = function(crn) {
@@ -133,7 +139,8 @@ typeCoursesList = function() {
 	this.addUserClass = function(CRN) {
 		if (current_user_classes[semester].indexOf(CRN) == -1) {
 			current_user_classes[semester].push(CRN);
-			recently_selected_classes = removeFromArray(recently_selected_classes, CRN);
+			recently_selected_classes[semester] = removeFromArray(recently_selected_classes[semester], CRN);
+			conflicting_object.calculate_conflicting_classes_add_class(CRN, conflicting_object.update_class_show_conflictions);
 			this.saveUserClasses();
 			return 1;
 		}
@@ -145,7 +152,8 @@ typeCoursesList = function() {
 		var index = current_user_classes[semester].indexOf(CRN)
 		if (index > -1) {
 			current_user_classes[semester] = remove_from_array_by_index(current_user_classes[semester], index);
-			recently_selected_classes = appendToArray(recently_selected_classes, CRN);
+			recently_selected_classes[semester] = appendToArray(recently_selected_classes[semester], CRN);
+			conflicting_object.calculate_conflicting_classes_remove_class(CRN, conflicting_object.update_class_show_conflictions);
 			this.saveUserClasses();
 			return 1;
 		}

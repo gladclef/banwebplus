@@ -18,7 +18,7 @@ typeConflictingCourses = function(o_courses) {
 
 		if ((new Date()).getTime()/1000-update_class_show_conflictions_lastloaded > 1 ||
 			update_class_show_conflictions_trs == null) {
-			update_class_show_conflictions_trs = $("tr.auto_table_row");
+			update_class_show_conflictions_trs = $("tr."+classes_table_classes[2]);
 			update_class_show_conflictions_lastloaded = (new Date()).getTime()/1000;
 		}
 		a_trs = update_class_show_conflictions_trs;

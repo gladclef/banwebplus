@@ -2,8 +2,8 @@
 // a_col_names should be an array of names for all the columns
 // a_rows should be an array of rows, and each row should be an array of data
 // wt_class can be either null,
-//     a classname for the rows,
-//     or an array of classnames (first for the table, second for the header, and third for the row)
+//     a classname to add to the rows,
+//     or an array of classnames to add (first for the table, second for the header, and third for the row)
 // row_click_function can be either null or the function to be clicked
 //     example: "dostuff" for "function dostuff(object){}"
 // retval: a string representing the new table
@@ -15,11 +15,11 @@ function create_table(a_col_names, a_rows, wt_class, row_click_function) {
 	var a_header_ids = a_unique_ids.splice(a_rows.length);
 
 	if (jQuery.type(wt_class) == "string") {
-		row_class = wt_class;
+		row_class += ' '+wt_class;
 	} else if (jQuery.type(wt_class) == "array" && wt_class.length == 3) {
-		table_class = wt_class[0];
-		header_class = wt_class[1];
-		row_class = wt_class[2];
+		table_class += ' '+wt_class[0];
+		header_class += ' '+wt_class[1];
+		row_class += ' '+wt_class[2];
 	}
 
 	var s_header_id = a_unique_ids[a_rows.length];

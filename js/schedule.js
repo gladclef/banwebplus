@@ -23,9 +23,10 @@ function draw_schedule_tab () {
 			recent_classes.push(a_class);
 	}
 	// add the new tables
-	jcurrent_cont.append(create_table(headers, current_classes, null, "delayed_schedule_click();add_remove_class"));
-	jrecent_cont.append(create_table(headers, recent_classes, null, "delayed_schedule_click();add_remove_class"));
+	jcurrent_cont.append(create_table(headers, current_classes, classes_table_classes, "delayed_schedule_click();add_remove_class"));
+	jrecent_cont.append(create_table(headers, recent_classes, classes_table_classes, "delayed_schedule_click();add_remove_class"));
 	set_selected_classes(jcurrent_cont);
+	conflicting_object.draw_all_conflicts();
 }
 
 // it's delayed so that the javascript has time to add and remove classes

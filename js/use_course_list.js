@@ -1,4 +1,5 @@
 headers = ['Conflicts', 'Select', 'CRN', 'Course', '*Campus', 'Days', 'Time', 'Location', 'Hrs', 'Title', 'Instructor', 'Seats', 'Limit', 'Enroll'];
+classes_table_classes = ['auto_table_classes', 'auto_header_classes', 'auto_row_classes'];
 
 o_courses = null;
 
@@ -100,7 +101,7 @@ function draw_course_table() {
 	var jclasses_content = $("#classes_content");
 	kill_children(jclasses_content);
 	//create_table(a_col_names, a_rows, wt_class, row_click_function)
-	jclasses_content.append(create_table(headers, a_classes, null, 'add_remove_class'));
+	jclasses_content.append(create_table(headers, a_classes, classes_table_classes, 'add_remove_class'));
 	set_selected_classes(jclasses_content);
 	jclasses_content.stop(true,true);
 	jclasses_content.css({opacity:0});
@@ -111,28 +112,34 @@ function draw_course_table() {
 
 // sets the "selected" class for selected classes
 function set_selected_classes(jcontainer_of_table) {
-	var jtable = $(jcontainer_of_table.children("table")[0]);
-	var a_rows = jtable.children();
-	var i_select_index = get_index_of_header("select", headers);
-	while (! $(a_rows[0]).is("tr") && a_rows.length > 0)
-		a_rows = $(a_rows[0]).children();
-	if (a_rows.length == 0)
+	//var jtable = $(jcontainer_of_table.children("table")[0]);
+	var a_tables = $("table."+classes_table_classes[0]);
+	if (a_tables.length == 0)
 		return;
-	var i_crn_index = get_crn_index($(a_rows[0]));
-	if (i_crn_index < 0)
-		return;
-	var current_user_classes = o_courses.getUserClasses();
-	for(var i = 1; i < a_rows.length; i++) {
-		var jrow = $(a_rows[i]);
-		var i_crn_of_class = parseInt($(jrow.children()[i_crn_index]).text());
-		if (jQuery.inArray(i_crn_of_class,current_user_classes) == -1) {
-			jrow.removeClass("selected");
-		} else {
-			edit_class_row_property(jrow, i_select_index, '<div class="centered"><img src="/images/blue_sphere.png" style="width:21px;height:21px"></div>');
-			jrow.addClass("selected");
+	for (table_index = 0; table_index < a_tables.length; table_index++) {
+		var jtable = $(a_tables[table_index]);
+		var a_rows = jtable.children();
+		var i_select_index = get_index_of_header("select", headers);
+		while (! $(a_rows[0]).is("tr") && a_rows.length > 0)
+			a_rows = $(a_rows[0]).children();
+		if (a_rows.length == 0)
+			return;
+		var i_crn_index = get_crn_index($(a_rows[0]));
+		if (i_crn_index < 0)
+			return;
+		var current_user_classes = o_courses.getUserClasses();
+		for(var i = 1; i < a_rows.length; i++) {
+			var jrow = $(a_rows[i]);
+			var i_crn_of_class = parseInt($(jrow.children()[i_crn_index]).text());
+			if (jQuery.inArray(i_crn_of_class,current_user_classes) == -1) {
+				edit_class_row_property(jrow, i_select_index, '');
+				jrow.removeClass("selected");
+			} else {
+				edit_class_row_property(jrow, i_select_index, '<div class="centered"><img src="/images/blue_sphere.png" style="width:21px;height:21px"></div>');
+				jrow.addClass("selected");
+			}
 		}
 	}
-	set_conflicting_classes(jcontainer_of_table);
 }
 
 // sets the "conflicting" classes of the given
@@ -197,6 +204,7 @@ function get_index_of_header(s_name, a_headers) {
 	return i_index;
 }
 
+// finds the row and changes the value at i_index to s_newval
 function edit_class_row_property(jclass_row, i_index, s_newval) {
 	var i_crn_index = get_crn_index_from_headers(headers);
 	var a_tds = jclass_row.children();
@@ -223,22 +231,19 @@ function add_remove_class(class_row) {
 	);
 	// add or remove the class from the user's schedule
 	if (!jclass_row.hasClass("selected")) {
+		// saves/updates conflicts automatically
 		o_courses.addUserClass(i_crn);
+		// update the gui
 		jclass_row.addClass("selected");
 		if (i_select_index > -1)
 			edit_class_row_property(jclass_row, i_select_index, '<div class="centered"><img src="/images/blue_sphere.png" style="width:21px;height:21px"></div>');
-		// calculate conflicting classes
-		conflicting_object.calculate_conflicting_classes_add_class(i_crn, conflicting_object.update_class_show_conflictions);
 	} else {
 		o_courses.removeUserClass(i_crn);
 		jclass_row.removeClass("selected");
 		if (i_select_index > -1)
 			edit_class_row_property(jclass_row, i_select_index, "");
-		// calculate conflicting classes
-		conflicting_object.calculate_conflicting_classes_remove_class(i_crn, conflicting_object.update_class_show_conflictions);
 	}
-	// save the schedule
-	//save_semester_classes();
+	set_selected_classes();
 }
 
 // gets a class from the list of all classes by crn
