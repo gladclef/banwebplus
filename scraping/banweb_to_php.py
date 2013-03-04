@@ -22,6 +22,11 @@ def courseIsValid(course):
         course[u'Time'] = '';
     return True
 
+def s(strToReplace):
+    strToReplace = strToReplace.replace("&amp;", '&')
+    strToReplace = strToReplace.replace("'", '')
+    return strToReplace
+
 # translates the given python file into something that php can understand
 def translate_file(filename):
     m = __import__(filename)
@@ -29,10 +34,10 @@ def translate_file(filename):
     fout.write("<?php\n")
     fout.write("class semesterData() {\n")
     
-    fout.write("\t$name = "+m.name+";\n")
+    fout.write("\t$name = '"+s(m.name)+"';\n")
     fout.write("\t$subjects = array(\n")
     for subject in m.subjects:
-        fout.write("\t\t'"+subject[0]+"'=>'"+subject[1]+"';\n")
+        fout.write("\t\t'"+s(subject[0])+"'=>'"+s(subject[1])+"';\n")
     fout.write("\t);\n")
     fout.write("\t$classes = array(\n")
     
@@ -44,9 +49,9 @@ def translate_file(filename):
                 print ''
                 continue
             fout.write("\t\tarray(\n");
-            fout.write("\t\t\t'subject'=>'"+m.subjects[subject_index][0]+"'")
+            fout.write("\t\t\t'subject'=>'"+s(m.subjects[subject_index][0])+"'")
             for part in course:
-                fout.write(",\n\t\t\t'"+part+"'=>'"+course[part].replace("'", "")+"'")
+                fout.write(",\n\t\t\t'"+s(part)+"'=>'"+s(course[part])+"'")
             fout.write("\n\t\t),\n")
         subject_index += 1
     

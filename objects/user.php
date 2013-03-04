@@ -118,6 +118,11 @@ class user {
 		global $settings_table;
 		$userid = $this->id;
 		
+		if ($this->name == "guest") {
+				$this->a_server_settings = array('session_timeout'=>'10');
+				return;
+		}
+		
 		// load server settings
 		$a_settings_vars = array("database"=>$maindb, "table"=>$settings_table, "user_id"=>$userid, "type"=>"server");
 		$s_settings_string = "SELECT * FROM `[database]`.`[table]` WHERE `user_id`='[user_id]'";

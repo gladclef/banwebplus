@@ -1,6 +1,6 @@
 <?php
 class semesterData() {
-	$name = Spring 2012;
+	$name = 'Spring 2012';
 	$subjects = array(
 		'ACCT'=>'Accounting';
 		'AE'=>'Aerospace Engineering';
@@ -18,7 +18,7 @@ class semesterData() {
 		'COMM'=>'Communication';
 		'CED'=>'Community Education';
 		'SVC'=>'Community Service';
-		'CSE'=>'Computer Science &amp; Engineering';
+		'CSE'=>'Computer Science & Engineering';
 		'ERTH'=>'Earth Science';
 		'ECON'=>'Economics';
 		'EDUC'=>'Education';
@@ -39,7 +39,7 @@ class semesterData() {
 		'GEOL'=>'Geology';
 		'GEOP'=>'Geophysics';
 		'GERM'=>'German';
-		'HW'=>'Health &amp; Wellness';
+		'HW'=>'Health & Wellness';
 		'HIST'=>'History';
 		'HUMA'=>'Humanities';
 		'HYD'=>'Hydrology';
@@ -68,7 +68,7 @@ class semesterData() {
 		'SPAN'=>'Spanish';
 		'TC'=>'Technical Communication';
 		'THEA'=>'Theater';
-		'WGS'=>'Women's and Gender Studies';
+		'WGS'=>'Womens and Gender Studies';
 	);
 	$classes = array(
 		array(

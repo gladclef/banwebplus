@@ -299,7 +299,7 @@ function save_semester_classes() {
 	a_postvars["year"] = current_year;
 	a_postvars["semester"] = current_semester;
 	a_postvars["classes"] = temp_user_classes.join("|");
-	a_postvars["command"] = "save classes";
+	a_postvars["command"] = "save_classes";
 	send_async_ajax_call("/resources/ajax_calls.php", a_postvars);
 }
 
@@ -318,7 +318,7 @@ function init_course_list() {
 		full_course_list[i] = course_list;
 	}
 	// get user data
-	var a_postvars = {"command": "load classes", "year": current_year, "semester": current_semester};
+	var a_postvars = {"command": "load_classes", "year": current_year, "semester": current_semester};
 	current_user_classes = send_ajax_call("/resources/ajax_calls.php", a_postvars).split("|");
 	for (var i = 0; i < current_user_classes.length; i++)
 		current_user_classes[i] = parseInt(current_user_classes[i]);

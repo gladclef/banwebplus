@@ -21,7 +21,7 @@ typeCoursesList = function() {
 			url: '/resources/ajax_calls.php',
 			async: true,
 			cache: false,
-			data: { command: 'list available semesters' },
+			data: { command: 'list_available_semesters' },
 			success: function(message) {
 				parts = message.split('|');
 				if (parts[0] != 'success')
@@ -128,7 +128,7 @@ typeCoursesList = function() {
 		recently_selected_classes[semester] = [];
 
 		// initialize the classes
-		var a_postvars = { "command": "load semester classes", "year": semester.slice(0,4), "semester": semester.slice(4,7) };
+		var a_postvars = { "command": "load_semester_classes", "year": semester.slice(0,4), "semester": semester.slice(4,7) };
 		$.ajax({
 			url: '/resources/ajax_calls.php',
 			cache: false,
@@ -145,7 +145,7 @@ typeCoursesList = function() {
 			}
 		});
 		// get user data
-		var a_postvars = {"command": "load user classes", "year": current_year, "semester": current_semester};
+		var a_postvars = {"command": "load_user_classes", "year": current_year, "semester": current_semester};
 		var user_data = send_ajax_call("/resources/ajax_calls.php", a_postvars);
 		var user_classes = user_data.split('[*classes*]')[1].split('|');
 		var user_whitelist = user_data.split('[*whitelist*]')[1].split('[*rule*]');

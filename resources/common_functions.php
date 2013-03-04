@@ -1,8 +1,8 @@
 <?php
 require_once(dirname(__FILE__)."/globals.php");
 
-function get_post_var($postname) {
-	return isset($_POST[$postname])?$_POST[$postname]:'';
+function get_post_var($postname, $s_default = '') {
+	return isset($_POST[$postname]) ? $_POST[$postname] : $s_default;
 }
 
 function my_session_start() {

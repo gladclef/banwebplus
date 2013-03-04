@@ -23,7 +23,8 @@ function create_save_preferences_table($table_rows) {
 			$s_retval .= '<tr><td class=\'settings query\'>'.$s_title.'</td><td class=\'settings response\'>'.$s_query.'</td></tr>';
 	}
 	$s_retval .= '<tr><td class=\'settings query\'></td><td class=\'settings response\'>
-<input type=\'hidden\' name=\'command\' value=\'update server settings\' />
+<input type=\'hidden\' name=\'command\' value=\'update_settings\' />
+<input type=\'hidden\' name=\'s_setting_type\' value=\'server\' />
 <input type=\'button\' onclick=\'send_ajax_call_from_form("/resources/ajax_calls.php", "'.$s_formid.'");\' value=\'Save\' /></td></tr>';
 	$s_retval .= '</table></form></td></tr></table>';
 	return $s_retval;
