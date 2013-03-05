@@ -4,6 +4,37 @@ typeConflictingCourses = function(o_courses) {
 	this.getConflictingClasses = function() {
 		return current_conflicting_classes;
 	}
+	
+	this.getConflictingSubjects = function() {
+		var a_conflicts_all = this.getConflictingClasses();
+		var a_conflicts = [];
+		var a_user_classes = o_courses.getUserClasses();
+		var a_subjects = o_courses.getAvailableSubjects();
+		var crn_index = get_crn_index_from_headers(headers);
+		var a_retval = [];
+		
+		$.each(a_conflicts_all, function(k, v) {
+			if (v.length > 0)
+				a_conflicts.push(k);
+		});
+		
+		$.each(a_subjects, function(k, a_subject) {
+			var s_subject = a_subject[0];
+			var a_classes = o_courses.getCurrentClasses(s_subject);
+			var b_all_conflict = true;
+			if (a_classes.length == 0)
+				b_all_conflict = false;
+			for (var i = 0; i < a_classes.length; i++) {
+				if ($.inArray(a_classes[i][crn_index]+'', a_conflicts) == -1) {
+					b_all_conflict = false;
+					break;
+				}
+			}
+			if (b_all_conflict)
+				a_retval.push(k);
+		});
+		return a_retval;
+	}
 
 	// takes the conflicts for the given crn
 	// and draws them on that class' row
@@ -142,6 +173,7 @@ typeConflictingCourses = function(o_courses) {
 			if (function_call != null)
 				function_call(i_conflicting);
 		}
+		this.afterConflictionsCalculated();
 	}
 
 	// removes one old user class from the conflicting classes
@@ -155,6 +187,7 @@ typeConflictingCourses = function(o_courses) {
 			if (function_call != null)
 				function_call(i_conflicting);
 		}
+		this.afterConflictionsCalculated();
 	}
 
 	// searches through all classes and finds ones that conflict with the given class
@@ -176,7 +209,7 @@ typeConflictingCourses = function(o_courses) {
 			if (d_other_stats['id'] == d_class_stats['id'])
 				continue;
 			if (d_class_stats['days'].filter(function(value){
-				return a_classes[i][i_day_index].indexOf(value) != -1;
+				return (value != '' && a_classes[i][i_day_index].indexOf(value) != -1);
 			}).length == 0)
 				continue;
 			if (d_class_stats['st'] < d_other_stats['et'] && d_class_stats['et'] >= d_other_stats['st'])
@@ -198,6 +231,11 @@ typeConflictingCourses = function(o_courses) {
 				current_conflicting_classes[i_conflicting].push(i_class_crn);
 			}
 		}
+		this.afterConflictionsCalculated();
+	}
+	
+	this.afterConflictionsCalculated = function() {
+		o_classes.afterConflictionsCalculated(this.getConflictingClasses());
 	}
 
 	// should be called upon table creation

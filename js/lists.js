@@ -95,7 +95,7 @@ typeListsTab = function() {
 		var typesToOperators = {
 			'int': ['>', '<', '>=', '<=', '=', 'regex'],
 			'float': ['>', '<', '>=', '<=', '=', 'regex'],
-			'time': ['start >', 'start <', 'start =', 'end >', 'end <', 'end ='],
+			'time': ['starts after', 'starts before', 'starts at', 'ends after', 'ends before', 'ends at'],
 			'string': ['contains', 'starts with', 'ends with', 'regex'],
 		};
 		

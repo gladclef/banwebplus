@@ -112,6 +112,8 @@ function draw_course_table() {
 	jclasses_content.animate({opacity:1},500);
 	// draw the conflicts
 	conflicting_object.draw_all_conflicts();
+	// update the select boxes
+	o_classes.updateSelectClasses();
 }
 
 // sets the "selected" class for selected classes
@@ -248,6 +250,8 @@ function add_remove_class(class_row) {
 			edit_class_row_property(jclass_row, i_select_index, "");
 	}
 	set_selected_classes();
+	// update the select boxes
+	o_classes.updateSelectClasses();
 }
 
 // gets a class from the list of all classes by crn
@@ -278,3 +282,57 @@ function save_semester_classes() {
 	a_postvars["command"] = "save_classes";
 	send_async_ajax_call("/resources/ajax_calls.php", a_postvars);
 }
+
+typeClassesTab = function() {
+	this.afterConflictionsCalculated = function(a_conflicting) {
+		var a_conflicting_subject_indexes = conflicting_object.getConflictingSubjects();
+		var a_empty_subject_indexes = o_courses.getEmptySubjects();
+		var a_all_selected_indexes = o_courses.getSelectedSubjects();
+		var a_selects = this.getSelects();
+		
+		$.each($('option'), function(k, v) {
+			var jelement = $(v);
+			jelement.removeClass('empty');
+			jelement.removeClass('conflicting');
+			jelement.removeClass('selected');
+		});
+		$.each(a_conflicting_subject_indexes, function(k, option_index) {
+			$.each(a_selects, function(k, select) {
+				$(select).find('option[value='+option_index+']').addClass('conflicting');
+			});
+		});
+		$.each(a_empty_subject_indexes, function(k, option_index) {
+			$.each(a_selects, function(k, select) {
+				$(select).find('option[value='+option_index+']').addClass('empty');
+			});
+		});
+		$.each(a_all_selected_indexes, function(k, option_index) {
+			$.each(a_selects, function(k, select) {
+				$(select).find('option[value='+option_index+']').addClass('selected');
+			});
+		});
+	}
+	
+	this.getSelects = function() {
+		return $("select[id^=subject_select]");
+	}
+	
+	this.updateSelectClasses = function() {
+		var a_selects = this.getSelects();
+		
+		$.each(a_selects, function(k, select) {
+			var jselect = $(select);
+			var joption = $(jselect.find('option[value='+jselect.val()+']'));
+			var a_option_classes = joption.prop('class').split(' ');
+			var a_select_classes = jselect.prop('class').split(' ');
+			$.each(a_select_classes, function(k, v) {
+				jselect.removeClass(v);
+			});
+			$.each(a_option_classes, function(k, v) {
+				jselect.addClass(v);
+			});
+		});
+	}
+}
+
+o_classes = new typeClassesTab();

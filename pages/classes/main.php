@@ -30,6 +30,7 @@ if ($global_user) {
 				$s_drawval[] = '<script src="/js/lists.js"></script>';
 				$s_drawval[] = '<link href="/css/auto_table.css" rel="stylesheet" type="text/css">';
 				$s_drawval[] = '<link href="/css/tabs.css" rel="stylesheet" type="text/css">';
+				$s_drawval[] = '<link href="/css/select.css" rel="stylesheet" type="text/css">';
 				$s_drawval[] = draw_logout_bar();
 				$s_drawval[] = "<br /><br /><dev id='content'>";
 				$s_drawval[] = draw_tabs();

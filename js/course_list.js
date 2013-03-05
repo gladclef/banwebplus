@@ -16,9 +16,10 @@ typeCoursesList = function() {
 
 	this.setSemester = function(sem) {
 		semester = sem;
-		if (typeof(full_course_list[semester]) != 'undefined')
-			return true;
-		loadFullCourseList(semester);
+		if (typeof(full_course_list[semester]) == 'undefined')
+			loadFullCourseList(semester);
+		updateClassesTab();
+		return true;
 	}
 	
 	// returns ['value': integer representation, 'name': the season]
@@ -81,6 +82,45 @@ typeCoursesList = function() {
 			return a_retval;
 		}
 		return a_classes[semester][s_subject];
+	}
+	
+	this.getEmptySubjects = function() {
+		var a_subjects = this.getAvailableSubjects();
+		var a_retval = [];
+		
+		$.each(a_subjects, function(k, a_subject) {
+			var s_subject = a_subject[0];
+			var a_classes = current_course_list[semester][s_subject];
+			if (a_classes.length == 0)
+				a_retval.push(k);
+		});
+		
+		return a_retval;
+	}
+	
+	this.getSelectedSubjects = function() {
+		var a_subjects = this.getAvailableSubjects();
+		var a_user_classes = this.getUserClasses();
+		var a_retval = [];
+		var crn_index = get_crn_index_from_headers(headers);
+		
+		$.each(a_subjects, function(k, a_subject) {
+			var s_subject = a_subject[0];
+			var a_classes = current_course_list[semester][s_subject];
+			var b_all_selected = true;
+			if (a_classes.length == 0)
+				b_all_selected = false;
+			for (var i = 0; i < a_classes.length; i++) {
+				if ($.inArray(parseInt(a_classes[i][crn_index]), a_user_classes) == -1) {
+					b_all_selected = false;
+					break;
+				}
+			}
+			if (b_all_selected)
+				a_retval.push(k);
+		});
+		
+		return a_retval;
 	}
 
 	this.getUserClasses = function() {
@@ -266,7 +306,8 @@ typeCoursesList = function() {
 		if (index == -1)
 			return 0;
 		current_blacklist[semester].splice(index,1);
-		analyzeBlacklist(semester, true);
+		analyzeWhitelist(semester, true);
+		analyzeBlacklist(semester);
 		saveUserList(semester, 'blacklist', current_blacklist);
 		updateClassesTab();
 		return 1;
@@ -288,6 +329,7 @@ typeCoursesList = function() {
 			return 0;
 		current_whitelist[semester].splice(index,1);
 		analyzeWhitelist(semester, true);
+		analyzeBlacklist(semester);
 		saveUserList(semester, 'whitelist', current_whitelist);
 		updateClassesTab();
 		return 1;
@@ -505,7 +547,7 @@ typeCoursesList = function() {
 		var val = course[rule[0]];
 		
 		// time comparison
-		if ((rule[1].indexOf('start ') == 0 || rule[1].indexOf('end ') == 0) && val.indexOf('-') > -1) {
+		if ($.inArray(rule[1],['starts at','ends at','starts before','ends before','starts after','ends after']) > -1 && val.indexOf('-') > -1) {
 			if (rule[1].indexOf('start') == 0) {
 				val = val.split('-')[0];
 			} else {
@@ -518,19 +560,19 @@ typeCoursesList = function() {
 			return (val < rule[2]);
 		case '>':
 			return (val > rule[2]);
-		case 'start <':
+		case 'starts before':
 			return (val < rule[2]);
-		case 'start >':
+		case 'starts after':
 			return (val > rule[2]);
-		case 'end <':
+		case 'ends before':
 			return (val < rule[2]);
-		case 'end >':
+		case 'ends after':
 			return (val > rule[2]);
 		case '=':
 			return (val == rule[2]);
-		case 'start =':
+		case 'starts at':
 			return (val == rule[2]);
-		case 'end =':
+		case 'ends at':
 			return (val == rule[2]);
 		case '<=':
 			return (val <= rule[2]);
@@ -543,7 +585,7 @@ typeCoursesList = function() {
 		case 'ends with':
 			return (val.indexOf(rule[2]) == val.length-rule[2].length);
 		case 'regex':
-			return (val.match(rule[2]) !== null);
+			return (val.match(eval(rule[2])) !== null);
 		}
 	}
 }

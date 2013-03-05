@@ -1,0 +1,27 @@
+option {
+	background-color: white;
+}
+
+option.empty {
+	background-color: #ddd;
+}
+
+option.conflicting {
+	background-color: #fdd;
+}
+
+option.selected {
+	background-color: yellow;
+}
+
+select.empty {
+	background-color: #ddd;
+}
+
+select.conflicting {
+	background-color: #fdd;
+}
+
+select.selected {
+	background-color: yellow;
+}
