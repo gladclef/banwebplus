@@ -29,8 +29,18 @@ typeListsTab = function() {
 	this.drawList = function(listName, a_list){
 		var table_html = '';
 		var div_id = listName+'_table_div';
-		if (a_list.length > 0)
-			table_html = '<div id="'+div_id+'" style="margin:0 auto;">'+this.drawRulesTable(a_list, listName)+'</div>';
+		var temp_list = [];
+		if (a_list.length > 0) {
+			$.each(a_list, function(k,v) {
+				var list_item = [];
+				for (var i = 0; i < 3; i++) {
+					list_item[i] = v[i];
+				}
+				list_item[0] = headers[list_item[0]];
+				temp_list.push(list_item);
+			});
+			table_html = '<div id="'+div_id+'" style="margin:0 auto;">'+this.drawRulesTable(temp_list, listName)+'</div>';
+		}
 		var add_row_form = getAddRowForm(listName);
 		
 		var jcontainer = getListContainer(listName);
@@ -46,74 +56,132 @@ typeListsTab = function() {
 	}
 	
 	this.drawRulesTable = function(a_rules_list, classes) {
-		return create_table(rules_table_headers, a_rules_list, [classes, classes, classes], "o_listsTab.add_remove_row");
+		return create_table(rules_table_headers, a_rules_list, [classes, classes, classes], "o_listsTab.removeRule");
+	}
+	
+	this.removeRule = function(element) {
+		var jelement = $(element);
+		var children = jelement.children();
+		var listName = '';
+		var rule = []
+		var a_rules = null;
+		var o_courses_func = null;
+
+		rule.push(get_index_of_header($(children[0]).text(), headers));
+		rule.push($(children[1]).text());
+		rule.push($(children[2]).text());
+		listName = jelement.hasClass('blacklist') ? 'blacklist' : 'whitelist';
+		
+		a_rules = (listName == 'blacklist') ? o_courses.getBlacklist() : o_courses.getWhitelist();
+		o_courses_func = (listName == 'blacklist') ? o_courses.removeBlacklistRule : o_courses.removeWhitelistRule;
+		a_matched_rule = null;
+		$.each(a_rules, function(k, v) {
+			var b_matches = true;
+			for (var i = 0; i < rule.length; i++)
+				if (rule[i] != v[i])
+					b_matches = false;
+			if (b_matches)
+				a_matched_rule = v;
+		});
+		if (a_matched_rule != null)
+			if (o_courses_func(a_matched_rule) > 0)
+				this.draw();
 	}
 	
 	this.populateOperators = function(jselect, listName) {
 		var a_classes = o_courses.getCurrentClasses();
 		var column = get_index_of_header(jselect.val(), headers);
-		var types = [
-			{ typename: 'int', match: /^[0-9]+?/, count: 0 },
-			{ typename: 'float', match: /^[0-9]+\.[0-9]*?/, count: 0 },
-			{ typename: 'float', match: /^[0-9]*\.[0-9]+?/, count: 0 },
-			{ typename: 'time', match: /^[0-9]+-[0-9]+?/, count: 0 },
-			{ typename: 'string', match: /.+/, count: 0 },
-			{ typename: 'none', match: /.*/, count: 0 },
-		];
+		var s_type_name = o_courses.getTypeAtIndex(column);
 		var typesToOperators = {
 			'int': ['>', '<', '>=', '<=', '=', 'regex'],
 			'float': ['>', '<', '>=', '<=', '=', 'regex'],
-			'time': ['>', '<', '>=', '<=', '=', 'regex'],
+			'time': ['start >', 'start <', 'start =', 'end >', 'end <', 'end ='],
 			'string': ['contains', 'starts with', 'ends with', 'regex'],
 		};
-
-		$.each(a_classes, function(k, v) {
-			for (var i = 0; i < types.length; i++) {
-				if (v[column].match(types[i]['match']) !== null) {
-					types[i]['count']++;
-					break;
-				}
-			}
-		});
-		
-		var i_most_popular_count = -1;
-		var s_most_popular_name = '';
-		$.each(types, function(k, v) {
-			if (v['count'] > i_most_popular_count && v['typename'] != 'none') {
-				i_most_popular_count = v['count'];
-				s_most_popular_name = v['typename'];
-			}
-		});
 		
 		var jOps = $('#'+listName+'_add_row_form').find('select[name=Operator]');
 		kill_children(jOps);
 		jOps.html('');
-		$.each(typesToOperators[s_most_popular_name], function(k, v) {
+		$.each(typesToOperators[s_type_name], function(k, v) {
 			jOps.append('<option>'+v+'</option>');
 		});
 		
 		o_listsTab.populateValuePlaceholder(jselect, jOps, listName);
 	}
 	
-	this.populateValuePlaceholder = function(jAttrsSelect, jOpsSelect, listName) {
+	var populateValuePlaceholder_examplevVal = '';
+	this.populateValuePlaceholder = function(jAttrsSelect, jOpsSelect, listName, findNewExample) {
 		var s_operator = jOpsSelect.val();
 		var s_attribute = jAttrsSelect.val();
 		var index = get_index_of_header(s_attribute, headers);
 		var a_classes = o_courses.getCurrentClasses();
+		var startAt = parseInt(Math.random(1)*a_classes.length);
 		var s_placeholder = '';
+		var s_exampleValue = '';
 		var jtextarea = $($('#'+listName+'_add_row_form').find('input[type=textarea]'));
-		
-		for (var i = 0; i < a_classes.length; i++) {
-			if (a_classes[i][index] != '') {
-				s_placeholder = a_classes[i][index];
-				break;
+		var a_specialOps = {
+			contains: {
+				'function': function(example) {
+					return example;
+				}
+			},
+			'starts with': {
+				'function': function(example) {
+					if (example.indexOf(' ') > 0) {
+						return example.split(' ')[0];
+					}
+					return example;
+				}
+			},
+			'ends with': {
+				'function': function(example) {
+					if (example.indexOf(' ') > 0) {
+						var a_parts = example.split(' ');
+						return a_parts[a_parts.length-1];
+					}
+					return example;
+				}
+			},
+			regex: {
+				'function': function(example) {
+					return '/[0-9]*/';
+				}
 			}
+		};
+		findNewExample = (typeof(findNewExample) == 'undefined') ? true : findNewExample;
+		
+		// find an example
+		if (findNewExample) {
+			for (var half = 1; half > -1; half--) {
+				var minIndex = startAt*half;
+				var maxIndex = (half == 0) ? startAt : a_classes.length;
+				for (var i = minIndex; i < maxIndex; i++) {
+					if (a_classes[i][index] != '') {
+						s_exampleValue = a_classes[i][index];
+						break;
+					}
+				}
+				if (s_exampleValue != '')
+					break;
+			}
+			populateValuePlaceholder_examplevVal = s_exampleValue;
+		} else {
+			s_exampleValue = populateValuePlaceholder_examplevVal;
 		}
+		
+		// modify based on operator
+		if (typeof(a_specialOps[s_operator]) !== 'undefined') {
+			s_placeholder = a_specialOps[s_operator]['function'](s_exampleValue);
+		} else {
+			s_placeholder = s_exampleValue;
+		}
+
+		// prepend 'eg: '
 		if (s_placeholder != '')
 			s_placeholder = 'eg: '+s_placeholder;
 		else
 			s_placeholder = 'Value';
-
+		
 		jtextarea.prop('placeholder', s_placeholder);
 	}
 	
@@ -125,7 +193,7 @@ typeListsTab = function() {
 			var name = $(v).prop('name');
 			switch(name) {
 			case 'Attribute':
-				rule[0] = $(v).val();
+				rule[0] = get_index_of_header($(v).val(), headers);
 				break;
 			case 'Operator':
 				rule[1] = $(v).val();
@@ -135,7 +203,7 @@ typeListsTab = function() {
 				break;
 			}
 		});
-
+		
 		var b_rule_is_good = true;
 		for (var i = 0; i < 3; i++) {
 			if (typeof(rule[i]) == 'undefined' || rule[i] == '') {
@@ -180,7 +248,7 @@ typeListsTab = function() {
 		});
 		s_retval += '</select>';
 		s_retval += '</td><td>';
-		s_retval += '<select name="Operator" onchange="o_listsTab.populateValuePlaceholder($($(this).parent().find(\'[name=attribute]\')), $(this), \''+listName+'\');"></select>';
+		s_retval += '<select name="Operator" onchange="o_listsTab.populateValuePlaceholder(get_parent_by_tag(\'tr\', $(this)).find(\'[name=Attribute]\'), $(this), \''+listName+'\', false);"></select>';
 		s_retval += '</td><td>';
 		s_retval += '<input name="Match" type="textarea" size="40" placeholder="" onkeydown="if (event.keyCode == 13) { var jbutton = $(\'#'+buttonid+'\'); jbutton.click(); }" />';
 		s_retval += '</td><td>';

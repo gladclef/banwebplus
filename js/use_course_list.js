@@ -9,12 +9,16 @@ $(
 		a_available_semesters = o_courses.getAvailableSemesters();
 		o_courses.setSemester(a_available_semesters[a_available_semesters.length-1][0]);
 		draw_subject_selector("subject_selector");
-		$("#subject_selector").change();
+		updateClassesTab();
 		draw_tab("Classes");
 		setTimeout('draw_tab("Classes");', 100);
 		setTimeout('scroll_to_center();', 200);
 	}
 );
+
+function updateClassesTab() {
+	$("#subject_selector").change();
+}
 
 // draws additional selector by cloning the old selector
 add_extra_subject_index = 0;

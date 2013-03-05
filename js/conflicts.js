@@ -25,20 +25,20 @@ typeConflictingCourses = function(o_courses) {
 
 		for (var i = 0; i < a_trs.length; i++) {
 			var a_tds = document.getElementById(a_trs[i].id).childNodes;
+			if (typeof(a_tds[i_crn_index]) == 'undefined')
+				continue;
 			if (parseInt(a_tds[i_crn_index].innerHTML) == i_class_crn) {
 				b_found = true;
 				a_jrow.push($("#"+a_trs[i].id));
 				//break;
 			}
 		}
-		//console_log(i_class_crn+": "+b_found);
 		if (!b_found)
 			return;
 
 		var normal_image = '/images/red_sphere.png';
 		var highlighted = '/images/red_sphere.png';//'/images/red_sphere_highlighted.png';
 		var i_conflicts_index = get_index_of_header("conflicts", headers);
-		//console_log(current_conflicting_classes[i_class_crn].length);
 		for (var i = 0; i < a_jrow.length; i++) {
 			var jrow = a_jrow[i];
 			if (current_conflicting_classes[i_class_crn].length > 0) {
@@ -210,7 +210,6 @@ typeConflictingCourses = function(o_courses) {
 		});
 		for (var i = 0; i < a_courses_with_conflicts.length; i++) {
 			i_crn = a_courses_with_conflicts[i];
-			//console_log(i_crn);
 			this.update_class_show_conflictions(i_crn);
 		}
 	}

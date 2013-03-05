@@ -78,6 +78,28 @@ class ajax {
 		$a_user_data = array('user_classes'=>$user_classes, 'user_whitelist'=>$user_whitelist, 'user_blacklist'=>$user_blacklist);
 		return json_encode($a_user_data);
 	}
+	
+	function save_user_data() {
+		$s_year = get_post_var('year');
+		$s_semester = get_post_var('semester');
+		$s_json_saveval = get_post_var('json');
+		$s_datatype = get_post_var('datatype');
+		$s_timestamp = get_post_var('timestamp');
+		$i_affected_rows = 0;
+		global $global_user;
+		
+		if ($s_datatype == 'whitelist')
+				$i_affected_rows = $global_user->save_user_whitelist($s_year, $s_semester, $s_json_saveval, $s_timestamp);
+		else if ($s_datatype == 'blacklist')
+				$i_affected_rows = $global_user->save_user_blacklist($s_year, $s_semester, $s_json_saveval, $s_timestamp);
+		else
+				return 'failure|bad datatype';
+		
+		if ($i_affected_rows > 0)
+				return 'success|'.$i_affected_rows;
+		else
+				return 'failure|'.$i_affected_rows;
+	}
 
 	function load_semester_classes($s_year, $s_semester) {
 		$s_year = get_post_var('year', $s_year);

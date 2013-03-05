@@ -1,3 +1,47 @@
+typeSchedulerTab = function() {
+	this.draw = function() {
+		draw_schedule_tab();
+	}
+	
+	this.addByCRN = function(jbutton) {
+		var jdiv = get_parent_by_tag('div', jbutton);
+		var crn = jdiv.find('input[name=crn]').val();
+		var i_crn = parseInt(crn);
+		var i_classes_added = 0;
+		var jerrors = jdiv.find('[name=errors]');
+		
+		i_classes_added = o_courses.addUserClass(i_crn);
+		if (i_classes_added == 0) {
+			var user_classes = o_courses.getUserClasses();
+			var b_class_selected = false;
+			
+			$.each(user_classes, function(k, v) {
+				if (v == i_crn)
+					b_class_selected = true;
+			});
+			
+			if (b_class_selected)
+				set_html_and_fade_in(jerrors, '', '<font style="color:black;">You already selected that class.</font>');
+			else
+				set_html_and_fade_in(jerrors, '', '<font style="color:red;">Could not find a matching course.</font>');
+		} else {
+			set_html_and_fade_in(jerrors, '', '<font style="color:gray;">Added course to your schedule.</font>');
+			this.draw();
+		}
+	}
+}
+
+function draw_add_by_crn() {
+	var jcontainer = $("#schedule_tab_add_by_crn");
+	kill_children(jcontainer);
+	jcontainer.html('');
+	var html = 'Enter a course refference number: ';
+	html += '<input type="textarea" size="8" placeholder="123456" name="crn" onkeypress="if (event.keyCode == 13) { $(this).parent().find(\'input[type=button]\').click(); }" /> ';
+	html += '<input type="button" onclick="o_schedule.addByCRN($(this));" value="Add" /><br />';
+	html += '<label name="errors">&nbsp;</label>';
+	jcontainer.append(html);
+}
+
 function draw_schedule_tab () {
 	// remove the old table
 	var jcurrent_cont = $("#schedule_tab_user_schedule");
@@ -23,6 +67,7 @@ function draw_schedule_tab () {
 			recent_classes.push(a_class);
 	}
 	// add the new tables
+	draw_add_by_crn();
 	jcurrent_cont.append(create_table(headers, current_classes, classes_table_classes, "delayed_schedule_click();add_remove_class"));
 	jrecent_cont.append(create_table(headers, recent_classes, classes_table_classes, "delayed_schedule_click();add_remove_class"));
 	set_selected_classes(jcurrent_cont);
@@ -33,3 +78,5 @@ function draw_schedule_tab () {
 function delayed_schedule_click() {
 	//setTimeout("click_tab_by_tabname('Schedule');",100);
 }
+
+o_schedule = new typeSchedulerTab();
