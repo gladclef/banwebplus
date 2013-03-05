@@ -70,9 +70,11 @@ typeCoursesList = function() {
 	this.getCurrentClasses = function(s_subject) {
 		if (typeof(s_subject) == 'undefined') {
 			var a_retval = [];
-			$.each(current_subjects[semester], function(i, a_subject) {
-				a_retval = $.merge(a_retval, current_course_list[semester][a_subject[0]]);
-			});
+			if (current_course_list[semester] && current_course_list[semester].length > 0) {
+				$.each(current_subjects[semester], function(i, a_subject) {
+					a_retval = $.merge(a_retval, current_course_list[semester][a_subject[0]]);
+				});
+			}
 			return a_retval;
 		}
 		return current_course_list[semester][s_subject];
@@ -189,7 +191,7 @@ typeCoursesList = function() {
 	this.addBlacklistRule = function(a_new_rule) {
 		if (arrayInArray(a_new_rule, current_blacklist) > -1)
 			return 0;
-		current_blacklist.push(a_new_rule);
+		current_blacklist[semester].push(a_new_rule);
 		analyzeBlacklist(semester);
 		return 1;
 	}
@@ -197,7 +199,7 @@ typeCoursesList = function() {
 		var index = arrayInArray(a_rule, current_blacklist);
 		if (index == -1)
 			return 0;
-		current_blacklist.splice(index,1);
+		current_blacklist[semester].splice(index,1);
 		analyzeBlacklist(semester);
 		return 1;
 	}
@@ -205,7 +207,7 @@ typeCoursesList = function() {
 	this.addWhitelistRule = function(a_new_rule) {
 		if (arrayInArray(a_new_rule, current_whitelist) > -1)
 			return 0;
-		current_whitelist.push(a_new_rule);
+		current_whitelist[semester].push(a_new_rule);
 		analyzeWhitelist(semester);
 		return 1;
 	}
@@ -213,7 +215,7 @@ typeCoursesList = function() {
 		var index = arrayInArray(a_rule, current_whitelist);
 		if (index == -1)
 			return 0;
-		current_whitelist.splice(index,1);
+		current_whitelist[semester].splice(index,1);
 		analyzeWhitelist(semester);
 		return 1;
 	}
@@ -394,8 +396,14 @@ typeCoursesList = function() {
 			return (val <= rule[2]);
 		case '>=':
 			return (val >= rule[2]);
-		case 'cont':
+		case 'contains':
 			return (val.indexOf(rule[2]) != -1);
+		case 'starts with':
+			return (val.indexOf(rule[2]) == 0);
+		case 'ends with':
+			return (val.indexOf(rule[2]) == val.length-rule[2].length);
+		case 'regex':
+			return (val.match(rule[2]) !== null);
 		}
 	}
 }

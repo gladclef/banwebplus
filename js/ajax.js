@@ -35,10 +35,7 @@ function send_async_ajax_call(php_file_name, posts, async) {
 
 function send_ajax_call_from_form(php_file_name, form_id) {
 	var jform = $("#"+form_id);
-	var a_inputs = jform.find("input");
-	var a_selects = jform.find("select");
-	var a_textareas = jform.find("textarea");
-	var inputs = $.merge($.merge(a_inputs, a_selects), a_textareas);
+	var inputs = get_values_in_form(jform);
 	
 	var posts = {};
 	var full_posts = [];
@@ -106,12 +103,14 @@ function interpret_common_ajax_commands(commands_array) {
 }
 
 function set_html_and_fade_in(jparent_object, parent_id, html) {
-	if (jparent_object === null)
-		jparent_object = $("#"+parent_id);
-	kill_children(jparent_object);
-	jparent_object.html('');
-	jparent_object.append(html);
-	jparent_object.stop(true,true);
-	jparent_object.children().css({opacity:0});
-	jparent_object.children().animate({opacity:1},300);
+	setTimeout(function() {
+		if (jparent_object === null)
+			jparent_object = $("#"+parent_id);
+		kill_children(jparent_object);
+		jparent_object.html('');
+		jparent_object.append(html);
+		jparent_object.stop(true,true);
+		jparent_object.children().css({opacity:0});
+		jparent_object.children().animate({opacity:1},300);
+	}, 10);
 }

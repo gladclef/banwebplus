@@ -44,8 +44,17 @@ function get_set_of_unique_ids(i_count) {
 
 function kill_children(jobject) {
 	var children = jobject.children();
-	for(var i = 0; i < children.length; i++)
-		$(children[i]).remove();
+	if (children && children.length > 0)
+		for(var i = 0; i < children.length; i++)
+			$(children[i]).remove();
+}
+
+function get_values_in_form(jform) {
+	var a_inputs = jform.find("input");
+	var a_selects = jform.find("select");
+	var a_textareas = jform.find("textarea");
+	var inputs = $.merge($.merge(a_inputs, a_selects), a_textareas);
+	return inputs;
 }
 
 function get_parent_by_tag(s_tagname, jobject) {

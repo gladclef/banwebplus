@@ -27,6 +27,7 @@ if ($global_user) {
 				$s_drawval[] = '<script src="/js/common_functions.js"></script>';
 				$s_drawval[] = '<script src="/js/tab_functions.js"></script>';
 				$s_drawval[] = '<script src="/js/schedule.js"></script>';
+				$s_drawval[] = '<script src="/js/lists.js"></script>';
 				$s_drawval[] = '<link href="/css/auto_table.css" rel="stylesheet" type="text/css">';
 				$s_drawval[] = '<link href="/css/tabs.css" rel="stylesheet" type="text/css">';
 				$s_drawval[] = draw_logout_bar();
