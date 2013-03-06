@@ -12,7 +12,7 @@ class user_funcs {
 		// check that the data is good
 		if ($s_username == '' || $s_password == '' || $s_email == '')
 				return FALSE;
-		if (strpos($s_email, '@') == FALSE || strpos($s_email, '.') == FALSE)
+		if (strpos($s_email, '@') === FALSE || strpos($s_email, '.') === FALSE || strpos($s_email, '|') !== FALSE || strpos($s_email, '<') !== FALSE || strpos($s_email, '>') !== FALSE)
 				return false;
 		$a_users = db_query("SELECT `id` FROM `[maindb]`.`students` WHERE `username`='[username]'",
 							array('maindb'=>$maindb, 'username'=>$s_username));

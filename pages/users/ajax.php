@@ -45,13 +45,10 @@ class create_user_ajax {
 		if (!user_funcs::create_user($s_username, $s_password, $s_email))
 				return 'print error[*note*]Error creating user';
 		
-		if (mail($s_email, 'banwebplus account', 'You just created an account on banwebplus.com with the username "'.$s_username.'."
+		shell_exec('echo \'You just created an account on banwebplus.com with the username "'.$s_username.'."
 Log in to your new account from www.banwebplus.com.
 
-If you ever forget your password you can reset it from the main page by clicking on the "forgot password" link (once I have it functioning).', 'From: noreply@banwebplus.com'))
-				error_log('mail sent to '.$s_email);
-		else
-				error_log('mail not sent');
+If you ever forget your password you can reset it from the main page by clicking on the "forgot password" link (once I have it functioning).\' | mail -s \'banwebplus account\' '.$s_email);
 		return 'print success[*note*]Success! You can now use the username '.$s_username.' to log in from the main page!';
 	}
 }
