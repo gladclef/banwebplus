@@ -19,6 +19,7 @@ function draw_tabs() {
 			$s_tab_name = $a_tab['name'];
 			$s_tab_id = 'tab_id_'.$s_tab_name;
 			$a_retval[] = '<td class="tab" id="'.$s_tab_id.'" onclick="draw_tab(\''.$s_tab_name.'\')" onmouseover="$(\'#'.$s_tab_id.'\').addClass(\'mouse_hover\');" onmouseout="$(\'#'.$s_tab_id.'\').removeClass(\'mouse_hover\');">'.$s_tab_name.'</td>';
+			$a_retval = array_merge($a_retval, draw_tab_include_files($s_tab_name));
 	}
 	$a_retval[] = '</tr></table></td><td></td></tr>';
 	$a_retval[] = '<tr><td colspan="3"><div class="tab_contents centered">';
@@ -30,6 +31,16 @@ function draw_tabs() {
 	$a_retval[] = '</div></td></tr></table>';
 	
 	return implode("\n", $a_retval);
+}
+
+function draw_tab_include_files($s_tab_name) {
+	$s_drawval = array();
+	$s_lower_name = strToLower($s_tab_name);
+	if (file_exists(dirname(__FILE__).'/../js/'.$s_lower_name.'.js'))
+			$s_drawval[] = '<script src="/js/'.$s_lower_name.'.js"></script>';
+	if (file_exists(dirname(__FILE__).'/../css/'.$s_lower_name.'.css'))
+			$s_drawval[] = '<link href="/css/'.$s_lower_name.'.css" rel="stylesheet" type="text/css">';
+	return $s_drawval;
 }
 
 function load_tab_contents($s_tab_name) {

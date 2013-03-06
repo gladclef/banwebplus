@@ -11,6 +11,7 @@ $(
 		draw_subject_selector("subject_selector");
 		updateClassesTab();
 		draw_tab("Classes");
+		o_semesterHeader.draw();
 		setTimeout('draw_tab("Classes");', 100);
 		setTimeout('scroll_to_center();', 200);
 	}
@@ -99,19 +100,24 @@ function draw_course_table() {
 		if (subject_index >= 0)
 			a_classes = $.merge(a_classes, o_courses.getCurrentClasses(a_subjects[subject_index][0]));
 	}
-	if (a_classes.length == 0)
-		return;
-	// draw the table
 	var jclasses_content = $("#classes_content");
 	kill_children(jclasses_content);
-	//create_table(a_col_names, a_rows, wt_class, row_click_function)
-	jclasses_content.append(create_table(headers, a_classes, classes_table_classes, 'add_remove_class'));
-	set_selected_classes(jclasses_content);
+	jclasses_content.html('');
+	if (a_classes.length == 0) {
+		// draw an empy message
+		var s_message = (a_subjects.length > 1) ? 'These subjects have no classes.' : 'This subject has no classes.';
+		jclasses_content.append('<div class="centered" style="width:'+(jclasses_content.width()-100)+'px; padding:12px; border:1px solid gray; border-radius:5px; color:black; background-color:#ddd;">'+s_message+'</div>');
+	} else {
+		// draw the table
+		//create_table(a_col_names, a_rows, wt_class, row_click_function)
+		jclasses_content.append(create_table(headers, a_classes, classes_table_classes, 'add_remove_class'));
+		set_selected_classes(jclasses_content);
+		// draw the conflicts
+		conflicting_object.draw_all_conflicts();
+	}
 	jclasses_content.stop(true,true);
 	jclasses_content.css({opacity:0});
 	jclasses_content.animate({opacity:1},500);
-	// draw the conflicts
-	conflicting_object.draw_all_conflicts();
 	// update the select boxes
 	o_classes.updateSelectClasses();
 }
@@ -249,6 +255,7 @@ function add_remove_class(class_row) {
 		if (i_select_index > -1)
 			edit_class_row_property(jclass_row, i_select_index, "");
 	}
+	// mark classes as selected
 	set_selected_classes();
 	// update the select boxes
 	o_classes.updateSelectClasses();
@@ -323,14 +330,16 @@ typeClassesTab = function() {
 		$.each(a_selects, function(k, select) {
 			var jselect = $(select);
 			var joption = $(jselect.find('option[value='+jselect.val()+']'));
-			var a_option_classes = joption.prop('class').split(' ');
-			var a_select_classes = jselect.prop('class').split(' ');
-			$.each(a_select_classes, function(k, v) {
-				jselect.removeClass(v);
-			});
-			$.each(a_option_classes, function(k, v) {
-				jselect.addClass(v);
-			});
+			if (joption.length > 0) {
+				var a_option_classes = joption.prop('class').split(' ');
+				var a_select_classes = jselect.prop('class').split(' ');
+				$.each(a_select_classes, function(k, v) {
+					jselect.removeClass(v);
+				});
+				$.each(a_option_classes, function(k, v) {
+					jselect.addClass(v);
+				});
+			}
 		});
 	}
 }

@@ -22,41 +22,44 @@ typeCoursesList = function() {
 		return true;
 	}
 	
-	// returns ['value': integer representation, 'name': the season]
-	this.getCurrentSemester = function() {
+	// returns ['value': integer representation, 'name': the season, 'year': the result from getCurrentYear()]
+	this.getCurrentSemester = function(b_dontIncludeYear) {
 		var sem = semester.slice(4, 7);
+		var year = (b_dontIncludeYear !== true) ? this.getCurrentYear() : '';
 		var season = '';
 		switch(sem) {
 		case '10':
-			season = 'Fall';
-			break;
-		case '20':
-			season = 'Spring';
-			break;
-		case '30':
 			season = 'Summer';
 			break;
+		case '20':
+			season = 'Fall';
+			break;
+		case '30':
+			season = 'Spring';
+			break;
 		}
-		return {'value': sem, 'name': season};
+		return {'value': sem, 'name': season, 'year': year};
 	}
 
 	// returns ['year': the actual year, 'school_year': the school's year (starts in fall and ends in summer)]
 	this.getCurrentYear = function() {
 		var school_year = semester.slice(0, 4);
-		var sem = this.getCurrentSemester();
+		var sem = this.getCurrentSemester(true);
 		var year = '';
-		if (sem['season'] != 'Fall') {
-			year = school_year;
-		} else {
+		if (sem['season'] != 'Spring') {
 			year = parse_int(school_year)-1;
 			year = year+'';
+		} else {
+			year = school_year;
 		}
 		return { year: year, school_year: school_year };
 	}
 	
 	this.getAvailableSemesters = function() {
-		if (typeof(available_semesters) == 'undefined' || available_semesters.length == 0)
+		if (typeof(available_semesters) == 'undefined' || available_semesters.length == 0) {
 			available_semesters = $.parseJSON(send_ajax_call('/resources/ajax_calls.php', {command:'list_available_semesters'}));
+			available_semesters = $(available_semesters).sort(function(a,b){ return a > b ? 1 : -1; });
+		}
 		for (var i = 0; i < available_semesters.length; i++) {
 			sem = available_semesters[i][0];
 			conflicting_objects[sem+''] = new typeConflictingCourses(this);

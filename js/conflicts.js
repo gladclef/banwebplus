@@ -12,6 +12,7 @@ typeConflictingCourses = function(o_courses) {
 		var a_subjects = o_courses.getAvailableSubjects();
 		var crn_index = get_crn_index_from_headers(headers);
 		var a_retval = [];
+		var a_user_classes = o_courses.getUserClasses();
 		
 		$.each(a_conflicts_all, function(k, v) {
 			if (v.length > 0)
@@ -25,7 +26,7 @@ typeConflictingCourses = function(o_courses) {
 			if (a_classes.length == 0)
 				b_all_conflict = false;
 			for (var i = 0; i < a_classes.length; i++) {
-				if ($.inArray(a_classes[i][crn_index]+'', a_conflicts) == -1) {
+				if ($.inArray(a_classes[i][crn_index]+'', a_conflicts) == -1 && $.inArray(parseInt(a_classes[i][crn_index]), a_user_classes) == -1) {
 					b_all_conflict = false;
 					break;
 				}
@@ -55,7 +56,10 @@ typeConflictingCourses = function(o_courses) {
 		a_trs = update_class_show_conflictions_trs;
 
 		for (var i = 0; i < a_trs.length; i++) {
-			var a_tds = document.getElementById(a_trs[i].id).childNodes;
+			var html_tr = document.getElementById(a_trs[i].id);
+			if (html_tr == null)
+				continue;
+			var a_tds = html_tr.childNodes;
 			if (typeof(a_tds[i_crn_index]) == 'undefined')
 				continue;
 			if (parseInt(a_tds[i_crn_index].innerHTML) == i_class_crn) {
