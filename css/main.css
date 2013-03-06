@@ -50,3 +50,15 @@ table.main_page_content {
 	left: 0px;
 	top: 0px;
 }
+
+.black_link {
+	color: black;
+	font-style: italic;
+	text-decoration: underline;
+	font-weight: bold;
+	cursor: pointer;
+}
+
+.black_link:hover {
+	color: gray;
+}

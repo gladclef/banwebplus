@@ -49,7 +49,11 @@ function draw_login_page($session_expired_message) {
 	$a_page[] = "<input type='password' size='20' name='password'><br />";
 	$a_page[] = "<dev style='float:right;'><input type='button' value='Submit' onclick='send_ajax_call_from_form(\"/pages/login/login_ajax.php\",$(this).parent().parent().prop(\"id\"));' /></dev><br />";
 	$a_page[] = "</form>";
-	$a_page[] = "<form id='login_form_guest'><input type='hidden' name='username' value='guest' /><input type='hidden' name='password' value='password' />or <font style='font-style:italic;font-weight:bold;font-decoration:underline;cursor:pointer;' onclick='send_ajax_call_from_form(\"/pages/login/login_ajax.php\",\"login_form_guest\");'>Login As Guest</font></form>";
+	$a_page[] = "<font id='login_form_guest'><input type='hidden' name='username' value='guest' /><input type='hidden' name='password' value='guest' />or <font class='black_link' onclick='send_ajax_call_from_form(\"/pages/login/login_ajax.php\",\"login_form_guest\");'>Login As Guest</font>,</font><br />";
+	$a_page[] = '<font>';
+	$a_page[] = '<font id="create_form"><input type="hidden" name="draw_create_user_page" value="1"><a href="#" class="black_link" onclick="send_ajax_call_from_form(\'/pages/users/ajax.php\',\'create_form\');">Create User</a></font>, ';
+	$a_page[] = '<font id="password_form"><input type="hidden" name="draw_forgot_password_page" value="1"><a href="#" class="black_link" onclick="send_ajax_call_from_form(\'/pages/users/ajax.php\',\'password_form\');">Create User</a></font>, ';
+	$a_page[] = '</font>';
 	$a_page[] = draw_page_foot();
 	return implode("\n", $a_page);
 }

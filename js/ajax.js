@@ -95,7 +95,22 @@ function interpret_common_ajax_commands(commands_array) {
 		var command = commands_array[i][0];
 		var note = commands_array[i][1];
 		if (command == "load page") {
-			window.location = note;
+			var page = note;
+			var posts = [];
+			if (note.indexOf('[*post*]') > 0) {
+				var parts = note.split('[*post*]');
+				page = parts[0];
+				for (var i = 1; i < parts.length; i++) {
+					var post = parts[i].split('[*value*]');
+					posts.push(post);
+				}
+			}
+			var form_string = '<form action="'+page+'" method="post">';
+			$.each(posts, function(k, v) {
+				form_string += '<input type="hidden" name="'+v[0]+'" value="'+v[1]+'" />';
+			});
+			form_string += '</form>';
+			$(form_string).submit();
 		} else if (command == "alert") {
 			alert(note);
 		}

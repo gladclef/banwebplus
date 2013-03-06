@@ -47,7 +47,7 @@ function logout_session() {
 	}
 }
 
-function draw_page_head() {
+function draw_page_head($outside_content = '') {
 	global $global_path_to_jquery;
 	$a_page = array();
 	$a_page[] = "<html>";
@@ -62,6 +62,7 @@ function draw_page_head() {
 	$a_page[] = "<body>";
 	$a_page[] = "<table class='main_page_container'><tr><td class='centered'>";
 	$a_page[] = "<table class='main_page_content'><tr><td>";
+	$a_page[] = $outside_content."</td></tr><tr><td>";
 	$a_page[] = "<table style='border:2px solid black;border-radius:5px;padding:15px 30px;margin:0 auto;background-color:#fff;'><tr><td>";
 	return implode("\n", $a_page);
 }

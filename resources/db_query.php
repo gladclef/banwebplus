@@ -22,6 +22,7 @@ function db_query($s_query, $a_values=NULL) {
 			$s_query_string = replace_values_in_db_query_string($s_query, $a_values);
 	else
 			$s_query_string = $s_query;
+	error_log($s_query_string);
 	$wt_retval = mysql_query($s_query_string);
 	if ($wt_retval === TRUE || $wt_retval === FALSE)
 			return $wt_retval;
