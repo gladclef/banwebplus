@@ -2,6 +2,11 @@
 $maindb = "banwebplus";
 $userdb = "students";
 $settings_table = "user_settings";
+$on_bens_computer = FALSE;
+if ($_SERVER['SERVER_ADDR'] == '192.168.116.128') {
+		$maindb = "banweb_test_main";
+		$on_bens_computer = TRUE;
+}
 
 $global_user = NULL;
 $global_opened_db = FALSE;

@@ -32,7 +32,12 @@ function db_query($s_query, $a_values=NULL) {
 }
 
 function open_db() {
-	$link = mysql_connect('localhost', 'banwebplus', 'MmE3YTJiOWY3OTNmMzlkNjNlNzIzMzUy');
+	global $on_bens_computer;
+	
+	if (!$on_bens_computer)
+			$link = mysql_connect('localhost', 'banwebplus', 'MmE3YTJiOWY3OTNmMzlkNjNlNzIzMzUy');
+	else
+			$link = mysql_connect('localhost', 'root', 'password');
 	if ($link) {
 			return TRUE;
 	} else {
