@@ -174,7 +174,7 @@ If you ever forget your password you can reset it from the main page by clicking
 		$s_username = trim($_POST['username']);
 		$s_key = trim($_POST['key']);
 		$s_password = trim($_POST['password']);
-		$a_retval = reset_password($s_username, $s_key, $s_email);
+		$a_retval = reset_password($s_username, $s_key, $s_password);
 		if ($a_retval[0]) {
 			return "print success[*note*]".$a_retval[1];
 		} else {
