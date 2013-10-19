@@ -1,3 +1,7 @@
+body {
+	height: 500px;
+}
+
 table.main_page_container {
 	width: 100%;
 	height: 100%;
@@ -61,4 +65,16 @@ table.main_page_content {
 
 .black_link:hover {
 	color: gray;
+}
+
+.highlight_link {
+	color: blue;
+	font-style: italic;
+	text-decoration: underline;
+	font-weight: bold;
+	cursor: pointer;
+}
+
+.highlight_link:hover {
+	color: lightblue;
 }

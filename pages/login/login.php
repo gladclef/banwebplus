@@ -38,22 +38,44 @@ function get_session_expired() {
 
 // returns a string for the login page
 function draw_login_page($session_expired_message) {
-	$a_page = array();
+
+	ob_start();
+	?>
+	<script type="text/javascript">dont_check_session_expired = true;</script>
+
+	<form id='login_form'>
+		<label class='errors'><?php echo $session_expired_message; ?></label><br />
+		<label name='username'>Username</label>
+		<input type='textbox' size='20' name='username'><br />
+		<label name='password'>Password</label>
+		<input type='password' size='20' name='password'><br />
+		<div style='float:right;'>
+			<input type='button' value='Submit' onclick='send_ajax_call_from_form("/pages/login/login_ajax.php",$(this).parent().parent().prop("id"));' />
+		</div><br />
+	</form>
+
+	<span id='login_form_guest'>
+		<input type='hidden' name='username' value='guest' />
+		<input type='hidden' name='password' value='guest' />or
+		<span class='highlight_link' onclick='send_ajax_call_from_form("/pages/login/login_ajax.php","login_form_guest");'>Login As Guest</span>,
+	</span><br />
+
+	<span>
+		<span id="create_form">
+			<input type="hidden" name="draw_create_user_page" value="1">
+			<a href="#" class="black_link" onclick="send_ajax_call_from_form('/pages/users/ajax.php','create_form');">Create User</a>,
+		</span>
+		<span id="password_form">
+			<input type="hidden" name="draw_forgot_password_page" value="1" />
+			<a href="#" class="black_link" onclick="send_ajax_call_from_form('/pages/users/ajax.php','password_form');">Forgot Password</a>
+		</span>
+	</span>
+	<?php
+	$s_page = ob_get_contents();
+	ob_end_clean();
+
 	$a_page[] = draw_page_head();
-	$a_page[] = '<script type="text/javascript">dont_check_session_expired = true;</script>';
-	$a_page[] = "<form id='login_form'>";
-	$a_page[] = "<label class='errors'>$session_expired_message</label><br />";
-	$a_page[] = "<label name='username'>Username</label>";
-	$a_page[] = "<input type='textbox' size='20' name='username'><br />";
-	$a_page[] = "<label name='password'>Password</label>";
-	$a_page[] = "<input type='password' size='20' name='password'><br />";
-	$a_page[] = "<dev style='float:right;'><input type='button' value='Submit' onclick='send_ajax_call_from_form(\"/pages/login/login_ajax.php\",$(this).parent().parent().prop(\"id\"));' /></dev><br />";
-	$a_page[] = "</form>";
-	$a_page[] = "<font id='login_form_guest'><input type='hidden' name='username' value='guest' /><input type='hidden' name='password' value='guest' />or <font class='black_link' onclick='send_ajax_call_from_form(\"/pages/login/login_ajax.php\",\"login_form_guest\");'>Login As Guest</font>,</font><br />";
-	$a_page[] = '<font>';
-	$a_page[] = '<font id="create_form"><input type="hidden" name="draw_create_user_page" value="1"><a href="#" class="black_link" onclick="send_ajax_call_from_form(\'/pages/users/ajax.php\',\'create_form\');">Create User</a></font>, ';
-	$a_page[] = '<font id="password_form"><input type="hidden" name="draw_forgot_password_page" value="1"><a href="#" class="black_link" onclick="send_ajax_call_from_form(\'/pages/users/ajax.php\',\'password_form\');">Create User</a></font>, ';
-	$a_page[] = '</font>';
+	$a_page[] = $s_page;
 	$a_page[] = draw_page_foot();
 	return implode("\n", $a_page);
 }
@@ -61,7 +83,7 @@ function draw_login_page($session_expired_message) {
 function check_logged_in() {
 	global $session_expired;
 	my_session_start();
-	
+
 	$o_user = get_logged_in();
 	if ($o_user === NULL)
 			return FALSE;

@@ -17,11 +17,13 @@ function replace_values_in_db_query_string($s_query, $a_values) {
 	return $s_query;
 }
 
-function db_query($s_query, $a_values=NULL) {
+function db_query($s_query, $a_values=NULL, $b_print_query = FALSE) {
 	if ($a_values !== NULL && gettype($a_values) == 'array')
 			$s_query_string = replace_values_in_db_query_string($s_query, $a_values);
 	else
 			$s_query_string = $s_query;
+	if ($b_print_query)
+		error_log($s_query_string);
 	$wt_retval = mysql_query($s_query_string);
 	if ($wt_retval === TRUE || $wt_retval === FALSE)
 			return $wt_retval;
@@ -33,11 +35,13 @@ function db_query($s_query, $a_values=NULL) {
 
 function open_db() {
 	global $on_bens_computer;
-	
-	if (!$on_bens_computer)
+
+	if ($on_bens_computer == 'main')
 			$link = mysql_connect('localhost', 'banwebplus', 'MmE3YTJiOWY3OTNmMzlkNjNlNzIzMzUy');
-	else
+	else if ($on_bens_computer == 'ben_laptop')
 			$link = mysql_connect('localhost', 'root', 'password');
+	else
+			$link = mysql_connect('localhost', 'root', 's5TE1PuC');
 	if ($link) {
 			return TRUE;
 	} else {

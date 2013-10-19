@@ -216,7 +216,7 @@ typeConflictingCourses = function(o_courses) {
 				return (value != '' && a_classes[i][i_day_index].indexOf(value) != -1);
 			}).length == 0)
 				continue;
-			if (d_class_stats['st'] < d_other_stats['et'] && d_class_stats['et'] >= d_other_stats['st'])
+			if (d_class_stats['st'] < d_other_stats['et'] && d_class_stats['et'] > d_other_stats['st'])
 				a_retval.push(d_other_stats['id']);
 		}
 

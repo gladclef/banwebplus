@@ -22,7 +22,7 @@ class user {
 				$this->load_settings();
 		}
 	}
-	
+
 	/*********************************************************************
 	 *                     P U B L I C   F U N C T I O N S               *
 	 *********************************************************************/
@@ -46,12 +46,12 @@ class user {
 				$s_retval = $this->a_server_settings[$setting_name];
 		return $s_retval;
 	}
-	
+
 	public function update_settings($s_type, $a_settings) {
 		global $maindb;
 		if ($this->check_is_guest())
 				return 'error|settings can\'t be saved as a guest';
-		
+
 		$query_string = 'SELECT `id` FROM `[database]`.`[table]` WHERE '.array_to_where_clause($a_settings).' AND `user_id`=\'[user_id]\' AND `type`=\'[type]\'';
 		$query_vars = array("database"=>$maindb, "table"=>"user_settings", "user_id"=>$this->id, "type"=>$s_type);
 		$a_exists = db_query($query_string, $query_vars);
@@ -104,7 +104,7 @@ class user {
 				$this->a_blacklists[$s_semtext] = $this->load_user_blacklist($s_year, $s_semester);
 		return $this->a_blacklists[$s_semtext];
 	}
-	
+
 	public function save_user_classes($s_year, $s_semester, $s_json_saveval, $s_timestamp) {
 		return $this->save_time_dependent_user_data($s_year, $s_semester, 'semester_classes', $s_json_saveval, $s_timestamp);
 	}
@@ -138,7 +138,7 @@ class user {
 
 	private function load_user_data($s_year, $s_semester, $s_tablename) {
 		global $maindb;
-		
+
 		$a_queryvars = array("tablename"=>$s_tablename, "year"=>$s_year, "semester"=>$s_semester, "user_id"=>$this->get_id(), "maindb"=>$maindb);
 		$s_querystring = "SELECT `json` FROM `[maindb]`.`[tablename]` WHERE `year`='[year]' AND `semester`='[semester]' AND `user_id`='[user_id]'";
 		$a_tableval = db_query($s_querystring, $a_queryvars);
@@ -146,10 +146,10 @@ class user {
 				return '';
 		$s_tableval = $a_tableval[0]['json'];
 		$a_user_data = json_decode($s_tableval);
-		
+
 		if (!is_array($a_user_data) || count($a_user_data) == 0)
 				return '';
-		
+
 		return $a_user_data;
 	}
 
@@ -163,10 +163,10 @@ class user {
 		error_log('save_time_dependent_user_data'.$s_json_saveval);
 		return $this->save_user_data($s_year, $s_semester, $s_tablename, $s_json_saveval, $s_timestamp);
 	}
-	
+
 	private function save_user_data($s_year, $s_semester, $s_tablename, $s_json_saveval, $s_timestamp) {
 		global $maindb;
-		
+
 		$a_queryvars = array("table"=>$s_tablename, "year"=>$s_year, "semester"=>$s_semester, "user_id"=>$this->get_id(), "database"=>$maindb);
 		$s_querystring = "UPDATE `[database]`.`[table]` SET `json`='[json]',`time_submitted`='[timestamp]' WHERE `year`='[year]' AND `semester`='[semester]' AND `user_id`='[user_id]'";
 		create_row_if_not_existing($a_queryvars);
@@ -187,11 +187,12 @@ class user {
 		global $maindb;
 		global $userdb;
 		$username = $this->name;
-		
+
 		if ($password !== NULL)
-				$a_users = db_query("SELECT * FROM `[maindb]`.`[userdb]` WHERE `username`='[username]' AND `pass`=AES_ENCRYPT('[username]','[password]')", array("maindb"=>$maindb, "userdb"=>$userdb, "username"=>$username, "password"=>$password));
+				$a_users = db_query("SELECT * FROM `[maindb]`.`[userdb]` WHERE `username`='[username]' AND `pass`=AES_ENCRYPT('[username]','[password]')", array("maindb"=>$maindb, "userdb"=>$userdb, "username"=>$username, "password"=>$password), TRUE);
 		else
-				$a_users = db_query("SELECT * FROM `[maindb]`.`[userdb]` WHERE `username`='[username]' AND `pass`='[crypt_password]'", array("maindb"=>$maindb, "userdb"=>$userdb, "username"=>$username, "crypt_password"=>$crypt_password));
+				$a_users = db_query("SELECT * FROM `[maindb]`.`[userdb]` WHERE `username`='[username]' AND `pass`='[crypt_password]'", array("maindb"=>$maindb, "userdb"=>$userdb, "username"=>$username, "crypt_password"=>$crypt_password), TRUE);
+		error_log(print_r($a_users,TRUE));
 		if ($a_users === FALSE)
 				return FALSE;
 		if (count($a_users) == 0)
@@ -205,12 +206,12 @@ class user {
 		global $maindb;
 		global $settings_table;
 		$userid = $this->id;
-		
+
 		if ($this->name == "guest") {
 				$this->a_server_settings = array('session_timeout'=>'10');
 				return;
 		}
-		
+
 		// load server settings
 		$a_settings_vars = array("database"=>$maindb, "table"=>$settings_table, "user_id"=>$userid, "type"=>"server");
 		$s_settings_string = "SELECT * FROM `[database]`.`[table]` WHERE `user_id`='[user_id]'";

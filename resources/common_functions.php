@@ -73,6 +73,7 @@ function draw_page_foot() {
 	$a_page[] = "</td></tr></table>";
 	$a_page[] = "</td></tr></table>";
 	$a_page[] = "</body>";
+	$a_page[] = "<script type='text/javascript'>set_body_min_height();</script>";
 	$a_page[] = "</html>";
 	return implode("\n", $a_page);
 }

@@ -216,7 +216,7 @@ typeListsTab = function() {
 			var rules_added = 0;
 			var jlabel = $(jform.find('[name=errors]'));
 			var o_this = this;
-			set_html_and_fade_in(jlabel, '', '<font style="color:gray;">Calculating, please wait...</font>');
+			set_html_and_fade_in(jlabel, '', '<span style="color:gray;">Calculating, please wait...</span>');
 			setTimeout(function() {
 				if (jform.prop('id').indexOf('blacklist') > -1) {
 					rules_added = o_courses.addBlacklistRule(rule);
@@ -226,7 +226,7 @@ typeListsTab = function() {
 				if (rules_added > 0) {
 					o_this.draw();
 				} else {
-					set_html_and_fade_in(jlabel, '', '<font style="color:red;">That rule already exists</font>');
+					set_html_and_fade_in(jlabel, '', '<span style="color:red;">That rule already exists</span>');
 				}
 			}, 300);
 		}

@@ -8,6 +8,16 @@ function scroll_to_center() {
 	$('body, html').animate({scrollLeft: scrollto}, 500);
 }
 
+function set_body_min_height() {
+	var win = $(window);
+	var body = $("body");
+	var sizeBody = function() {
+		var newHeight = Math.max(parseInt(body.height()), parseInt(win.height()));
+		body.height(newHeight+'px');
+	}
+	sizeBody();
+}
+
 function remove_from_array_by_index(arr, i) {
 	return $.grep(arr, function(value, index) {
 		return (index != i);

@@ -9,8 +9,8 @@ function draw_logout_bar() {
 	global $global_user;
 	$s_retval = array();
 	$s_retval[] = "<table class='logout_bar'><tr><td>";
-	$s_retval[] = "Logged in: <font class='logout_label username_label'>".$global_user->get_name()."</font>";
-	$s_retval[] = '<font class="logout_button" onmouseover="$(this).addClass(\'mouse_hover\');" onmouseout="$(this).removeClass(\'mouse_hover\');">Logout</font>';
+	$s_retval[] = "Logged in: <span class='logout_label username_label'>".$global_user->get_name()."</span>";
+	$s_retval[] = '<span class="logout_button" onmouseover="$(this).addClass(\'mouse_hover\');" onmouseout="$(this).removeClass(\'mouse_hover\');">Logout</span>';
 	$s_retval[] = "</td></tr></table>";
 	return implode("\n", $s_retval);
 }

@@ -21,11 +21,11 @@ typeSchedulerTab = function() {
 			});
 			
 			if (b_class_selected)
-				set_html_and_fade_in(jerrors, '', '<font style="color:black;">You already selected that class.</font>');
+				set_html_and_fade_in(jerrors, '', '<span style="color:black;">You already selected that class.</span>');
 			else
-				set_html_and_fade_in(jerrors, '', '<font style="color:red;">Could not find a matching course.</font>');
+				set_html_and_fade_in(jerrors, '', '<span style="color:red;">Could not find a matching course.</span>');
 		} else {
-			set_html_and_fade_in(jerrors, '', '<font style="color:gray;">Added course to your schedule.</font>');
+			set_html_and_fade_in(jerrors, '', '<span style="color:gray;">Added course to your schedule.</span>');
 			this.draw();
 		}
 	}

@@ -26,6 +26,24 @@ class user_funcs {
 				return TRUE;
 		return FALSE;
 	}
+	
+	/**
+	 * Emails a user from "noreply@banwebplus.com"
+	 * @param  string $s_username The username to email.
+	 * @param  string $s_header   The header of the email.
+	 * @param  string $s_body     The body of the email.
+	 * @return boolean            TRUE on success, FALSE on failure
+	 */
+	public static function email_notification($s_username, $s_header, $s_body) {
+		$a_user = db_query("SELECT `email` FROM `students` WHERE `username`='[username]'", array('username'=>$s_username));
+		if (count($a_user) == 0)
+				return FALSE;
+		$s_email_address = $a_user[0]['email'];
+		if ($s_email_address == '')
+				return FALSE;
+		mail($s_email_address, $s_header, $s_body, "From: noreply@banwebplus.com");
+		return TRUE;
+	}
 }
 
 ?>

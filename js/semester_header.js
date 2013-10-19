@@ -34,9 +34,9 @@ typeSemesterHeader = function() {
 			s_next = a_next_semester[0][1];
 		}
 		
-		s_print += '<a href="#" onclick="o_semesterHeader.setSemester(\''+previous_semester+'\');">'+s_previous+'<img src="/images/left_arrow.png" style="height:20px; padding:0 5px; cursor:pointer;" /></a>';
+		s_print += '<a href="#" onclick="o_semesterHeader.setSemester(\''+previous_semester+'\');">'+s_previous+'<img src="/images/left_arrow.png" style="height:20px; padding:0 5px; cursor:pointer; border:none;" /></a>';
 		s_print += '<big><big><big>'+s_semester+'</big></big></big>';
-		s_print += '<a href="#" onclick="o_semesterHeader.setSemester(\''+next_semester+'\');"><img src="/images/right_arrow.png" style="height:20px; padding:0 5px; cursor:pointer;" />'+s_next+'</a>';
+		s_print += '<a href="#" onclick="o_semesterHeader.setSemester(\''+next_semester+'\');"><img src="/images/right_arrow.png" style="height:20px; padding:0 5px; cursor:pointer; border:none;" />'+s_next+'</a>';
 		
 		kill_children(jcontainer);
 		jcontainer.html('');
