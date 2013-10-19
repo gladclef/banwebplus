@@ -18,7 +18,7 @@ if ($on_bens_computer == 'ben_worktop')
 	$global_path_to_jquery = "/jquery-ui-1.10.0.custom/js/jquery-1.9.0.js";
 $tab_init_function = NULL; // redefined with each tab file required
 
-date_default_timezone_set('mst');
+date_default_timezone_set('America/Denver');
 
 require_once(dirname(__FILE__)."/common_functions.php");
 require_once(dirname(__FILE__)."/../objects/user.php");

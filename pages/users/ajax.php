@@ -1,8 +1,10 @@
 <?php
 
+global $o_access_object;
 require_once(dirname(__FILE__).'/../../resources/db_query.php');
 require_once(dirname(__FILE__).'/../../resources/globals.php');
 require_once(dirname(__FILE__).'/user_funcs.php');
+require_once(dirname(__FILE__)."/../login/access_object.php");
 
 /**
  * Resets the password for the user, if they applied for the forgot password script and have the correct key.
@@ -10,14 +12,40 @@ require_once(dirname(__FILE__).'/user_funcs.php');
  * @param  string $s_username The username of the user to reset the password for.
  * @param  string $s_key      The key to verify against `access_log`.`reset_key`.
  * @param  string $s_password The password to use for the user.
- * @param  boolean $b_force   If TRUE, does not check the key.
+ * @param  boolean $b_force   If TRUE, does not check the key or time.
  * @return string             An array with either TRUE/FALSE, and one of 'Your password has been set. You can now login with the username [login].', 'The username [username] can't be found.', 'Invalid credentials', 'The reset has timed out. Please resubmit the request to reset your password.'
  */
 function reset_password($s_username, $s_key, $s_password, $b_force = FALSE) {
-
+	
+	global $o_access_object;
+	
+	// check that the user exists
+	$s_username_exists = user_ajax::username_status($s_username);
+	if ($s_username_exists != "available")
+		return array(FALSE, "The username {$s_username} can't be found.");
+	
+	// get some variables
+	$i_now = time();
+	$i_reset_expiration = $o_access_object->get_reset_expiration($s_username, FALSE);
+	$s_reset_key = $o_access_object->get_reset_key($s_username, FALSE);
+	
+	// check the key and time
+	if ($s_reset_key != $s_key && !$b_force)
+		return array(FALSE, "Invalid credentials");
+	if ($i_reset_expiration > $i_now && !$b_force)
+		return array(FALSE, "The reset has timed out. Please resubmit the request to reset your password.");
+	
+	// reset the password
+	db_query("UPDATE `students` SET `pass`=AES_ENCRYPT('[username]','[password]') WHERE `username`='[username]'", array("username"=>$s_username, "password"=>$s_password));
+	return array(TRUE, "Your password has been set. You can now login with the username {$s_username}.");
 }
 
 class user_ajax {
+	/**
+	 * Checks that a username doesn't exist, yet
+	 * @$s_username string The username to be checking for
+	 * @return      string One of "blank", "taken", or "available"
+	 */
 	public static function username_status($s_username) {
 		global $maindb;
 		if (strlen($s_username) == 0)
@@ -77,14 +105,13 @@ If you ever forget your password you can reset it from the main page by clicking
 	public static function forgot_password($s_username = "", $s_email = "") {
 
 		global $maindb;
+		global $o_access_object;
 
 		// get the username or email, and the access object
 		if ($s_username == "")
 				$s_username = trim(get_post_var('username'));
 		if ($s_email == "")
 				$s_email = trim(get_post_var('email'));
-		global $o_access_object;
-		require_once(dirname(__FILE__)."/../login/access_object.php");
 
 		// determine which of the credentials were provided
 		$b_username_provided = $s_username != "";
@@ -127,8 +154,8 @@ If you ever forget your password you can reset it from the main page by clicking
 		// send the verification email
 		$s_reset_key = $o_access_object->get_reset_key($s_username, TRUE);
 		$i_reset_time = $o_access_object->get_reset_expiration($s_username, TRUE);
-		$i_reset_minutes = (int)((strtotime('now') - $i_reset_time) / 60);
-		mail($s_email, "Request to Reset Banwebplus Password", "A password reset attempt has been made with banwebplus.com for the user {$s_username}, registered with this email address. If you did not request this reset please ignore this email.\n\nYou have {$i_reset_minutes} to click the link below to reset your password. Ignore this email if you do not want your password reset.\nhttp://banwebplus.com/pages/users/reset_password.php?username={$s_username}&key={$s_reset_key}", "From: noreply@banwebplus.com");
+		$i_reset_minutes = (int)(($i_reset_time - strtotime('now')) / 60);
+		mail($s_email, "Request to Reset Banwebplus Password", "A password reset attempt has been made with banwebplus.com for the user {$s_username}, registered with this email address. If you did not request this reset please ignore this email.\n\nYou have {$i_reset_minutes} minutes to click the link below to reset your password. Ignore this email if you do not want your password reset.\nhttp://banwebplus.com/pages/users/reset_password.php?username={$s_username}&key={$s_reset_key}", "From: noreply@banwebplus.com");
 		return array(TRUE, "A verification email has been sent to {$s_email}");
 	}
 
