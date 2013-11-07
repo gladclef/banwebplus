@@ -34,9 +34,13 @@ function send_async_ajax_call(php_file_name, posts, async) {
 }
 
 function send_ajax_call_from_form(php_file_name, form_id) {
+	
+	// get the form and its inputs
 	var jform = $("#"+form_id);
 	var inputs = get_values_in_form(jform);
+	var jerrors_label = $(jform.find("label.errors"));
 	
+	// for each input, get the name and value of the input to be posted to the server
 	var posts = {};
 	var full_posts = [];
 	for(var i = 0; i < inputs.length; i++) {
@@ -46,18 +50,20 @@ function send_ajax_call_from_form(php_file_name, form_id) {
 		posts[name] = value;
 	}
 
-	jerrors_label = $(jform.find("label.errors"));
-	set_html_and_fade_in(jerrors_label, "", "<font style='color:gray;'>Please wait...</font>");
+	// init the errors label and send the data
+	set_html_and_fade_in(jerrors_label, "", "<span style='color:gray;'>Please wait...</span>");
 	var commands_array = retval_to_commands(send_ajax_call(php_file_name, posts));
 	set_html_and_fade_in(jerrors_label, "", "&nbsp;");
+	
+	// interpret commands send back
 	interpret_common_ajax_commands(commands_array);
 	for (var i = 0; i < commands_array.length; i++) {
 		var command = commands_array[i][0];
 		var note = commands_array[i][1];
 		if (command == "print error") {
-			set_html_and_fade_in(jerrors_label, "", "<font style='color:red;'>"+note+"</font>");
+			set_html_and_fade_in(jerrors_label, "", "<span style='color:red;'>"+note+"</span>");
 		} else if (command == "print success") {
-			set_html_and_fade_in(jerrors_label, "", "<font style='color:black;font-weight:normal;'>"+note+"</font>");
+			set_html_and_fade_in(jerrors_label, "", "<span style='color:black;font-weight:normal;'>"+note+"</span>");
 		} else if (command == "load page with post") {
 			var posts_string = "";
 			for (var i = 0; i < full_posts.length; i++)
@@ -105,9 +111,10 @@ function interpret_common_ajax_commands(commands_array) {
 					posts.push(post);
 				}
 			}
-			var form_string = '<form action="'+page+'" method="post">';
+			window.location = page;
+			var form_string = '<form action="'+page+'" method="post">\n';
 			$.each(posts, function(k, v) {
-				form_string += '<input type="hidden" name="'+v[0]+'" value="'+v[1]+'" />';
+				form_string += '<input type="hidden" name="'+v[0]+'" value="'+v[1]+'" />\n';
 			});
 			form_string += '</form>';
 			$(form_string).submit();
