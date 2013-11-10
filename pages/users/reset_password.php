@@ -53,7 +53,8 @@ function draw_reset_password_page() {
 
 		Password: <input type='password' name='password' id='p1' /><br />
 		Verify: <input type='password' id='p2' onkeyup='verify_passwords();' /><br />
-		<input type='hidden' name='key' value='<?php echo $_GET['KEY']; ?>'></input>
+		<input type='hidden' name='key' value='<?php echo $_GET['key']; ?>'></input>
+		<input type='hidden' name='username' value='<?php echo $_GET['username']; ?>'></input>
 		<label id='password_verification' style='font-weight:bold;'></label>
 		<br /><br />
 
