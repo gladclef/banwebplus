@@ -21,7 +21,7 @@ function reset_password($s_username, $s_key, $s_password, $b_force = FALSE) {
 	
 	// check that the user exists
 	$s_username_exists = user_ajax::username_status($s_username);
-	if ($s_username_exists != "available")
+	if ($s_username_exists != "taken")
 		return array(FALSE, "The username {$s_username} can't be found.");
 	
 	// get some variables
