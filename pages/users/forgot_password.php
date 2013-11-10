@@ -11,6 +11,10 @@ function draw_forgot_password_page() {
 	<script type="text/javascript">
 		dont_check_session_expired = true;
 
+		/**
+		 * Changes the input from "email" to "username", or vice versa
+		 * @select_element dom object The selectbox with the "email" and "username" options
+		 */
 		function change_input(select_element) {
 
 			// get the selection option name

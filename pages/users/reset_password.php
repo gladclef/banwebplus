@@ -13,6 +13,9 @@ function draw_reset_password_page() {
 	<script type="text/javascript">
 		dont_check_session_expired = true;
 
+		/**
+		 * Verifies that the password is valid and the password fields match
+		 */
 		function verify_passwords() {
 
 			console.log('hi');
@@ -50,6 +53,7 @@ function draw_reset_password_page() {
 
 		Password: <input type='password' name='password' id='p1' /><br />
 		Verify: <input type='password' id='p2' onkeyup='verify_passwords();' /><br />
+		<input type='hidden' name='key' value='<?php echo $_GET['KEY']; ?>'></input>
 		<label id='password_verification' style='font-weight:bold;'></label>
 		<br /><br />
 
