@@ -36,7 +36,7 @@ function reset_password($s_username, $s_key, $s_password, $b_force = FALSE) {
 		return array(FALSE, "The reset has timed out. Please resubmit the request to reset your password.");
 	
 	// reset the password
-	db_query("UPDATE `students` SET `pass`=AES_ENCRYPT('[username]','[password]') WHERE `username`='[username]'", array("username"=>$s_username, "password"=>$s_password));
+	db_query("UPDATE `students` SET `pass`=AES_ENCRYPT('[username]','[password]') WHERE `username`='[username]'", array("username"=>$s_username, "password"=>$s_password), TRUE);
 	return array(TRUE, "Your password has been set. You can now login with the username {$s_username}.");
 }
 
