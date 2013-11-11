@@ -1,11 +1,5 @@
 function get_tab_by_tabname(s_tabname) {
-	var a_tabs = $(".tab");
-	var jtab = null;
-	for(var i = 0; i < a_tabs.length; i++){
-		if ($(a_tabs[i]).text() == s_tabname) {
-			jtab = $(a_tabs[i]);
-		}
-	}
+	var jtab = $(".tab."+s_tabname);
 	return jtab;
 }
 

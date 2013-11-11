@@ -13,6 +13,7 @@ class user {
 	private $a_classes = array();
 	private $a_whitelists = array();
 	private $a_blacklists = array();
+	private $email = '';
 
 	function __construct($username, $password, $crypt_password) {
 		$this->name = $username;
@@ -35,6 +36,9 @@ class user {
 	}
 	public function get_id() {
 		return $this->id;
+	}
+	public function get_email() {
+		return $this->email;
 	}
 	public function check_is_guest() {
 		return (strtolower($this->get_name()) == 'guest');
@@ -198,6 +202,7 @@ class user {
 				return FALSE;
 		$this->id = $a_users[0]['id'];
 		$this->accesses_string = $a_users[0]['accesses'];
+		$this->email = $a_users[0]['email'];
 		return TRUE;
 	}
 
