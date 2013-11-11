@@ -6,62 +6,10 @@ require_once(dirname(__FILE__).'/../../resources/globals.php');
 require_once(dirname(__FILE__).'/user_funcs.php');
 require_once(dirname(__FILE__)."/../login/access_object.php");
 
-/**
- * Resets the password for the user, if they applied for the forgot password script and have the correct key.
- * The key is verified against the key in the `access_log`.`reset_key`.
- * @param  string $s_username The username of the user to reset the password for.
- * @param  string $s_key      The key to verify against `access_log`.`reset_key`.
- * @param  string $s_password The password to use for the user.
- * @param  boolean $b_force   If TRUE, does not check the key or time.
- * @return string             An array with either TRUE/FALSE, and one of 'Your password has been set. You can now login with the username [login].', 'The username [username] can't be found.', 'Invalid credentials', 'The reset has timed out. Please resubmit the request to reset your password.'
- */
-function reset_password($s_username, $s_key, $s_password, $b_force = FALSE) {
-	
-	global $maindb;
-	global $o_access_object;
-	
-	// check that the user exists
-	$s_username_exists = user_ajax::username_status($s_username);
-	if ($s_username_exists != "taken")
-		return array(FALSE, "The username {$s_username} can't be found.");
-	
-	// get some variables
-	$i_now = time();
-	$i_reset_expiration = $o_access_object->get_reset_expiration($s_username, FALSE);
-	$s_reset_key = $o_access_object->get_reset_key($s_username, FALSE);
-	
-	// check the key and time
-	if ($s_reset_key != $s_key && !$b_force)
-		return array(FALSE, "Invalid credentials");
-	if ($i_reset_expiration < $i_now && !$b_force)
-		return array(FALSE, "The reset has timed out. Please resubmit the request to reset your password.");
-	
-	// reset the password
-	db_query("UPDATE `[maindb]`.`students` SET `pass`=AES_ENCRYPT('[username]','[password]') WHERE `username`='[username]'", array("username"=>$s_username, "password"=>$s_password, "maindb"=>$maindb));
-	return array(TRUE, "Your password has been set. You can now login with the username {$s_username}.");
-}
-
 class user_ajax {
-	/**
-	 * Checks that a username doesn't exist, yet
-	 * @$s_username string The username to be checking for
-	 * @return      string One of "blank", "taken", or "available"
-	 */
-	public static function username_status($s_username) {
-		global $maindb;
-		if (strlen($s_username) == 0)
-				return 'blank';
-		$a_usernames = db_query("SELECT `id` FROM `[maindb]`.`students` WHERE `username`='[username]'",
-								array('maindb'=>$maindb, 'username'=>$s_username));
-		if (count($a_usernames) > 0)
-				return 'taken';
-		else
-				return 'available';
-	}
-
 	public static function check_username() {
 		$s_username = get_post_var('username');
-		$s_username_status = user_ajax::username_status($s_username);
+		$s_username_status = user_funcs::username_status($s_username);
 		switch ($s_username_status) {
 		case 'blank':
 				return 'print error[*note*]The username is blank';
@@ -175,7 +123,7 @@ If you ever forget your password you can reset it from the main page by clicking
 		$s_username = trim($_POST['username']);
 		$s_key = trim($_POST['key']);
 		$s_password = trim($_POST['password']);
-		$a_retval = reset_password($s_username, $s_key, $s_password);
+		$a_retval = user_funcs::reset_password($s_username, $s_key, $s_password);
 		if ($a_retval[0]) {
 			return "print success[*note*]".$a_retval[1];
 		} else {

@@ -33,6 +33,59 @@ function send_async_ajax_call(php_file_name, posts, async) {
 	return send_ajax_call_retval;
 }
 
+/**
+ * Like send_ajax_call_from_form, but requests the logged in user's password to verify an admin action
+ * @php_file_name string Typically /resources/ajax_calls_super.php
+ * @form_id       string The id of the form to serialize (will insert the super_password field into the form)
+ * @callback      string The function name to be called upon getting a return value from send_ajax_call_from_form, or null
+ */
+function send_ajax_call_from_form_super(php_file_name, form_id, callback) {
+
+	// remove the old passbox
+	while($("#passbox_super").length > 0)
+		$("#passbox_super").remove();
+	
+	var left = $(window).width()/2-200/2;
+	var top = $(window).height()/2-80/2;
+	var passbox = "<div id='passbox_super' style='width:200px; height:100px; border:1px solid black; border-radius:5px; background-color:white; padding:10px; position:fixed; left:"+left+"px; top:"+top+"px; z-index:1;'>";
+	passbox += "Enter your password to continue:<br />";
+	passbox += "<input type='password' class='password'></input> <input type='button' value='Cancel' class='cancel' /><br />";
+	passbox += "<label class='error'></label></div>";
+	var jpassbox = $(passbox);
+	var jpassword = jpassbox.find('input.password');
+	var jcancel = jpassbox.find('input.cancel');
+	var jerror = jpassbox.find('label.error');
+
+	$($("div")[0]).append(jpassbox);
+	jpassword.keydown(function(event) {
+		if (event.which == 13) {
+			if (jpassword.val() == '') {
+				alert("Enter your password, first");
+			} else {
+				var jform = $("#"+form_id);
+				jform.find("input[name=super_password]").remove();
+				jform.append("<input type='hidden' name='super_password' value='"+jpassword.val()+"'></input>");
+				var retval = send_ajax_call_from_form(php_file_name, form_id);
+				$.each(retval, function(k,v) {
+					if (v[0] == 'print success') {
+						jerror.css({ color:'black' });
+						set_html_and_fade_in(jerror, "", v[1]);
+						setTimeout(function(){ alert(v[1]); jpassbox.remove() }, 300);
+					} else if (v[0] == 'print error') {
+						jerror.css({ color:'red' });
+						set_html_and_fade_in(jerror, "", v[1]);
+					}
+				});
+				if (callback !== null)
+					exec(callback+"("+retval+")");
+			}
+		}
+	});
+	jcancel.click(function() {
+		jpassbox.remove();
+	});
+}
+
 function send_ajax_call_from_form(php_file_name, form_id) {
 	
 	// get the form and its inputs
@@ -76,6 +129,8 @@ function send_ajax_call_from_form(php_file_name, form_id) {
 			jform.find("input[name="+note+"]").val("");
 		}
 	}
+	
+	return commands_array;
 }
 
 function ajax_logout() {

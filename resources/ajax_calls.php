@@ -168,6 +168,17 @@ class ajax {
 	function get_default_semester() {
 		return $this->default_semester(NULL, TRUE);
 	}
+
+	/**
+	 * Get all of the users in the `students` table as a json string
+	 */
+	function get_full_users_list() {
+		global $maindb;
+		$a_query_results = db_query("SELECT `username`,`email` FROM `[maindb]`.`students`", array("maindb"=>$maindb));
+		if (count($a_query_results) == 0 || $a_query_results === FALSE)
+				return json_encode((object)array('success'=>FALSE, 'details'=>'MySQL query failed'));
+		return json_encode((object)array('success'=>TRUE, 'details'=>$a_query_results));
+	}
 }
 
 $s_command = get_post_var("command");
