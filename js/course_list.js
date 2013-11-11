@@ -47,7 +47,7 @@ typeCoursesList = function() {
 		var school_year = semester.slice(0, 4);
 		var sem = this.getCurrentSemester(true);
 		var year = '';
-		if (sem['season'] != 'Spring') {
+		if (sem.name != 'Spring') {
 			year = parse_int(school_year)-1;
 			year = year+'';
 		} else {
