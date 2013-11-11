@@ -43,6 +43,21 @@ function draw_login_page($session_expired_message) {
 	?>
 	<script type="text/javascript">dont_check_session_expired = true;</script>
 
+	<div style='display:inline-block; margin:0 15px 0 0; vertical-align:middle;'>
+	<span id='login_form_guest'>
+		<input type='hidden' name='username' value='guest' />
+		<input type='hidden' name='password' value='guest' />
+		<span style='color:red;'>:</span>
+		<span class='highlight_link' onclick='send_ajax_call_from_form("/pages/login/login_ajax.php","login_form_guest");'>Login As Guest</span>
+		<span style='color:red;'>:</span>
+	</span><br />
+	</div>
+
+	<div style='display:inline-block; margin:0 15px 0 0; vertical-align:middle;'>
+	<span style='color:gray; font-style:italic;'>or</span>
+	</div>
+
+	<div style='display:inline-block; margin:0 0 0 0; vertical-align:middle;'>
 	<form id='login_form'>
 		<label class='errors'><?php echo $session_expired_message; ?></label><br />
 		<label name='username'>Username</label>
@@ -52,16 +67,11 @@ function draw_login_page($session_expired_message) {
 		<div style='float:right;'>
 			<input type='button' value='Submit' onclick='send_ajax_call_from_form("/pages/login/login_ajax.php",$(this).parent().parent().prop("id"));' />
 		</div><br />
+		<div style='color:gray; font-size:12px;'>Do NOT use your TCC login.</div>
 	</form>
-
-	<span id='login_form_guest'>
-		<input type='hidden' name='username' value='guest' />
-		<input type='hidden' name='password' value='guest' />or
-		<span class='highlight_link' onclick='send_ajax_call_from_form("/pages/login/login_ajax.php","login_form_guest");'>Login As Guest</span>,
-	</span><br />
-
+	<br />
 	<span>
-		<span id="create_form">
+		<span id="create_form" style="min-width:">
 			<input type="hidden" name="draw_create_user_page" value="1">
 			<a href="#" class="black_link" onclick="send_ajax_call_from_form('/pages/users/ajax.php','create_form');">Create User</a>,
 		</span>
@@ -70,6 +80,7 @@ function draw_login_page($session_expired_message) {
 			<a href="#" class="black_link" onclick="send_ajax_call_from_form('/pages/users/ajax.php','password_form');">Forgot Password</a>
 		</span>
 	</span>
+	</div>
 	<?php
 	$s_page = ob_get_contents();
 	ob_end_clean();
