@@ -34,7 +34,7 @@ tr.auto_table_row:nth-child(odd) {
 }
 
 tr.auto_table_row.selected {
-	background-color:yellow;
+	background-color:#ff4;
 }
 
 tr.auto_table_row.mouse_hover {

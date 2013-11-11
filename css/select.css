@@ -7,11 +7,11 @@ option.empty {
 }
 
 option.conflicting {
-	background-color: #fdd;
+	background-color: #fcc;
 }
 
 option.selected {
-	background-color: yellow;
+	background-color: #ff4;
 }
 
 select.empty {
@@ -19,9 +19,9 @@ select.empty {
 }
 
 select.conflicting {
-	background-color: #fdd;
+	background-color: #fcc;
 }
 
 select.selected {
-	background-color: yellow;
+	background-color: #ff4;
 }
