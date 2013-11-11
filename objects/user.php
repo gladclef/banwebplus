@@ -112,7 +112,6 @@ class user {
 		return $this->save_time_dependent_user_data($s_year, $s_semester, 'semester_whitelist', $s_json_saveval, $s_timestamp);
 	}
 	public function save_user_blacklist($s_year, $s_semester, $s_json_saveval, $s_timestamp) {
-		error_log('save_user_blacklist'.$s_json_saveval);
 		return $this->save_time_dependent_user_data($s_year, $s_semester, 'semester_blacklist', $s_json_saveval, $s_timestamp);
 	}
 
@@ -160,7 +159,6 @@ class user {
 		$a_query = db_query($s_querystring, $a_queryvars);
 		if (is_array($a_query) && count($a_query) > 0)
 				return -1;
-		error_log('save_time_dependent_user_data'.$s_json_saveval);
 		return $this->save_user_data($s_year, $s_semester, $s_tablename, $s_json_saveval, $s_timestamp);
 	}
 
@@ -171,7 +169,6 @@ class user {
 		$s_querystring = "UPDATE `[database]`.`[table]` SET `json`='[json]',`time_submitted`='[timestamp]' WHERE `year`='[year]' AND `semester`='[semester]' AND `user_id`='[user_id]'";
 		create_row_if_not_existing($a_queryvars);
 		db_query($s_querystring, array_merge(array('json'=>$s_json_saveval, 'timestamp'=>$s_timestamp), $a_queryvars));
-		error_log('save_user_data'.$s_json_saveval);
 		return (mysql_affected_rows());
 	}
 
@@ -189,10 +186,9 @@ class user {
 		$username = $this->name;
 
 		if ($password !== NULL)
-				$a_users = db_query("SELECT * FROM `[maindb]`.`[userdb]` WHERE `username`='[username]' AND `pass`=AES_ENCRYPT('[username]','[password]')", array("maindb"=>$maindb, "userdb"=>$userdb, "username"=>$username, "password"=>$password), TRUE);
+				$a_users = db_query("SELECT * FROM `[maindb]`.`[userdb]` WHERE `username`='[username]' AND `pass`=AES_ENCRYPT('[username]','[password]')", array("maindb"=>$maindb, "userdb"=>$userdb, "username"=>$username, "password"=>$password));
 		else
-				$a_users = db_query("SELECT * FROM `[maindb]`.`[userdb]` WHERE `username`='[username]' AND `pass`='[crypt_password]'", array("maindb"=>$maindb, "userdb"=>$userdb, "username"=>$username, "crypt_password"=>$crypt_password), TRUE);
-		error_log(print_r($a_users,TRUE));
+				$a_users = db_query("SELECT * FROM `[maindb]`.`[userdb]` WHERE `username`='[username]' AND `pass`='[crypt_password]'", array("maindb"=>$maindb, "userdb"=>$userdb, "username"=>$username, "crypt_password"=>$crypt_password));
 		if ($a_users === FALSE)
 				return FALSE;
 		if (count($a_users) == 0)

@@ -59,7 +59,7 @@ function draw_reset_password_page() {
 		<br /><br />
 
 		<div style='float:right;'>
-			<input type='button' value='Send Email' onclick='send_ajax_call_from_form("/pages/users/ajax.php","reset_password_form");' />
+			<input type='button' value='Set Password' onclick='send_ajax_call_from_form("/pages/users/ajax.php","reset_password_form");' />
 		</div><br />
 	</form>
 	<?php
