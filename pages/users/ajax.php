@@ -21,17 +21,26 @@ class user_ajax {
 	}
 
 	public static function create_user() {
+		global $maindb;
+		global $userdb;
 		$s_username = trim(get_post_var('username'));
 		$s_password = trim(get_post_var('password'));
 		$s_email = trim(get_post_var('email'));
-
+		
+		// check the input
 		if (strlen($s_username) == 0)
 				return 'print error[*note*]The username is blank.';
 		if (strlen($s_password) == 0)
 				return 'print error[*note*]The password is blank.';
 		if (strlen($s_email) == 0)
 				return 'print error[*note*]The email is blank.';
+		
+		// check that the email and username are unique
+		$a_users = db_query("SELECT * FROM `[database]`.`[table]` WHERE `username`='[username]' OR `email`='[email]'", array("database"=>$maindb, "table"=>$userdb, "username"=>$s_username, "email"=>$s_email));
+		if (count($a_users) > 0)
+				return 'print error[*note*]That username or email is already taken.';
 
+		// try creating the user
 		if (!user_funcs::create_user($s_username, $s_password, $s_email))
 				return 'print error[*note*]Error creating user';
 
