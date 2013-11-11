@@ -157,6 +157,8 @@ for node in nodes:
 writeSelectToFile(termsList, "banweb_terms.py", "terms")
 writeSelectToFile(subjects, "banweb_subjects.py", "subjects")
 
+termsList = [['201430', 'Spring 2014'], ['201510', 'Summer 2014']]
+
 terms = []
 
 def getTerm(semester):
