@@ -37,8 +37,6 @@ function draw_create_page() {
 	return implode("\n", $a_retval);
 }
 
-if (isset($_POST['draw_create_user_page'])) {
-		echo draw_create_page();
-}
+echo draw_create_page();
 
 ?>
