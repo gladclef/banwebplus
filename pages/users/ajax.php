@@ -39,6 +39,10 @@ class user_ajax {
 		$a_users = db_query("SELECT * FROM `[database]`.`[table]` WHERE `username`='[username]' OR `email`='[email]'", array("database"=>$maindb, "table"=>$userdb, "username"=>$s_username, "email"=>$s_email));
 		if (count($a_users) > 0)
 				return 'print error[*note*]That username or email is already taken.';
+		
+		// check that the username is valid
+		if (!preg_match("/^[a-zA-Z0-9 ]+$/", $s_username))
+				return 'print error[*note*]The username is invalid (may only contain letters, numbers, and spaces)';
 
 		// try creating the user
 		if (!user_funcs::create_user($s_username, $s_password, $s_email))
