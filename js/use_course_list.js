@@ -7,7 +7,8 @@ $(
 	function() {
 		o_courses = new typeCoursesList();
 		a_available_semesters = o_courses.getAvailableSemesters();
-		o_courses.setSemester(a_available_semesters[a_available_semesters.length-1][0]);
+		s_default_semester = o_courses.getDefaultSemester();
+		o_courses.setSemester(s_default_semester);
 		draw_subject_selector("subject_selector");
 		updateClassesTab();
 		draw_tab("Classes");

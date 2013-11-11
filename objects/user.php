@@ -49,11 +49,12 @@ class user {
 
 	public function update_settings($s_type, $a_settings) {
 		global $maindb;
+		global $settings_table;
 		if ($this->check_is_guest())
 				return 'error|settings can\'t be saved as a guest';
 
 		$query_string = 'SELECT `id` FROM `[database]`.`[table]` WHERE '.array_to_where_clause($a_settings).' AND `user_id`=\'[user_id]\' AND `type`=\'[type]\'';
-		$query_vars = array("database"=>$maindb, "table"=>"user_settings", "user_id"=>$this->id, "type"=>$s_type);
+		$query_vars = array("database"=>$maindb, "table"=>$settings_table, "user_id"=>$this->id, "type"=>$s_type);
 		$a_exists = db_query($query_string, $query_vars);
 		if(count($a_exists) > 0)
 				return "print success[*note*]Settings already saved";
@@ -104,7 +105,7 @@ class user {
 				$this->a_blacklists[$s_semtext] = $this->load_user_blacklist($s_year, $s_semester);
 		return $this->a_blacklists[$s_semtext];
 	}
-
+	
 	public function save_user_classes($s_year, $s_semester, $s_json_saveval, $s_timestamp) {
 		return $this->save_time_dependent_user_data($s_year, $s_semester, 'semester_classes', $s_json_saveval, $s_timestamp);
 	}
@@ -121,6 +122,8 @@ class user {
 
 	private function load_user_classes($s_year, $s_semester) {
 		$a_user_data = $this->load_user_data($s_year, $s_semester, 'semester_classes');
+		if (!is_array($a_user_data) || count($a_user_data) == 0)
+				return array();
 		foreach($a_user_data as $k=>$a_class) {
 				$crn = $a_class->crn;
 				if (!is_numeric($crn))

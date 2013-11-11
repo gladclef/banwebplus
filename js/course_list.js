@@ -12,6 +12,7 @@ typeCoursesList = function() {
 	var semester = '201330';
 	var available_semesters = [];
 	var conflicting_objects = [];
+	var default_semester = '';
 	conflicting_object = null;
 
 	this.setSemester = function(sem) {
@@ -65,6 +66,12 @@ typeCoursesList = function() {
 			conflicting_objects[sem+''] = new typeConflictingCourses(this);
 		}
 		return available_semesters;
+	}
+	
+	this.getDefaultSemester = function() {
+		if (typeof(default_semester) == 'undefined' || default_semester == '')
+			default_semester = send_ajax_call('/resources/ajax_calls.php', {command:'get_default_semester'});
+		return default_semester;
 	}
 
 	this.getAvailableSubjects = function() {
