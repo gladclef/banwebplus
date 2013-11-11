@@ -132,6 +132,42 @@ class ajax {
 						$a_settings[substr($k,strlen('setting_'))] = $v;
 		return $global_user->update_settings($setting_type, $a_settings);
 	}
+	
+	/**
+	 * Gets or sets the default semester, which is loaded first every time the user logs in.
+	 * If the first part of the semester doesn't match the latest semester, return the latest semester.
+	 * @default_semester string  The semester to set as the default or NULL
+	 * @b_load           boolean If TRUE returns the saved value, FALSE set the value
+	 * @return           string  The default semester to load
+	 */
+	function default_semester($default_semester = NULL, $b_load = FALSE) {
+		
+		global $global_user;
+
+		// get some values
+		$a_semester_list = json_decode($this->list_available_semesters());
+		$s_latest_semester = $a_semester_list[count($a_semester_list)-1][0];
+		
+		// check that a value was passed
+		$s_semester = get_post_var('default_semester', $default_semester);
+		if ($b_load) {
+			$s_setting = $global_user->get_server_setting('default_semester');
+			$a_setting = explode("|", $s_setting);
+			if ((string)$a_setting[0] != $s_latest_semester)
+				return $s_latest_semester;
+			return $a_setting[1];
+		}
+		if ($default_semester === NULL)
+			$default_semester = "{$s_latest_semester}|{$s_latest_semester}";
+		
+		// set the default semester setting
+		$global_user->update_settings("server", array('default_semester'=>"{$s_latest_semester}|{$s_semester}"));
+		
+		return "set";
+	}
+	function get_default_semester() {
+		return $this->default_semester(NULL, TRUE);
+	}
 }
 
 $s_command = get_post_var("command");

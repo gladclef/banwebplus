@@ -17,6 +17,7 @@ require_once(dirname(__FILE__)."/../login/access_object.php");
  */
 function reset_password($s_username, $s_key, $s_password, $b_force = FALSE) {
 	
+	global $maindb;
 	global $o_access_object;
 	
 	// check that the user exists
@@ -32,11 +33,11 @@ function reset_password($s_username, $s_key, $s_password, $b_force = FALSE) {
 	// check the key and time
 	if ($s_reset_key != $s_key && !$b_force)
 		return array(FALSE, "Invalid credentials");
-	if ($i_reset_expiration > $i_now && !$b_force)
+	if ($i_reset_expiration < $i_now && !$b_force)
 		return array(FALSE, "The reset has timed out. Please resubmit the request to reset your password.");
 	
 	// reset the password
-	db_query("UPDATE `students` SET `pass`=AES_ENCRYPT('[username]','[password]') WHERE `username`='[username]'", array("username"=>$s_username, "password"=>$s_password), TRUE);
+	db_query("UPDATE `[maindb]`.`students` SET `pass`=AES_ENCRYPT('[username]','[password]') WHERE `username`='[username]'", array("username"=>$s_username, "password"=>$s_password, "maindb"=>$maindb));
 	return array(TRUE, "Your password has been set. You can now login with the username {$s_username}.");
 }
 

@@ -49,11 +49,12 @@ class user {
 
 	public function update_settings($s_type, $a_settings) {
 		global $maindb;
+		global $settings_table;
 		if ($this->check_is_guest())
 				return 'error|settings can\'t be saved as a guest';
 
 		$query_string = 'SELECT `id` FROM `[database]`.`[table]` WHERE '.array_to_where_clause($a_settings).' AND `user_id`=\'[user_id]\' AND `type`=\'[type]\'';
-		$query_vars = array("database"=>$maindb, "table"=>"user_settings", "user_id"=>$this->id, "type"=>$s_type);
+		$query_vars = array("database"=>$maindb, "table"=>$settings_table, "user_id"=>$this->id, "type"=>$s_type);
 		$a_exists = db_query($query_string, $query_vars);
 		if(count($a_exists) > 0)
 				return "print success[*note*]Settings already saved";
@@ -104,7 +105,7 @@ class user {
 				$this->a_blacklists[$s_semtext] = $this->load_user_blacklist($s_year, $s_semester);
 		return $this->a_blacklists[$s_semtext];
 	}
-
+	
 	public function save_user_classes($s_year, $s_semester, $s_json_saveval, $s_timestamp) {
 		return $this->save_time_dependent_user_data($s_year, $s_semester, 'semester_classes', $s_json_saveval, $s_timestamp);
 	}
@@ -112,7 +113,6 @@ class user {
 		return $this->save_time_dependent_user_data($s_year, $s_semester, 'semester_whitelist', $s_json_saveval, $s_timestamp);
 	}
 	public function save_user_blacklist($s_year, $s_semester, $s_json_saveval, $s_timestamp) {
-		error_log('save_user_blacklist'.$s_json_saveval);
 		return $this->save_time_dependent_user_data($s_year, $s_semester, 'semester_blacklist', $s_json_saveval, $s_timestamp);
 	}
 
@@ -122,6 +122,8 @@ class user {
 
 	private function load_user_classes($s_year, $s_semester) {
 		$a_user_data = $this->load_user_data($s_year, $s_semester, 'semester_classes');
+		if (!is_array($a_user_data) || count($a_user_data) == 0)
+				return array();
 		foreach($a_user_data as $k=>$a_class) {
 				$crn = $a_class->crn;
 				if (!is_numeric($crn))
@@ -160,7 +162,6 @@ class user {
 		$a_query = db_query($s_querystring, $a_queryvars);
 		if (is_array($a_query) && count($a_query) > 0)
 				return -1;
-		error_log('save_time_dependent_user_data'.$s_json_saveval);
 		return $this->save_user_data($s_year, $s_semester, $s_tablename, $s_json_saveval, $s_timestamp);
 	}
 
@@ -171,7 +172,6 @@ class user {
 		$s_querystring = "UPDATE `[database]`.`[table]` SET `json`='[json]',`time_submitted`='[timestamp]' WHERE `year`='[year]' AND `semester`='[semester]' AND `user_id`='[user_id]'";
 		create_row_if_not_existing($a_queryvars);
 		db_query($s_querystring, array_merge(array('json'=>$s_json_saveval, 'timestamp'=>$s_timestamp), $a_queryvars));
-		error_log('save_user_data'.$s_json_saveval);
 		return (mysql_affected_rows());
 	}
 
@@ -189,10 +189,9 @@ class user {
 		$username = $this->name;
 
 		if ($password !== NULL)
-				$a_users = db_query("SELECT * FROM `[maindb]`.`[userdb]` WHERE `username`='[username]' AND `pass`=AES_ENCRYPT('[username]','[password]')", array("maindb"=>$maindb, "userdb"=>$userdb, "username"=>$username, "password"=>$password), TRUE);
+				$a_users = db_query("SELECT * FROM `[maindb]`.`[userdb]` WHERE `username`='[username]' AND `pass`=AES_ENCRYPT('[username]','[password]')", array("maindb"=>$maindb, "userdb"=>$userdb, "username"=>$username, "password"=>$password));
 		else
-				$a_users = db_query("SELECT * FROM `[maindb]`.`[userdb]` WHERE `username`='[username]' AND `pass`='[crypt_password]'", array("maindb"=>$maindb, "userdb"=>$userdb, "username"=>$username, "crypt_password"=>$crypt_password), TRUE);
-		error_log(print_r($a_users,TRUE));
+				$a_users = db_query("SELECT * FROM `[maindb]`.`[userdb]` WHERE `username`='[username]' AND `pass`='[crypt_password]'", array("maindb"=>$maindb, "userdb"=>$userdb, "username"=>$username, "crypt_password"=>$crypt_password));
 		if ($a_users === FALSE)
 				return FALSE;
 		if (count($a_users) == 0)

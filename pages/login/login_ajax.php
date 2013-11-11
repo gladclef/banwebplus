@@ -14,8 +14,6 @@ if ($o_user->exists_in_db()) {
 		login_session($o_user);
 		echo "load page[*note*]/pages/classes/main.php";
 } else {
-		error_log($s_username);
-		error_log($s_password);
 		echo "print error[*note*]Bad username or password[*command*]clear field[*note*]password";
 }
 

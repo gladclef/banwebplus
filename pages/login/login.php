@@ -48,7 +48,7 @@ function draw_login_page($session_expired_message) {
 		<label name='username'>Username</label>
 		<input type='textbox' size='20' name='username'><br />
 		<label name='password'>Password</label>
-		<input type='password' size='20' name='password'><br />
+		<input type='password' size='20' name='password' onkeydown='if (event.which == 13) { $(this).parent().find("input[value=Submit]").click(); };'><br />
 		<div style='float:right;'>
 			<input type='button' value='Submit' onclick='send_ajax_call_from_form("/pages/login/login_ajax.php",$(this).parent().parent().prop("id"));' />
 		</div><br />
