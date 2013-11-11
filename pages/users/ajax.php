@@ -113,7 +113,9 @@ If you ever forget your password you can reset it from the main page by clicking
 		$s_reset_key = $o_access_object->get_reset_key($s_username, TRUE);
 		$i_reset_time = $o_access_object->get_reset_expiration($s_username, TRUE);
 		$i_reset_minutes = (int)(($i_reset_time - strtotime('now')) / 60);
-		mail($s_email, "Request to Reset Banwebplus Password", "A password reset attempt has been made with banwebplus.com for the user {$s_username}, registered with this email address. If you did not request this reset please ignore this email.\n\nYou have {$i_reset_minutes} minutes to click the link below to reset your password. Ignore this email if you do not want your password reset.\nhttp://banwebplus.com/pages/users/reset_password.php?username={$s_username}&key={$s_reset_key}", "From: noreply@banwebplus.com");
+		$s_body = "A password reset attempt has been made with banwebplus.com for the user {$s_username}, registered with this email address. If you did not request this reset please ignore this email.\n\nYou have {$i_reset_minutes} minutes to click the link below to reset your password. Ignore this email if you do not want your password reset.\nhttp://banwebplus.com/pages/users/reset_password.php?username={$s_username}&key={$s_reset_key}";
+		error_log($s_body);
+		mail($s_email, "Request to Reset Banwebplus Password", $s_body, "From: noreply@banwebplus.com");
 		return array(TRUE, "A verification email has been sent to {$s_email}");
 	}
 

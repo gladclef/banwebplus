@@ -33,9 +33,8 @@ function draw_tab(s_tabname) {
 		selected_button.click();
 	
 	// run specific tab code, if there is any
-	var func_name = "draw_tab_"+s_tabname;
 	setTimeout(function() {
-		eval(func_name+"()");
+		eval("o_tabInitializations."+s_tabname+"()");
 	}, 10);
 }
 
@@ -46,48 +45,17 @@ function click_tab_by_tabname(s_tabname) {
 }
 
 o_tabInitializations = {
-	schedule: function() {
+	Schedule: function() {
 	},
-	custom: function() {
-		var jcontainer = $("#custom_add_class");
-		var thead = "<table cellpadding='0px' cellspacing='0px'><tr>'";
-		var tbody = "<tr>";
-		var customHeaders = headers;
-		
-		customHeaders = $.grep(customHeaders, function(v,k) {
-			if (v != "Select" && v != "Conflicts") {
-				return true;
-			} else {
-				return false;
-			}
-		});
-	
-		for(var col = 1; col < customHeaders.length; col++) {
-			header = customHeaders[col];
-			thead += "<th>"+header+"</th>";
-			tbody += "<td><input type='textbox' name='"+header+"'></input></td>";
-			if ((col % 5 == 0) && (customHeaders.length - col > 1)) {
-				thead += "</tr>";
-				tbody += "</tr>";
-				thead = thead + tbody;
-				thead += "<tr>";
-				tbody = "<tr>";
-			}
-		}
-
-		thead += "</tr>";
-		tbody += "</tr>";
-		var table = thead+tbody+"</table>";
-
-		jcontainer.html("");
-		jcontainer.append(table);
+	Custom: function() {
+		tabCustomClasses.init();
 	},
-	classes: function() {
+	Classes: function() {
 	},
-	lists: function() {
+	Lists: function() {
 	},
-	settings: function() {
+	Settings: function() {
 	},
-	feedback: function() {
+	Bugs: function() {
 	}
 };

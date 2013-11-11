@@ -9,13 +9,7 @@ function init_custom() {
     <div class=\'centered\'>Remove Custom Class</div>
 </td></tr></table>
 <div id=\'custom_remove_class\' class=\'centered\'>&nbsp;</div><br />
-<input type=\'button\' style=\'display:none;\' name=\'onselect\' onclick=\'o_custom.draw_custom_tab();\' />
-
-<script type=\'text/javascript\'>
-function draw_tab_Custom() {
-    o_tabInitializations.custom();
-}
-</script>
+<input type=\'button\' style=\'display:none;\' name=\'onselect\' />
 ';
 }
 

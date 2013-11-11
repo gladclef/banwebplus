@@ -58,6 +58,7 @@ function draw_page_head($outside_content = '') {
 	$a_page[] = '<script src="/js/common_functions.js"></script>';
 	$a_page[] = '<script src="/js/ajax.js"></script>';
 	$a_page[] = '<script src="/js/login_logout.js"></script>';
+	$a_page[] = '<script src="/js/tab_custom.js"></script>';
 	$a_page[] = "</head>";
 	$a_page[] = "<body>";
 	$a_page[] = "<table class='main_page_container'><tr><td class='centered'>";
