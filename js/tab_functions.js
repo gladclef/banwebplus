@@ -7,7 +7,7 @@ function draw_tab(s_tabname) {
 	// hide the previous tab
 	var jprevious_tab = $(".tab.selected");
 	if (jprevious_tab && jprevious_tab.length > 0) {
-		var s_previous_tabname = jprevious_tab.text();
+		var s_previous_tabname = jprevious_tab.find("input[name=tab_non_printed_name]").val();
 		var jprevious_tab_contents = $("#"+s_previous_tabname+".tab_contents_div");
 		jprevious_tab_contents.stop(false,true);
 		//jprevious_tab_contents.animate({opacity:0},500,function(){
