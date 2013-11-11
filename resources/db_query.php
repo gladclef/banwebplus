@@ -75,6 +75,14 @@ function array_to_set_clause($a_vars) {
 	return $s_set;
 }
 
+// returns "`key1`='[key1]', `key2`='[key2]'"
+function array_to_update_clause($a_vars) {
+	$a_retval = array();
+	foreach($a_vars as $k=>$v)
+			$a_retval[] = "`{$k}`='[{$k}]'";
+	return implode(",", $a_retval);
+}
+
 function create_row_if_not_existing($a_vars) {
 	// get the database, table, and properties
 	$database = $a_vars['database'];

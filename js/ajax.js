@@ -97,8 +97,12 @@ function send_ajax_call_from_form(php_file_name, form_id) {
 	var posts = {};
 	var full_posts = [];
 	for(var i = 0; i < inputs.length; i++) {
-		var name = $(inputs[i]).prop("name");
-		var value = $(inputs[i]).val();
+		var jinput = $(inputs[i]);
+		var name = jinput.prop("name");
+		var value = jinput.val();
+		if (jinput.prop('type') == 'checkbox') {
+			value = jinput[0].checked ? 1 : 0;
+		}
 		full_posts.push([name, value]);
 		posts[name] = value;
 	}
