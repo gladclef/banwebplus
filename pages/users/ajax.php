@@ -38,7 +38,7 @@ class user_ajax {
 		mail($s_email, 'banwebplus account', 'You just created an account on banwebplus.com with the username "'.$s_username.'."
 Log in to your new account from www.banwebplus.com.
 
-If you ever forget your password you can reset it from the main page by clicking on the "forgot password" link (once I have it functioning).', 'From: noreply@banwebplus.com');
+If you ever forget your password you can reset it from the main page by clicking on the "forgot password" link.', 'From: noreply@banwebplus.com');
 		return 'print success[*note*]Success! You can now use the username '.$s_username.' to log in from the main page!';
 	}
 
