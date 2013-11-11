@@ -188,7 +188,7 @@ class ajax {
 				return "print error[*note*]Please include a subject in your email.<br />";
 		if ($s_body == "")
 				return "print error[*note*]Please include a body in your email.<br />";
-		mail("bbean@cs.nmt.edu", $s_subject, $s_body, "From: ".$global_user->get_email());
+		mail("bbean@cs.nmt.edu", "Banwebplus Feedback: {$s_subject}", $s_body, "From: ".$global_user->get_email());
 		return "print success[*note*]Thank you for your feedback!<br />";
 	}
 }
