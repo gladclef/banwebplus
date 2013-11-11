@@ -154,10 +154,15 @@ for node in nodes:
 	elif nodeAttribs[u"name"] == u"p_subj":
 		subjects = getRetardedSelectSyntaxFromBanweb(node)[:]
 
+import banweb_terms
+for t in banweb_terms.terms:
+	if not t in termsList:
+		termsList.append(t)
+termsList.sort()
+print termsList
+
 writeSelectToFile(termsList, "banweb_terms.py", "terms")
 writeSelectToFile(subjects, "banweb_subjects.py", "subjects")
-
-termsList = [['201430', 'Spring 2014'], ['201510', 'Summer 2014']]
 
 terms = []
 
@@ -183,13 +188,15 @@ def getTerm(semester):
 
 latestYear = 0
 latestSemester = 0
+latestYearSemester = "201320"
 
 for t in termsList:
 	year = int(t[0][0:4])
 	semester = int(t[0][4:6])
-	if (year > latestYear and semester > latestSemester):
+	if (t[0] > latestYearSemester):
 		latestYear = year
 		latestSemester = semester
+		latestYearSemester = t[0]
 	
 for t in termsList:
 	semester = t[0]
