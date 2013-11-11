@@ -110,7 +110,7 @@ typeListsTab = function() {
 	}
 	
 	var populateValuePlaceholder_examplevVal = '';
-	this.populateValuePlaceholder = function(jAttrsSelect, jOpsSelect, listName, findNewExample) {
+	this.populateValuePlaceholder = function(jAttrsSelect, jOpsSelect, listName, findNewExample, jtextarea) {
 		var s_operator = jOpsSelect.val();
 		var s_attribute = jAttrsSelect.val();
 		var index = get_index_of_header(s_attribute, headers);
@@ -118,7 +118,8 @@ typeListsTab = function() {
 		var startAt = parseInt(Math.random(1)*a_classes.length);
 		var s_placeholder = '';
 		var s_exampleValue = '';
-		var jtextarea = $($('#'+listName+'_add_row_form').find('input[type=textarea]'));
+		if (!jtextarea)
+			jtextarea = $($('#'+listName+'_add_row_form').find('input[type=textarea]'));
 		var a_specialOps = {
 			contains: {
 				'function': function(example) {
@@ -182,7 +183,9 @@ typeListsTab = function() {
 		else
 			s_placeholder = 'Value';
 		
-		jtextarea.prop('placeholder', s_placeholder);
+		if (jtextarea.length > 0)
+			jtextarea.prop('placeholder', s_placeholder);
+		return s_placeholder;
 	}
 	
 	this.submitRule = function(jform) {

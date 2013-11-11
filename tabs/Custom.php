@@ -4,6 +4,7 @@ function init_custom() {
 	return '<table class=\'table_title\'><tr><td>
     <div class=\'centered\'>Add Custom Class</div>
 </td></tr></table>
+<div class=\'centered\'>Add a custom class to show time conflictions<br />between already scheduled activities and courses from banweb.</div>
 <div id=\'custom_add_class\' class=\'centered\'>&nbsp;</div><br />
 <table class=\'table_title\'><tr><td>
     <div class=\'centered\'>Remove Custom Class</div>
