@@ -220,7 +220,8 @@ class user {
 		$a_settings_vars = array("database"=>$maindb, "table"=>$settings_table, "user_id"=>$userid, "type"=>"server");
 		$s_settings_string = "SELECT * FROM `[database]`.`[table]` WHERE `user_id`='[user_id]'";
 		$a_settings = db_query($s_settings_string, $a_settings_vars);
-		$this->a_server_settings = $a_settings[0];
+		if (is_array($a_settings) && count($a_settings) > 0)
+				$this->a_server_settings = $a_settings[0];
 		// load other settings
 	}
 }
