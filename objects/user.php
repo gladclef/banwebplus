@@ -62,6 +62,8 @@ class user {
 		$a_exists = db_query($query_string, $query_vars);
 		if(count($a_exists) > 0)
 				return "print success[*note*]Settings already saved";
+		
+		create_row_if_not_existing($query_vars);
 		$query_string = 'UPDATE `[database]`.`[table]` SET '.array_to_where_clause($a_settings).' WHERE `user_id`=\'[user_id]\' AND `type`=\'[type]\'';
 		db_query($query_string, $query_vars);
 		if (mysql_affected_rows() == 0)
