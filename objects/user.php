@@ -63,12 +63,13 @@ class user {
 		if(count($a_exists) > 0)
 				return "print success[*note*]Settings already saved";
 		
+		$a_current = db_query("SELECT * FROM `[database]`.`[table]` WHERE `user_id`='[user_id]' AND `type`='server'", $query_vars);
 		$query_string = 'UPDATE `[database]`.`[table]` SET '.array_to_update_clause($a_settings).' WHERE `user_id`=\'[user_id]\' AND `type`=\'[type]\'';
 		db_query($query_string, array_merge($a_settings, $query_vars));
 		if (mysql_affected_rows() == 0) {
 				return "print error[*note*]Failed to save settings";
 		} else {
-				$this->updateSpecialSettings($a_settings);
+				$this->updateSpecialSettings($a_settings, $a_current[0]);
 				return "print success[*note*]Settings saved successfully. Next time you log in these settings will take effect.";
 		}
 	}
@@ -127,13 +128,15 @@ class user {
 	 *                   P R I V A T E   F U N C T I O N S               *
 	 *********************************************************************/
 
-	// eg, creates a icalendar key if one doesn't already exist
-	private function updateSpecialSettings($a_settings) {
+	/**
+	 * Used to perform special operations when certain settings values are saved
+	 * eg, creates a icalendar key if one doesn't already exist
+	 * @$a_settings array The settings values to save.
+	 * @$a_current  array The settings values before the save.
+	 */
+	private function updateSpecialSettings($a_settings, $a_current) {
 		global $maindb;
 		global $settings_table;
-		
-		$a_current = db_query("SELECT * FROM `[database]`.`[table]` WHERE `user_id`='[id]'", array('database'=>$maindb, 'table'=>$settings_table, 'id'=>$this->get_id()));
-		$a_current = $a_current[0];
 		
 		foreach($a_settings as $setting_name=>$setting_value) {
 				
@@ -143,10 +146,10 @@ class user {
 				
 				if ($setting_name == 'enable_icalendar' && $a_current['enable_icalendar'] == '0') {
 						create_row_if_not_existing(array('database'=>$maindb, 'table'=>'generated_settings', 'user_id'=>$this->get_id()));
-						$a_generated_settings = db_query("SELECT `private_icalendar_key` FROM `[maindb]`.`generated_settings` WHERE `user_id`='[id]'", array('maindb'=>$maindb, 'id'=>$this->get_id()));
+						$a_generated_settings = db_query("SELECT `private_icalendar_key` FROM `[database]`.`generated_settings` WHERE `user_id`='[id]'", array('database'=>$maindb, 'id'=>$this->get_id()));
 						if ($a_generated_settings[0]['private_icalendar_key'] == '') {
 								$private_icalendar_key = md5($this->get_name().date("Y-m-d H:i:s")."this is a salt");
-								db_query("UPDATE `[maindb]`.`generated_settings` SET `private_icalendar_key`='[private_icalendar_key]' WHERE `user_id`='[id]'", array('maindb'=>$maindb, 'id'=>$this->get_id(), 'private_icalendar_key'=>$private_icalendar_key));
+								db_query("UPDATE `[database]`.`generated_settings` SET `private_icalendar_key`='[private_icalendar_key]' WHERE `user_id`='[id]'", array('database'=>$maindb, 'id'=>$this->get_id(), 'private_icalendar_key'=>$private_icalendar_key));
 						}
 				}
 		}

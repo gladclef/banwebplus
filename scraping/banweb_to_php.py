@@ -32,14 +32,14 @@ def translate_file(filename):
     m = __import__(filename)
     fout = file(filename+".php", "w")
     fout.write("<?php\n")
-    fout.write("class semesterData {\n")
+    fout.write("$semesterData = array(\n")
     
-    fout.write("\tpublic static $name = '"+s(m.name)+"';\n")
-    fout.write("\tpublic static $subjects = array(\n")
+    fout.write("\t'name'=>'"+s(m.name)+"',\n")
+    fout.write("\t'subjects'=>array(\n")
     for subject in m.subjects:
         fout.write("\t\t'"+s(subject[0])+"'=>'"+s(subject[1])+"',\n")
-    fout.write("\t);\n")
-    fout.write("\tpublic static $classes = array(\n")
+    fout.write("\t),\n")
+    fout.write("\t'classes'=>array(\n")
     
     subject_index = 0
     for subject in m.classes:
@@ -55,12 +55,10 @@ def translate_file(filename):
             fout.write("\n\t\t),\n")
         subject_index += 1
     
-    fout.write("\t);\n")
-    fout.write("\tpublic static function to_json() {\n")
-    fout.write("\t\t$a_retval = array('name'=>semesterData::$name, 'subjects'=>semesterData::$subjects, 'classes'=>semesterData::$classes);\n")
-    fout.write("\t\treturn json_encode($a_retval);\n")
-    fout.write("\t}\n")
-    fout.write("}\n")
+    fout.write("\t)\n")
+    fout.write(");\n");
+    fout.write("$a_retval = array('name'=>$semesterData['name'], 'subjects'=>$semesterData['subjects'], 'classes'=>$semesterData['classes']);\n")
+    fout.write("$s_classes_json = json_encode($a_retval);\n")
     fout.write("?>\n")
     fout.close()
 

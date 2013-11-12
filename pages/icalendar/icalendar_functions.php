@@ -6,6 +6,7 @@ class icalendarFunctions {
 	private $b_exists = FALSE;
 	private $o_user = NULL;
 	private $a_generated_settings = NULL;
+	private $o_classList = NULL;
 
 	function __construct($s_username, $s_key) {
 		global $maindb;
@@ -34,10 +35,37 @@ class icalendarFunctions {
 		$s_calHeader = $this->headerToString();
 		$s_calBody = $this->bodyToString();
 		$s_calFooter = $this->footerToString();
-		$s_cal = $s_calHeader.$s_calBody.$s_calFooter;
+		$s_cal = "{$s_calHeader}\n{$s_calBody}\n{$s_calFooter}";
 		$s_cal = str_replace(array("\n","\r","\n\r"), "\n", $s_cal);
-		$s_cal = str_replace("\n", "\n\r", $s_cal);
+		$a_cal = explode("\n", $s_cal);
+		$a_new_cal = array();
+		for($i = 0; $i < count($a_cal); $i++) {
+				$s_line = $a_cal[$i];
+				if (strlen($s_line) > 75) {
+						while (strlen($s_line) > 75) {
+								$s_part_line = substr($s_line, 0, 75);
+								$a_new_cal[] = $s_part_line;
+								$s_line = " ".substr($s_line, 75);
+						}
+				} else {
+						$a_new_cal[] = $s_line;
+				}
+		}
+		$s_cal = implode("\n", $a_new_cal);
 		return $s_cal;
+	}
+	
+	public static function calendarLinkToString() {
+		global $global_user;
+		global $maindb;
+
+		$s_id = $global_user->get_id();
+		$s_username = $global_user->get_name();
+
+		create_row_if_not_existing(array("database"=>$maindb, "table"=>"generated_settings", "user_id"=>$s_id));
+		$a_settings_rows = db_query("SELECT `private_icalendar_key` FROM `[database]`.`generated_settings` WHERE `user_id` = '[user_id]'", array('database'=>$maindb, 'user_id'=>$s_id));
+		
+		return "http://www.banwebplus.com/pages/icalendar/get_calendar.php?username={$s_username}&key=".$a_settings_rows[0]['private_icalendar_key'];
 	}
 
 	/********************************************************************************
@@ -45,12 +73,16 @@ class icalendarFunctions {
 	 *******************************************************************************/
 	
 	private function headerToString() {
+		
+		// get some values
+		$s_username = $this->o_user->get_name();
+
 		return "BEGIN:VCALENDAR
-PRODID:-//Google Inc//Google Calendar 70.9054//EN
-VERSION:2.0
+PRODID:-//Banwebplus//Banwebplus icalendar 1.0//EN
+VERSION:1.0
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
-X-WR-CALNAME:gladclef@gmail.com
+X-WR-CALNAME:{$s_username}@banwebplus.com
 X-WR-TIMEZONE:America/Denver
 BEGIN:VTIMEZONE
 TZID:America/Denver
@@ -73,19 +105,99 @@ END:VTIMEZONE";
 	}
 
 	private function bodyToString() {
+		$o_classes = $this->getListOfClasses();
+		$i_semester_startday = strtotime(date("Y-m-d 00:00:00",strtotime("Jan 10, 2014")));
+		$i_semester_endday = strtotime(date("Y-m-d 00:00:00",strtotime("May 15, 2014")));
+		$a_retval = array();
+		foreach($o_classes as $s_crn=>$a_class) {
+				$a_retval[] = $this->classToString($a_class, $i_semester_startday, $i_semester_endday);
+		}
+		return implode("\n", $a_retval);
+	}
+	
+	private function getListOfClasses() {
+		$o_retval = new stdClass();
+		$a_classes = $this->o_user->get_user_classes("2014", "30");
+		$o_classlist = $this->getClassList("2014", "30");
+		foreach($a_classes as $o_class) {
+				$s_crn = $o_class->crn;
+				if (isset($o_classlist->$s_crn))
+						$o_retval->$s_crn = $o_classlist->$s_crn;
+		}
+		return $o_retval;
+	}
+	
+	private function getClassList($s_year, $s_semester) {
+		if ($this->o_classList === NULL)
+				$this->o_classList = new stdClass();
+		if (!isset($this->o_classList->$s_year))
+				$this->o_classList->$s_year = new stdClass();
+		
+		// load the semester
+		if (!isset($this->o_classList->$s_year->$s_semester)) {
+				$this->o_classList->$s_year->$s_semester = new stdClass();
+				$o_class = $this->o_classList->$s_year->$s_semester;
+				require(dirname(__FILE__)."/../../scraping/sem_{$s_year}{$s_semester}.php");
+				foreach($semesterData['classes'] as $a_class) {
+						$s_crn = $a_class['CRN'];
+						$o_class->$s_crn = $a_class;
+				}
+		}
+
+		return $this->o_classList->$s_year->$s_semester;
+	}
+
+	private function classToString($a_class, $i_semester_startday, $i_semester_endday) {
+		
+		// get some values
+		$s_username = $this->o_user->get_name();
+		$s_semester_startday = date("Ymd", $i_semester_startday);
+		$s_semester_endday = date("Ymd", $i_semester_endday);
+		$a_weekdays = array("U"=>"Sunday", "M"=>"Monday", "T"=>"Tuesday", "W"=>"Wednesday", "R"=>"Thursday", "F"=>"Friday", "S"=>"Saturday");
+		$s_class_firstday = strtoupper(substr(trim($a_class['Days']), 0, 1));
+		$s_class_firstweekday = $a_weekdays[$s_class_firstday];
+		$s_class_starttime = substr($a_class['Time'], 0, 4)."00";
+		$s_class_endtime = substr($a_class['Time'], 5, 4)."00";
+		$s_class_location = $a_class['Location'].($a_class['*Campus'] == 'M' ? '' : 'Other Campus ('.$a_class['*Campus'].')');
+		$s_class_summary = $a_class['Course'];
+		
+		// find the start day of the class
+		if (date("l", $i_semester_startday) == $s_class_firstweekday)
+				$i_class_startday = $i_semester_startday;
+		else
+				$i_class_startday = strtotime("next {$s_class_firstweekday}", $i_semester_startday);
+		$s_class_startday = date("Ymd", $i_class_startday);
+		
+		// get all of the days associated with a class
+		$a_class_days = array();
+		for ($i = 0; $i < strlen($a_class['Days']); $i++) {
+				$s_day = strtoupper(substr($a_class['Days'], $i, 1));
+				if ($s_day == "" || !isset($a_weekdays[$s_day]))
+						continue;
+				$a_class_days[] = strtoupper(substr($a_weekdays[$s_day], 0, 2));
+		}
+		$s_class_weekdays = implode(",",$a_class_days);
+		
+		// get a description of the class
+		$a_description = array();
+		foreach($a_class as $k=>$v) {
+				$a_description[] = trim($k).": ".trim($v);
+		}
+		$s_description = implode(", ", $a_description);
+		
 		return "BEGIN:VEVENT
-DTSTART;TZID=America/Denver:20131112T090000
-DTEND;TZID=America/Denver:20131112T100000
-RRULE:FREQ=WEEKLY;UNTIL=20131217T160000Z;BYDAY=SU,MO,TU,WE,TH,FR,SA
-DTSTAMP:20131115T091740Z
-UID:7trd6kv2fmlgo2p917as557348@google.com
-CREATED:20131115T091706Z
-DESCRIPTION:
-LAST-MODIFIED:20131115T091706Z
-LOCATION:
+DTSTART;TZID=America/Denver:{$s_class_startday}T{$s_class_starttime}
+DTEND;TZID=America/Denver:{$s_class_startday}T{$s_class_endtime}
+RRULE:FREQ=WEEKLY;UNTIL={$s_semester_endday}T235900Z;BYDAY={$s_class_weekdays}
+DTSTAMP:".date("Ymd")."T".date("His")."Z
+UID:{$s_username}@banwebplus.com
+CREATED:{$s_semester_startday}T000000Z
+DESCRIPTION:{$s_description}
+LAST-MODIFIED:".date("Ymd")."T".date("His")."Z
+LOCATION:{$s_class_location}
 SEQUENCE:0
 STATUS:CONFIRMED
-SUMMARY:test
+SUMMARY:{$s_class_summary}
 TRANSP:OPAQUE
 END:VEVENT";
 	}

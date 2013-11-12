@@ -112,7 +112,10 @@ class ajax {
 				return 'file doesn\'t exists';
 	
 		require($s_fullname);
-		$s_semester = semesterData::to_json();
+		if (class_exists("semesterData"))
+				$s_semester = semesterData::to_json();
+		else
+				$s_semester = $s_classes_json;
 		return $s_semester;
 	}
 

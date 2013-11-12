@@ -23,6 +23,9 @@ if (!$o_icalendarFunctions->exists()) {
 $s_trash = ob_get_contents();
 ob_end_clean();
 
-echo $s_calendar;
+if (isset($_GET['pretty']))
+		echo "<pre>".$s_calendar."</pre>";
+else
+		echo $s_calendar;
 
 ?>

@@ -93,7 +93,7 @@ function array_to_insert_clause($a_vars) {
 	return "(`".implode("`,`",$a_keys)."`) VALUES ('[".implode("]','[",$a_keys)."]')";
 }
 
-function create_row_if_not_existing($a_vars) {
+function create_row_if_not_existing($a_vars, $b_print_queries = FALSE) {
 	// get the database, table, and properties
 	$database = $a_vars['database'];
 	$table = $a_vars['table'];
@@ -109,12 +109,12 @@ function create_row_if_not_existing($a_vars) {
 	// check if it exists
 	$s_query_string = "SELECT `id` FROM `[database]`.`[table]` WHERE $s_where";
 	$a_query_vars = array("database"=>$database, "table"=>$table);
-	$a_result = db_query($s_query_string, $a_query_vars, TRUE);
+	$a_result = db_query($s_query_string, $a_query_vars, $b_print_queries);
 	if ($a_result !== NULL) {
 			if (count($a_result) == 0) {
 					$s_query_string = "INSERT INTO `[database]`.`[table]` $s_set";
 					$a_query_vars = array_merge($a_properties, array("database"=>$database, "table"=>$table));
-					$a_result = db_query($s_query_string, $a_query_vars, TRUE);
+					$a_result = db_query($s_query_string, $a_query_vars, $b_print_queries);
 					return TRUE;
 			}
 	}
