@@ -79,7 +79,7 @@ function init_settings_tab() {
 			"type"=>"checkbox",
 			"name"=>"enable_icalendar",
 			"default"=>$a_settings['enable_icalendar'],
-			"access"=>"development"
+			"access"=>""
 		)
 	);
 	$server_table = create_save_preferences_table($server_options);
