@@ -32,7 +32,7 @@ function schedule_icalendar_tostring() {
 	return '    <table class=\'table_title\'><tr><td>
 <div class=\'centered\'>Export Full Calendar</div>
 </td></tr></table>
-<div class=\'centered\'>'.": <a href='#' onclick='o_schedule.drawicalendarLink();'>Link To Calendar</a> : <a href='$s_download_link' target='_blank'>Download Calendar</a> : <a href='http://nmt.edu/~bbean/banweb/icalendar/exporting.html' target=\'_blank\'>Help</a> :".'</div>
+<div class=\'centered\'>'.": <a href='#scroll_to_element' onclick='scrollWindowCurrent(); o_schedule.drawicalendarLink();'>Link To Calendar</a> : <a href='$s_download_link' target='_blank'>Download Calendar</a> : <a href='http://nmt.edu/~bbean/banweb/icalendar/exporting.html' target=\'_blank\'>Help</a> :".'</div>
 <div class=\'centered\' id=\'icalendar_reveal_link\' style=\'display:none;\'><input type=\'textarea\' value=\''.$s_web_link.'\'></input></div>
 <br />';
 }
