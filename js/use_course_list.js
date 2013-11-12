@@ -6,7 +6,7 @@ o_courses = null;
 $(
 	function() {
 		o_courses = new typeCoursesList();
-		a_available_semesters = o_courses.getAvailableSemesters();
+		o_courses.getAvailableSemesters();
 		s_default_semester = o_courses.getDefaultSemester();
 		o_courses.setSemester(s_default_semester);
 		draw_subject_selector("subject_selector");
@@ -27,11 +27,61 @@ add_extra_subject_index = 0;
 function add_extra_subject(add_subject_button) {
 	var jbutton = $(add_subject_button);
 	var s_new_subject = $("#subject_selector").outerHTML();
-	s_new_subject = s_new_subject.replace("subject_selector", "subject_selector_"+add_extra_subject_index);
+	var s_id = "subject_selector_"+add_extra_subject_index;
+	s_new_subject = s_new_subject.replace("subject_selector", s_id);
 	s_new_subject = s_new_subject.replace('<option','<option value="remove">Remove</option><option value="-1">&nbsp;</option><option');
 	jbutton.before(s_new_subject);
 	$("#subject_selector_"+add_extra_subject_index).val(-1);
 	add_extra_subject_index++;
+	return s_id;
+}
+
+// gets the id and name of the subject selector
+function get_subject_selectors_values() {
+	var jclasses = $("#Classes");
+	var jselectors = jclasses.children("select[id^=subject_selector]");
+	var retval = [];
+	$.each(jselectors, function(k,v) {
+		name = $(v).children("option[value="+v.value+"]").text();
+		retval.push({id: v.id, value: v.value, name: name});
+	});
+	return retval;
+}
+
+// rebuilds the subject selectors from their values
+// @param a_values array An array in the form [{id:selectorid, value:selectorvalue, name:nameofvalue}, ...]
+function rebuild_subject_selectors_from_values(a_values) {
+	
+	// get some values
+	var jbutton = $("#add_subject_button");
+	
+	// get the subjects and their indices
+	var jsubjects = $("#subject_selector").children("option");
+	var a_index_by_subject = [];
+	$.each(jsubjects, function(k,v) {
+		var jsubject = $(v);
+		a_index_by_subject[jsubject.text()] = jsubject.val();
+	});
+
+	// draw each subject in turn
+	$.each(a_values, function(k,v) {
+		var jselector = $("#"+v.id);
+		if (typeof(a_index_by_subject[v.name]) !== 'undefined') {
+			console.log(v.name+", "+a_index_by_subject[v.name]);
+			if (jselector.length > 0 && v.id != "subject_selector") {
+				console.log(v.id);
+				jselector.remove();
+				var id = add_extra_subject(jbutton, a_index_by_subject[v.name]);
+				jselector = $("#"+id);
+			} else if (jselector.length == 0) {
+				var id = add_extra_subject(jbutton, a_index_by_subject[v.name]);
+				jselector = $("#"+id);
+			}
+			jselector.val(a_index_by_subject[v.name]);
+		}
+	});
+	
+	draw_course_table();
 }
 
 // draws the original selector (and ONLY the original selector)

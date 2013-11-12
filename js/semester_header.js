@@ -44,6 +44,7 @@ typeSemesterHeader = function() {
 	}
 	
 	this.setSemester = function(s_semester) {
+		var currentSubjects = get_subject_selectors_values();
 		var currentSemester = o_courses.getCurrentSemester();
 		var s_current = currentSemester.year.school_year+currentSemester.value;
 
@@ -53,6 +54,8 @@ typeSemesterHeader = function() {
 		this.draw();
 		o_schedule.draw();
 		o_tabInitializations.initSelectedTab();
+		draw_subject_selector();
+		rebuild_subject_selectors_from_values(currentSubjects);
 		send_ajax_call("/resources/ajax_calls.php", { command:"default_semester", default_semester: s_semester });
 	}
 }
