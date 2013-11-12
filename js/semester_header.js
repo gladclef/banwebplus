@@ -51,6 +51,8 @@ typeSemesterHeader = function() {
 			return;
 		o_courses.setSemester(s_semester);
 		this.draw();
+		o_schedule.draw();
+		o_tabInitializations.initSelectedTab();
 		send_ajax_call("/resources/ajax_calls.php", { command:"default_semester", default_semester: s_semester });
 	}
 }

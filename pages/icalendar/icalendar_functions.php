@@ -69,9 +69,9 @@ class icalendarFunctions {
 		
 		if ($s_linktype == "web")
 				return "http://www.banwebplus.com/pages/icalendar/calendars/{$s_username}/".$a_settings_rows[0]['private_icalendar_key']."/ClassSchedule.ics";
-		else if ($s_linktype = "view")
+		else if ($s_linktype == "view")
 				return "http://www.banwebplus.com/pages/icalendar/calendars/{$s_username}/".$a_settings_rows[0]['private_icalendar_key']."/pretty/ClassSchedule.ics";
-		else if ($s_linktype = "download")
+		else if ($s_linktype == "download")
 				return "http://www.banwebplus.com/pages/icalendar/calendars/{$s_username}/".$a_settings_rows[0]['private_icalendar_key']."/download/ClassSchedule.ics";
 		else
 				return self::calendarLinkToString("view");
@@ -122,8 +122,6 @@ END:VTIMEZONE";
 				$s_year = substr($s_term, 0, 4);
 				$s_semester = substr($s_term, 4);
 				
-				error_log("{$s_year}:{$s_semester}");
-
 				$o_classes = $this->getListOfClasses($s_year, $s_semester);
 				if ($s_semester == "10") {
 						$s_sem_year = (string)((int)$s_year - 1);

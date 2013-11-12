@@ -11,13 +11,13 @@ function init_schedule() {
 <table class=\'table_title\'><tr><td>
     <div class=\'centered\'>Selected Classes</div>
 </td></tr></table>
-<div id=\'schedule_tab_user_schedule\' class=\'centered\'>&nbsp;</div><br />
+<div id=\'schedule_tab_user_schedule\' class=\'centered\'>&nbsp;</div><br /><br />
 <table class=\'table_title\'><tr><td>
     <div class=\'centered\'>Recently Selected</div>
 </td></tr></table>
-<div id=\'schedule_tab_user_recently_viewed_schedule\' class=\'centered\'>&nbsp;</div><br />
+<div id=\'schedule_tab_user_recently_viewed_schedule\' class=\'centered\'>&nbsp;</div><br /><br />
 '.schedule_icalendar_tostring().'
-<input type=\'button\' style=\'display:none;\' name=\'onselect\' onclick=\'draw_schedule_tab();\' />';
+<input type=\'button\' style=\'display:none;\' name=\'onselect\' />';
 }
 
 function schedule_icalendar_tostring() {
@@ -30,10 +30,10 @@ function schedule_icalendar_tostring() {
 	$s_download_link = icalendarFunctions::calendarLinkToString("download");
 	
 	return '    <table class=\'table_title\'><tr><td>
-<div class=\'centered\'>Link to icalendar</div>
+<div class=\'centered\'>Export Full Calendar</div>
 </td></tr></table>
-<div class=\'centered\'>Instructions: <a href=\'http://nmt.edu/~bbean/banweb/icalendar/about_icalendar.html\' target=\'_blank\'>About icalendar</a></div>
-<div class=\'centered\'>'."<a href='$s_web_link'>For Use in Applications</a> <a href='$s_view_link'>Raw Format</a> <a href='$s_download_link'>Download icalendar</a>".'</div>
+<div class=\'centered\'>'.": <a href='#' onclick='o_schedule.drawicalendarLink();'>Link To Calendar</a> : <a href='$s_download_link' target='_blank'>Download Calendar</a> : <a href=\'http://nmt.edu/~bbean/banweb/icalendar/exporting.html\' target=\'_blank\'>Help</a> :".'</div>
+<div class=\'centered\' id=\'icalendar_reveal_link\' style=\'display:none;\'><input type=\'textarea\' value=\''.$s_web_link.'\'></input></div>
 <br />';
 }
 

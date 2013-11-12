@@ -44,18 +44,34 @@ function click_tab_by_tabname(s_tabname) {
 		jtab.click();
 }
 
-o_tabInitializations = {
-	Schedule: function() {
-	},
-	Custom: function() {
+typeTabInitializations = function() {
+	this.Schedule = function() {
+		o_schedule.draw();
+	};
+	this.Custom = function() {
 		tabCustomClasses.init();
-	},
-	Classes: function() {
-	},
-	Lists: function() {
-	},
-	Settings: function() {
-	},
-	Bugs: function() {
-	}
+	};
+	this.Classes = function() {
+	};
+	this.Lists = function() {
+	};
+	this.Settings = function() {
+	};
+	this.Bugs = function() {
+	};
+
+	// returns the currently selected tab, as {jtab:jquery object, name:string}
+	this.getSelectedTab = function() {
+		var jtab = $(".tab.selected");
+		var jinput = jtab.children("input[name=tab_non_printed_name]");
+		var s_tabname = jinput.val();
+		return {jtab:jtab, name:s_tabname};
+	};
+	
+	this.initSelectedTab = function() {
+		var tab = this.getSelectedTab();
+		draw_tab(tab.name);
+	};
 };
+
+o_tabInitializations = new typeTabInitializations();
