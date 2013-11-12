@@ -70,9 +70,9 @@ class icalendarFunctions {
 		if ($s_linktype == "web")
 				return "http://www.banwebplus.com/pages/icalendar/calendars/{$s_username}/".$a_settings_rows[0]['private_icalendar_key']."/ClassSchedule.ics";
 		else if ($s_linktype = "view")
-				return "http://www.banwebplus.com/pages/icalendar/calendars/{$s_username}/pretty/".$a_settings_rows[0]['private_icalendar_key']."/ClassSchedule.ics";
+				return "http://www.banwebplus.com/pages/icalendar/calendars/{$s_username}/".$a_settings_rows[0]['private_icalendar_key']."/pretty/ClassSchedule.ics";
 		else if ($s_linktype = "download")
-				return "http://www.banwebplus.com/pages/icalendar/calendars/{$s_username}/download/".$a_settings_rows[0]['private_icalendar_key']."/ClassSchedule.ics";
+				return "http://www.banwebplus.com/pages/icalendar/calendars/{$s_username}/".$a_settings_rows[0]['private_icalendar_key']."/download/ClassSchedule.ics";
 		else
 				return self::calendarLinkToString("view");
 	}

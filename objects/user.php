@@ -63,8 +63,8 @@ class user {
 		if(count($a_exists) > 0)
 				return "print success[*note*]Settings already saved";
 		
-		$a_current = db_query("SELECT * FROM `[database]`.`[table]` WHERE `user_id`='[user_id]' AND `type`='server'", $query_vars);
 		create_row_if_not_existing($query_vars);
+		$a_current = db_query("SELECT * FROM `[database]`.`[table]` WHERE `user_id`='[user_id]' AND `type`='server'", $query_vars);
 		$query_string = 'UPDATE `[database]`.`[table]` SET '.array_to_update_clause($a_settings).' WHERE `user_id`=\'[user_id]\' AND `type`=\'[type]\'';
 		db_query($query_string, array_merge($a_settings, $query_vars));
 		if (mysql_affected_rows() == 0) {
