@@ -1,7 +1,7 @@
 RewriteEngine On
 RewriteBase /pages/icalendar/
 
-RewriteRule ^calendars/guest/([^/]+)/([^/]+)/[a-zA-Z]+.ics get_calendar.php?username=guest&key=guest&semester=$1&classes=$2&download [L]
-RewriteRule ^calendars/([^/]+)/([^/]+)/[a-zA-Z]+.ics get_calendar.php?username=$1&key=$2 [L]
-RewriteRule ^calendars/([^/]+)/([^/]+)/download/[a-zA-Z]+.ics get_calendar.php?username=$1&key=$2&download [L]
-RewriteRule ^calendars/([^/]+)/([^/]+)/pretty/[a-zA-Z]+.ics get_calendar.php?username=$1&key=$2&pretty [L]
+RewriteRule ^calendars/guest/([^/]+)/([^/]+)/[a-zA-Z0-9_]+.ics get_calendar.php?username=guest&key=guest&semester=$1&classes=$2&download [L]
+RewriteRule ^calendars/([^/]+)/([^/]+)/[a-zA-Z0-9_]+.ics get_calendar.php?username=$1&key=$2 [L]
+RewriteRule ^calendars/([^/]+)/([^/]+)/download/[a-zA-Z0-9_]+.ics get_calendar.php?username=$1&key=$2&download [L]
+RewriteRule ^calendars/([^/]+)/([^/]+)/pretty/[a-zA-Z0-9_]+.ics get_calendar.php?username=$1&key=$2&pretty [L]

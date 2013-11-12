@@ -23,8 +23,17 @@ function init_schedule() {
 function schedule_icalendar_tostring() {
 	global $global_user;
 	
-	if ($global_user->get_server_setting('enable_icalendar') != '1')
+	if ($global_user->get_name() == "guest") {
+			return '    <table class=\'table_title\'><tr><td>
+<div class=\'centered\'>Download Full Calendar</div>
+</td></tr></table>
+<div class=\'centered\'><a class=\'icalendarGuestDownloadLink\' href=\'\' target=\'_blank\'>Download</a></div>
+<br />';
+	}
+	if ($global_user->get_server_setting('enable_icalendar') != '1') {
 			return '';
+	}
+	
 	$s_web_link = icalendarFunctions::calendarLinkToString("web");
 	$s_view_link = icalendarFunctions::calendarLinkToString("view");
 	$s_download_link = icalendarFunctions::calendarLinkToString("download");

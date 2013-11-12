@@ -153,8 +153,22 @@ END:VTIMEZONE";
 	
 	private function getListOfClasses($s_year, $s_semester) {
 		$o_retval = new stdClass();
-		$a_classes = $this->o_user->get_user_classes($s_year, $s_semester);
+		
+		// get the classes for the user
+		if ($this->o_user->get_name() == "guest") {
+				if (isset($_GET['semester']) && $_GET['semester'] == $s_year.$s_semester && isset($_GET['classes'])) {
+						$a_classes = explode(",", $_GET['classes']);
+						foreach($a_classes as $k=>$s_crn) {
+								$a_classes[$k] = (object)array('crn'=>$s_crn);
+						}
+				} else {
+						$a_classes = array();
+				}
+		} else {
+				$a_classes = $this->o_user->get_user_classes($s_year, $s_semester);
+		}
 		$o_classlist = $this->getClassList($s_year, $s_semester);
+		
 		foreach($a_classes as $o_class) {
 				$s_crn = $o_class->crn;
 				if (isset($o_classlist->$s_crn))

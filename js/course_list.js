@@ -18,8 +18,9 @@ typeCoursesList = function() {
 	this.setSemester = function(sem) {
 		semester = sem;
 		if (typeof(full_course_list[semester]) == 'undefined')
-			loadFullCourseList(semester);
+			this.loadFullCourseList(semester);
 		updateClassesTab();
+		o_schedule.saveClasses(this.getUserClasses());
 		return true;
 	}
 	
@@ -212,19 +213,19 @@ typeCoursesList = function() {
 					if (message.slice(0,7) == 'failed|')
 						return;
 					available_semesters = $.parseJSON(message);
-					loadAllSemesters_part2()
+					this.loadAllSemesters_part2()
 				}
 			});
 		} else {
-			loadAllSemesters_part2();
+			this.loadAllSemesters_part2();
 		}
 	}
 	
-	loadAllSemesters_part2 = function() {
+	this.loadAllSemesters_part2 = function() {
 		for (var i = 0; i < available_semesters.length; i++) {
 			sem = available_semesters[i][0];
 			if (typeof(full_course_list[sem]) == 'undefined') {
-				loadFullCourseList(sem, true);
+				this.loadFullCourseList(sem, true);
 			}
 		}		
 	}
@@ -264,7 +265,7 @@ typeCoursesList = function() {
 		$.each(this.getUserClasses(), function(index, value) {
 			tempUserClasses.push({'crn': value});
 		});
-		
+
 		a_postvars["timestamp"] = get_date();
 		a_postvars["year"] = semester.slice(0,4);
 		a_postvars["semester"] = semester.slice(4,6);
@@ -281,6 +282,7 @@ typeCoursesList = function() {
 				//console_log(message);
 			}
 		});
+		o_schedule.saveClasses(this.getUserClasses());
 	}
 	
 	// does an asyncronous call to the server to save the white/black lists
@@ -385,7 +387,7 @@ typeCoursesList = function() {
 	// should only be called from setSemester() and loadAllSemesters()
 	// @sem, eg '201330'
 	// @async, if not provided defaults to false
-	loadFullCourseList = function(sem, async) {
+	this.loadFullCourseList = function(sem, async) {
 		if (typeof(async) == 'undefined') async = false;
 		current_user_classes[sem] = [];
 		current_blacklist[sem] = [];
@@ -396,6 +398,9 @@ typeCoursesList = function() {
 		current_course_list[sem] = [];
 		recently_selected_classes[sem] = [];
 		conflicting_object = conflicting_objects[sem+''];
+		
+		// store some functions
+		var loadFullCourseListPart2 = this.loadFullCourseListPart2;
 
 		// initialize the classes
 		var a_postvars = { "command": "load_semester_classes", "year": sem.slice(0,4), "semester": sem.slice(4,7) };
@@ -439,7 +444,7 @@ typeCoursesList = function() {
 		});
 	}
 	
-	loadFullCourseListPart2 = function(sem, async) {
+	this.loadFullCourseListPart2 = function(sem, async) {
 
 		// function to analyze everything
 		var addRulesAnalyzeLists = function(user_classes, user_whitelist, user_blacklist, sem) {

@@ -73,6 +73,26 @@ typeSchedulerTab = function() {
 		jcal.children().animate({ width:"400px", opacity:1 }, 300, "linear");
 		jcal.addClass("visible");
 	}
+	
+	this.saveClasses = function(classList) {
+		if (getUsername() !== "guest")
+			return false;
+		
+		var jschedule = $("#Schedule");
+		var jlink = jschedule.find(".icalendarGuestDownloadLink");
+
+		var classes = "";
+		for (var i = 0; i < classList.length; i++) {
+			classes += classList[i];
+			if (i < classList.length-1)
+				classes += ",";
+		}
+		var sem = o_courses.getCurrentSemester();
+		var href = "/pages/icalendar/calendars/guest/"+sem.year.school_year+sem.value+"/"+classes+"/"+sem.name+"_"+sem.year.year+".ics";
+		jlink.attr("href", href);
+
+		return true;
+	}
 }
 
 function draw_add_by_crn() {
