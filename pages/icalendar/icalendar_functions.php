@@ -36,22 +36,25 @@ class icalendarFunctions {
 		$s_calBody = $this->bodyToString();
 		$s_calFooter = $this->footerToString();
 		$s_cal = "{$s_calHeader}\n{$s_calBody}\n{$s_calFooter}";
-		$s_cal = str_replace(array("\n","\r","\n\r"), "\n", $s_cal);
+		$s_cal = str_replace(array("\n","\r","\n\r","\r\n"), "\n", $s_cal);
 		$a_cal = explode("\n", $s_cal);
 		$a_new_cal = array();
 		for($i = 0; $i < count($a_cal); $i++) {
 				$s_line = $a_cal[$i];
 				if (strlen($s_line) > 75) {
+						$s_indent = "\t";
 						while (strlen($s_line) > 75) {
 								$s_part_line = substr($s_line, 0, 75);
 								$a_new_cal[] = $s_part_line;
-								$s_line = " ".substr($s_line, 75);
+								$s_line = $s_indent.substr($s_line, 75);
+								$s_indent .= "\t";
 						}
+						$a_new_cal[] = $s_line;
 				} else {
 						$a_new_cal[] = $s_line;
 				}
 		}
-		$s_cal = implode("\n", $a_new_cal);
+		$s_cal = implode("\r\n", $a_new_cal);
 		return $s_cal;
 	}
 	
@@ -75,11 +78,11 @@ class icalendarFunctions {
 	private function headerToString() {
 		
 		// get some values
-		$s_username = $this->o_user->get_name();
+		$s_username = '"'.str_replace('"', '', $this->o_user->get_name()).'"';
 
 		return "BEGIN:VCALENDAR
 PRODID:-//Banwebplus//Banwebplus icalendar 1.0//EN
-VERSION:1.0
+VERSION:2.0
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
 X-WR-CALNAME:{$s_username}@banwebplus.com
@@ -147,10 +150,14 @@ END:VTIMEZONE";
 		return $this->o_classList->$s_year->$s_semester;
 	}
 
+	private function quotes($s_string) {
+		return '"'.str_replace('"', '', $s_string).'"';
+	}
+
 	private function classToString($a_class, $i_semester_startday, $i_semester_endday) {
 		
 		// get some values
-		$s_username = $this->o_user->get_name();
+		$s_username = $this->quotes($this->o_user->get_name());
 		$s_semester_startday = date("Ymd", $i_semester_startday);
 		$s_semester_endday = date("Ymd", $i_semester_endday);
 		$a_weekdays = array("U"=>"Sunday", "M"=>"Monday", "T"=>"Tuesday", "W"=>"Wednesday", "R"=>"Thursday", "F"=>"Friday", "S"=>"Saturday");
@@ -158,8 +165,9 @@ END:VTIMEZONE";
 		$s_class_firstweekday = $a_weekdays[$s_class_firstday];
 		$s_class_starttime = substr($a_class['Time'], 0, 4)."00";
 		$s_class_endtime = substr($a_class['Time'], 5, 4)."00";
-		$s_class_location = $a_class['Location'].($a_class['*Campus'] == 'M' ? '' : 'Other Campus ('.$a_class['*Campus'].')');
-		$s_class_summary = $a_class['Course'];
+		$s_class_location = $this->quotes( $a_class['Location'].($a_class['*Campus'] == 'M' ? '' : 'Other Campus ('.$a_class['*Campus'].')') );
+		$s_class_summary = $this->quotes( $a_class['Course'] );
+		$s_class_uid = $i_semester_startday.str_replace(array('"',' ','-'),'',$a_class['Course']);
 		
 		// find the start day of the class
 		if (date("l", $i_semester_startday) == $s_class_firstweekday)
@@ -183,14 +191,15 @@ END:VTIMEZONE";
 		foreach($a_class as $k=>$v) {
 				$a_description[] = trim($k).": ".trim($v);
 		}
-		$s_description = implode(", ", $a_description);
+		$s_description = $this->quotes( implode(", ", $a_description) );
 		
 		return "BEGIN:VEVENT
 DTSTART;TZID=America/Denver:{$s_class_startday}T{$s_class_starttime}
 DTEND;TZID=America/Denver:{$s_class_startday}T{$s_class_endtime}
 RRULE:FREQ=WEEKLY;UNTIL={$s_semester_endday}T235900Z;BYDAY={$s_class_weekdays}
 DTSTAMP:".date("Ymd")."T".date("His")."Z
-UID:{$s_username}@banwebplus.com
+UID:{$s_class_uid}@banwebplus.com
+CATEGORIES:CLASS
 CREATED:{$s_semester_startday}T000000Z
 DESCRIPTION:{$s_description}
 LAST-MODIFIED:".date("Ymd")."T".date("His")."Z
@@ -203,7 +212,8 @@ END:VEVENT";
 	}
 
 	private function footerToString() {
-		return "END:VCALENDAR";
+		return "END:VCALENDAR
+";
 	}
 }
 
