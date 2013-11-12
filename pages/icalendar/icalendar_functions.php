@@ -57,7 +57,7 @@ class icalendarFunctions {
 		return $s_cal;
 	}
 	
-	public static function calendarLinkToString() {
+	public static function calendarLinkToString($s_linktype) {
 		global $global_user;
 		global $maindb;
 
@@ -67,7 +67,14 @@ class icalendarFunctions {
 		create_row_if_not_existing(array("database"=>$maindb, "table"=>"generated_settings", "user_id"=>$s_id));
 		$a_settings_rows = db_query("SELECT `private_icalendar_key` FROM `[database]`.`generated_settings` WHERE `user_id` = '[user_id]'", array('database'=>$maindb, 'user_id'=>$s_id));
 		
-		return "http://www.banwebplus.com/pages/icalendar/get_calendar.php?username={$s_username}&key=".$a_settings_rows[0]['private_icalendar_key'];
+		if ($s_linktype == "web")
+				return "http://www.banwebplus.com/pages/icalendar/calendars/{$s_username}/".$a_settings_rows[0]['private_icalendar_key']."/ClassSchedule.ics";
+		else if ($s_linktype = "view")
+				return "http://www.banwebplus.com/pages/icalendar/calendars/{$s_username}/pretty/".$a_settings_rows[0]['private_icalendar_key']."/ClassSchedule.ics";
+		else if ($s_linktype = "download")
+				return "http://www.banwebplus.com/pages/icalendar/calendars/{$s_username}/download/".$a_settings_rows[0]['private_icalendar_key']."/ClassSchedule.ics";
+		else
+				return self::calendarLinkToString("view");
 	}
 
 	/********************************************************************************
@@ -107,20 +114,49 @@ END:VTIMEZONE";
 	}
 
 	private function bodyToString() {
-		$o_classes = $this->getListOfClasses();
-		$i_semester_startday = strtotime(date("Y-m-d 00:00:00",strtotime("Jan 10, 2014")));
-		$i_semester_endday = strtotime(date("Y-m-d 00:00:00",strtotime("May 15, 2014")));
-		$a_retval = array();
-		foreach($o_classes as $s_crn=>$a_class) {
-				$a_retval[] = $this->classToString($a_class, $i_semester_startday, $i_semester_endday);
+		include(dirname(__FILE__)."/../../scraping/banweb_terms.php");
+		$s_retval = "";
+		
+		foreach($terms as $a_term) {
+				$s_term = $a_term[0];
+				$s_year = substr($s_term, 0, 4);
+				$s_semester = substr($s_term, 4);
+				
+				error_log("{$s_year}:{$s_semester}");
+
+				$o_classes = $this->getListOfClasses($s_year, $s_semester);
+				if ($s_semester == "10") {
+						$s_sem_year = (string)((int)$s_year - 1);
+						$i_semester_startday = strtotime(date("Y-m-d 00:00:00",strtotime("Jun 1, $s_sem_year")));
+						$i_semester_endday = strtotime(date("Y-m-d 00:00:00",strtotime("Jul 31, $s_sem_year")));
+				} else if ($s_semester == "20") {
+						$s_sem_year = (string)((int)$s_year - 1);
+						$i_semester_startday = strtotime(date("Y-m-d 00:00:00",strtotime("Aug 1, $s_sem_year")));
+						$i_semester_endday = strtotime(date("Y-m-d 00:00:00",strtotime("Dec 31, $s_sem_year")));
+				} else {
+						$i_semester_startday = strtotime(date("Y-m-d 00:00:00",strtotime("Jan 1, $s_year")));
+						$i_semester_endday = strtotime(date("Y-m-d 00:00:00",strtotime("May 31, $s_year")));
+				}
+				$a_retval = array();
+				foreach($o_classes as $s_crn=>$a_class) {
+						$a_retval[] = $this->classToString($a_class, $i_semester_startday, $i_semester_endday);
+				}
+				
+				$s_semester_retval = "\n".implode("\n", $a_retval)."\n";
+				$s_retval .= $s_semester_retval;
 		}
-		return implode("\n", $a_retval);
+		
+		while (strpos($s_retval, "\n\n") !== FALSE)
+				$s_retval = str_replace("\n\n", "\n", $s_retval);
+		while (substr($s_retval, 0, 1) === "\n")
+				$s_retval = substr($s_retval, 1);
+		return $s_retval;
 	}
 	
-	private function getListOfClasses() {
+	private function getListOfClasses($s_year, $s_semester) {
 		$o_retval = new stdClass();
-		$a_classes = $this->o_user->get_user_classes("2014", "30");
-		$o_classlist = $this->getClassList("2014", "30");
+		$a_classes = $this->o_user->get_user_classes($s_year, $s_semester);
+		$o_classlist = $this->getClassList($s_year, $s_semester);
 		foreach($a_classes as $o_class) {
 				$s_crn = $o_class->crn;
 				if (isset($o_classlist->$s_crn))
