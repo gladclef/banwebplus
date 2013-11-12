@@ -179,6 +179,18 @@ class ajax {
 				return json_encode((object)array('success'=>FALSE, 'details'=>'MySQL query failed'));
 		return json_encode((object)array('success'=>TRUE, 'details'=>$a_query_results));
 	}
+
+	function email_developer_bugs() {
+		global $global_user;
+		$s_subject = get_post_var("email_subject");
+		$s_body = get_post_var("email_body");
+		if ($s_subject == "")
+				return "print error[*note*]Please include a subject in your email.<br />";
+		if ($s_body == "")
+				return "print error[*note*]Please include a body in your email.<br />";
+		mail("bbean@cs.nmt.edu", $s_subject, $s_body, "From: ".$global_user->get_email());
+		return "print success[*note*]Thank you for your feedback!<br />";
+	}
 }
 
 $s_command = get_post_var("command");
