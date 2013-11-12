@@ -67,9 +67,7 @@ function rebuild_subject_selectors_from_values(a_values) {
 	$.each(a_values, function(k,v) {
 		var jselector = $("#"+v.id);
 		if (typeof(a_index_by_subject[v.name]) !== 'undefined') {
-			console.log(v.name+", "+a_index_by_subject[v.name]);
 			if (jselector.length > 0 && v.id != "subject_selector") {
-				console.log(v.id);
 				jselector.remove();
 				var id = add_extra_subject(jbutton, a_index_by_subject[v.name]);
 				jselector = $("#"+id);

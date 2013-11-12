@@ -69,6 +69,9 @@ class ajax {
 		$s_semester = get_post_var('semester');
 		global $global_user;
 
+		if ($global_user->check_is_guest())
+				return 'failed|guest can\'t save classes';
+
 		$user_classes = $global_user->get_user_classes($s_year, $s_semester);
 		$user_whitelist = $global_user->get_user_whitelist($s_year, $s_semester);
 		$user_blacklist = $global_user->get_user_blacklist($s_year, $s_semester);

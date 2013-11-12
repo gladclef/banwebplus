@@ -69,8 +69,12 @@ typeCoursesList = function() {
 	}
 	
 	this.getDefaultSemester = function() {
-		if (typeof(default_semester) == 'undefined' || default_semester == '')
-			default_semester = send_ajax_call('/resources/ajax_calls.php', {command:'get_default_semester'});
+		if (typeof(default_semester) == 'undefined' || default_semester == '') {
+			default_semester = o_storage.getGuestData('defaultSemester');
+			if (default_semester === null) {
+				default_semester = send_ajax_call('/resources/ajax_calls.php', {command:'get_default_semester'});
+			}
+		}
 		return default_semester;
 	}
 
@@ -266,6 +270,7 @@ typeCoursesList = function() {
 		a_postvars["semester"] = semester.slice(4,6);
 		a_postvars["classes"] = JSON.stringify(tempUserClasses);
 		a_postvars["command"] = "save_classes";
+		o_storage.setGuestData("classes_"+semester, a_postvars);
 		$.ajax({
 			url: "/resources/ajax_calls.php",
 			cache: false,
@@ -278,9 +283,11 @@ typeCoursesList = function() {
 		});
 	}
 	
+	// does an asyncronous call to the server to save the white/black lists
 	saveUserList = function(sem, listName, a_list) {
 		var a_postvars = {};
 		var current_list = a_list;
+		var o_guestData = {};
 		
 		a_postvars["timestamp"] = get_date();
 		a_postvars["year"] = sem.slice(0,4);
@@ -288,6 +295,9 @@ typeCoursesList = function() {
 		a_postvars["json"] = JSON.stringify(current_list[sem]);
 		a_postvars["command"] = "save_user_data";
 		a_postvars["datatype"] = listName;
+		o_guestData = a_postvars;
+		o_guestData[listName] = o_guestData.json;
+		o_storage.setGuestData("userLists_"+sem, o_guestData);
 		$.ajax({
 			url: "/resources/ajax_calls.php",
 			cache: false,
@@ -430,6 +440,42 @@ typeCoursesList = function() {
 	}
 	
 	loadFullCourseListPart2 = function(sem, async) {
+
+		// function to analyze everything
+		var addRulesAnalyzeLists = function(user_classes, user_whitelist, user_blacklist, sem) {
+			for (var i = 0; i < user_classes.length; i++)
+				current_user_classes[sem][i] = parseInt(user_classes[i].crn);
+			for (var i = 0; i < user_whitelist.length; i++) {
+				var rule = user_whitelist[i];
+				current_whitelist[sem][i] = rule;
+			}
+			for (var i = 0; i < user_blacklist.length; i++) {
+				var rule = user_blacklist[i];
+				current_blacklist[sem][i] = rule;
+			}
+			// analyze the whitelist/blacklist
+			analyzeBlacklist(sem, true);
+			analyzeWhitelist(sem);
+			// initialize conflicting classes
+			conflicting_object.init_conflicting_array();
+		}
+		
+		// check for guest data
+		var getGuestClasses = function(sem) {
+			var userClasses = o_storage.getGuestData("classes_"+sem);
+			var userLists = o_storage.getGuestData("userLists_"+sem);
+			if (userClasses === null) {
+				userClasses = {classes:"[]"};
+			}
+			if (userLists === null) {
+				userLists = {whitelist:"[]", blacklist:"[]"};
+			}
+			var user_classes = JSON.parse(userClasses.classes);
+			var user_whitelist = JSON.parse(userLists.whitelist);
+			var user_blacklist = JSON.parse(userLists.blacklist);
+			addRulesAnalyzeLists(user_classes, user_whitelist, user_blacklist, sem);
+		}
+
 		// get user data
 		var a_postvars = {command: 'load_user_classes', 'year': sem.slice(0,4), 'semester': sem.slice(4,7) };
 		var user_data = '';
@@ -440,27 +486,15 @@ typeCoursesList = function() {
 			data: a_postvars,
 			async: async,
 			success: function(message) {
-				if (message.slice(0,7) == 'failed|')
+				if (message.slice(0,7) == 'failed|') {
+					getGuestClasses(sem);
 					return;
+				}
 				user_data = jQuery.parseJSON(message);
 				var user_classes = user_data.user_classes;
 				var user_whitelist = user_data.user_whitelist;
 				var user_blacklist = user_data.user_blacklist;
-				for (var i = 0; i < user_classes.length; i++)
-					current_user_classes[sem][i] = parseInt(user_classes[i].crn);
-				for (var i = 0; i < user_whitelist.length; i++) {
-					var rule = user_whitelist[i];
-					current_whitelist[sem][i] = rule;
-				}
-				for (var i = 0; i < user_blacklist.length; i++) {
-					var rule = user_blacklist[i];
-					current_blacklist[sem][i] = rule;
-				}
-				// analyze the whitelist/blacklist
-				analyzeBlacklist(sem, true);
-				analyzeWhitelist(sem);
-				// initialize conflicting classes
-				conflicting_object.init_conflicting_array();
+				addRulesAnalyzeLists(user_classes, user_whitelist, user_blacklist, sem);
 			}
 		});
 	}
