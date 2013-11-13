@@ -4,6 +4,7 @@ typeCalendarPreview = function() {
 			return;
 		}
 
+		this.jwindow = $(window);
 		this.days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 		this.weekdayBackgroundHTML = "";
 		this.timeRange = {start:0, end:0};
@@ -59,12 +60,50 @@ typeCalendarPreview = function() {
 	}
 
 	this.eventToJqueryObject = function(event) {
-		var retval = $("<div class='calendar_event' onclick='o_calendar_preview.drawEventDetails("+event.id+");' ontouchstart='o_calendar_preview.drawEventDetails("+event.id+");'>"+event.title+"</div>");
+		var retval = $("<div class='calendar_event' onmouseover='o_calendar_preview.mouseOver(this);' onmouseout='o_calendar_preview.mouseOut(this);' onclick='o_calendar_preview.drawEventDetails(this, "+event.id+");' ontouchstart='o_calendar_preview.drawEventDetails(this, "+event.id+");'>"+event.title+"</div>");
 		return retval;
 	}
 	
-	this.drawEventDetails = function(eventid) {
-		
+	this.mouseOver = function(element) {
+		var jelement = $(element);
+		if (!jelement.hasClass("hover")) {
+			jelement.addClass("hover");
+		}
+	}
+
+	this.mouseOut = function(element) {
+		var jelement = $(element);
+		if (jelement.hasClass("hover")) {
+			jelement.removeClass("hover");
+		}
+	}
+	
+	this.drawEventDetails = function(element, eventid) {
+		var jelement = $(element);
+		var top = parseInt(jelement.offset().top) - 20;
+		var left = parseInt(jelement.offset().left) + 20;
+		var event = null;
+		var events = this.events;
+		for(var i = 0; i < events.length; i++) {
+			if (events[i].id == eventid) {
+				event = events[i];
+			}
+		}
+		if (event === null) {
+			return;
+		}
+		var jdetails = $("#calendar_event_details");
+		while (jdetails.length > 0) {
+			jdetails.remove();
+			jdetails = $("#calendar_event_details");
+		}
+		jdetails = $("<div id='calendar_event_details'><div class='calendar_event_details_close' onmouseover='o_calendar_preview.mouseOver(this);' onmouseout='o_calendar_preview.mouseOut(this);' onclick='$(this).parent().remove();'>&#x2716</div>"+event.description+"</div>");
+		top = top - parseInt(this.jwindow.scrollTop());
+		top = Math.max(0, top);
+		top = Math.min(parseInt(this.jwindow.height()) - parseInt(jdetails.height()), top);
+		left = Math.min(parseInt(this.jwindow.width()) - parseInt(jdetails.width()), left);
+		$("#calendar_preview").append(jdetails);
+		jdetails.css({ top:(top + "px"), left:(left + "px") });
 	}
 
 	this.updateCalendar = function() {
@@ -226,7 +265,7 @@ typeCalendarPreviewEvents = function() {
 			var title = course[titleIndex];
 			var description = "";
 			for(var i = 0; i < headers.length; i++) {
-				if (["Conflicts", "Select"].indexOf(headers[i]) > 0) {
+				if (["Conflicts", "Select"].indexOf(headers[i]) >= 0) {
 					continue;
 				}
 				if (description != "") {
@@ -237,7 +276,7 @@ typeCalendarPreviewEvents = function() {
 			var conflictions = [];
 			if (conflicts[crn] && conflicts[crn].length > 0) {
 				for(k in conflicts[crn]) {
-					if (classes.indexOf(conflicts[crn][k]) > 0) {
+					if (classes.indexOf(conflicts[crn][k]) >= 0) {
 						conflictions.push(conflicts[crn][k]);
 					}
 				}
