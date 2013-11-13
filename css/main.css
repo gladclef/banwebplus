@@ -78,3 +78,14 @@ table.main_page_content {
 .highlight_link:hover {
 	color: lightblue;
 }
+
+.recent_feedback {
+	border: 2px solid gray;
+	border-top: none;
+	border-bottom: none;
+	border-radius: 20px;
+	text-align: left;
+	display: inline-table;
+	padding: 10px;
+	margin: 2em 0 0 0;
+}

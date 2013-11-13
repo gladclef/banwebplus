@@ -63,7 +63,7 @@ typePopupNotifications = function() {
 	}
 	
 	this.windowResized = function(event) {
-		this.init();
+		o_popup_notifications.init();
 		
 	}
 }
