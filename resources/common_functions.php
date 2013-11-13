@@ -49,9 +49,16 @@ function logout_session() {
 
 function dont_check_session_expired() {
 	global $global_user;
+	if (!is_object($global_user)) {
+			return "";
+	}
+	if (!method_exists($global_user, "get_server_setting")) {
+			return "";
+	}
 	if ($global_user->get_server_setting("session_timeout") == "-1") {
 			return "<script type='text/javascript'>dont_check_session_expired = true;</script>";
 	}
+	return "";
 }
 
 function draw_page_head($outside_content = '') {
