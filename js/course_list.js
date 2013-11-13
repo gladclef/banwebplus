@@ -532,7 +532,7 @@ typeCoursesList = function() {
 		do_init_conflicting = (typeof(do_init_conflicting) == 'undefined') ? false : do_init_conflicting;
 		if (current_whitelist[sem].length == whitelist_rules_count && !do_init_conflicting)
 			return true;
-		current_whitelist[sem] = optimizeListRules(current_whitelist[sem], full_course_list[sem], 'ascending', true);
+		current_whitelist[sem] = optimizeListRules(current_whitelist[sem], full_course_list[sem], 'ascending', true, sem);
 		
 		var subjects = current_subjects[sem];
 		var num_affected_courses = 0;
@@ -556,7 +556,7 @@ typeCoursesList = function() {
 		do_init_conflicting = (typeof(do_init_conflicting) == 'undefined') ? false : do_init_conflicting;
 		if (current_blacklist[sem].length == blacklist_rules_count && !do_init_conflicting)
 			return true;
-		current_blacklist[sem] = optimizeListRules(current_blacklist[sem], full_course_list[sem], 'descending', false);
+		current_blacklist[sem] = optimizeListRules(current_blacklist[sem], full_course_list[sem], 'descending', false, sem);
 
 		var subjects = current_subjects[sem];
 		var num_affected_courses = 0;
@@ -580,7 +580,7 @@ typeCoursesList = function() {
 	}
 	// finds out how many courses each rule affects and then sort the rules
 	// stores the number of courses affected in index 3.matchedCourses of the rule
-	optimizeListRules = function(a_rules, a_courses, s_sortby, b_rule_matches) {
+	optimizeListRules = function(a_rules, a_courses, s_sortby, b_rule_matches, sem) {
 		// find how many courses each rule affects
 		var subjects = current_subjects[sem];
 		var grepCourse = function(course, index) {
