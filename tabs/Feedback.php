@@ -42,7 +42,7 @@ Hopefully one of these features will be coming soon! Cheers!",
 		foreach($a_feedbacks as $a_feedback) {
 				$s_query = str_replace(array("\n","\r","\r\n"), "<br />", $a_feedback['query']);
 				$s_response = str_replace(array("\n","\r","\r\n"), "<br />", $a_feedback['response']);
-				$s_timedisplay = "<span style='color:gray'>Submitted ".date("F j, Y", strtotime($a_feedback['datetime']))." at ".date("g:ia")."</span>";
+				$s_timedisplay = "<span style='color:gray'>Submitted ".date("F j, Y", strtotime($a_feedback['datetime']))." at ".date("g:ia", strtotime($a_feedback['datetime']))."</span>";
 				$s_retval .= "<div class='recent_feedback'><span style='font-weight:bold'>Q</span>: {$s_query}<br /><br /><span style='font-weight:bold;'>A</span>: {$s_response}<br />{$s_timedisplay}</div>";
 		}
 		return $s_retval;
