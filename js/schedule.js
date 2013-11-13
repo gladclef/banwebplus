@@ -74,7 +74,7 @@ typeSchedulerTab = function() {
 		jcal.addClass("visible");
 	}
 	
-	this.saveClasses = function(classList) {
+	this.drawGuestCalendarLink = function(classList) {
 		if (getUsername() !== "guest")
 			return false;
 		

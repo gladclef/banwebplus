@@ -15,6 +15,7 @@ $(
 		o_semesterHeader.draw();
 		setTimeout('draw_tab("Classes");', 100);
 		setTimeout('scroll_to_center();', 200);
+		o_storage.drawStorageTest();
 	}
 );
 

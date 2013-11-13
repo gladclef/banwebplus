@@ -54,6 +54,7 @@ function draw_page_head($outside_content = '') {
 	$a_page[] = "<head>";
 	$a_page[] = "<link href='/css/main.css' rel='stylesheet' type='text/css'>";
 	$a_page[] = "<link href='/css/login_logout.css' rel='stylesheet' type='text/css'>";
+	$a_page[] = "<link href='/css/popup_notifications.css' rel='stylesheet' type='text/css'>";
 	$a_page[] = '<script src="'.$global_path_to_jquery.'"></script>';
 	$a_page[] = '<script src="/js/common_functions.js"></script>';
 	$a_page[] = '<script src="/js/ajax.js"></script>';
@@ -61,6 +62,7 @@ function draw_page_head($outside_content = '') {
 	$a_page[] = '<script src="/js/tab_custom.js"></script>';
 	$a_page[] = '<script src="/js/main.js"></script>';
 	$a_page[] = '<script src="/js/storage.js"></script>';
+	$a_page[] = '<script src="/js/popup_notifications.js"></script>';
 	$a_page[] = "</head>";
 	$a_page[] = "<body>";
 	$a_page[] = "<table class='main_page_container'><tr><td class='centered'>";

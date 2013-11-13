@@ -5,6 +5,14 @@ storageType = function() {
 		}
 		return true;
 	}
+
+	this.drawStorageTest = function() {
+		if (this.testStorage()) {
+			return;
+		}
+		
+		o_popup_notifications.addNotification("We can't save classes on your computer. Your browser doesn't support <a target='_blank' href='http://www.w3schools.com/html/html5_webstorage.asp'>local storage</a>. Please update or use a different <a target='_blank' href='http://www.w3schools.com/browsers/default.asp'>browser</a>.");
+	}
 	
 	this.storeData = function(key, data) {
 		if (!this.testStorage()) return false;

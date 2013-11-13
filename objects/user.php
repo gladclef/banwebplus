@@ -244,7 +244,7 @@ class user {
 		$userid = $this->id;
 
 		if ($this->name == "guest") {
-				$this->a_server_settings = array('session_timeout'=>'10');
+				$this->a_server_settings = array('session_timeout'=>'15');
 				return;
 		}
 

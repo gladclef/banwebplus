@@ -20,7 +20,7 @@ typeCoursesList = function() {
 		if (typeof(full_course_list[semester]) == 'undefined')
 			this.loadFullCourseList(semester);
 		updateClassesTab();
-		o_schedule.saveClasses(this.getUserClasses());
+		o_schedule.drawGuestCalendarLink(this.getUserClasses());
 		return true;
 	}
 	
@@ -282,7 +282,7 @@ typeCoursesList = function() {
 				//console_log(message);
 			}
 		});
-		o_schedule.saveClasses(this.getUserClasses());
+		o_schedule.drawGuestCalendarLink(this.getUserClasses());
 	}
 	
 	// does an asyncronous call to the server to save the white/black lists
