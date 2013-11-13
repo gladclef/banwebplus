@@ -166,6 +166,24 @@ typeCoursesList = function() {
 		return a_retval;
 	}
 	
+	// gets the time of the course
+	this.getTimeOfCourse = function(crn) {
+		var timeIndex = get_index_of_header("Time", headers);
+		var o_course = this.getClassByCRN(crn);
+		if (!o_course || !o_course.course) {
+			return {};
+		}
+		var course = o_course.course;
+		var timeString = course[timeIndex];
+		if (timeString.indexOf("-") < 0) {
+			return {};
+		}
+		var times = timeString.split("-");
+		var startTime = parseInt(times[0]);
+		var endTime = parseInt(times[1]);
+		return {start: startTime, end: endTime};
+	}
+	
 	// given a column index, it returns 'int', 'float', 'time', or 'string'
 	// based on parliamentary voting and the rules found below
 	// defaults to 'string' if no data can be found
@@ -283,6 +301,9 @@ typeCoursesList = function() {
 			}
 		});
 		o_schedule.drawGuestCalendarLink(this.getUserClasses());
+		setTimeout(function() {
+			o_calendar_preview.drawCalendar(o_calendar_preview_events.getEvents());
+		}, 0);
 	}
 	
 	// does an asyncronous call to the server to save the white/black lists
@@ -463,6 +484,7 @@ typeCoursesList = function() {
 			analyzeWhitelist(sem);
 			// initialize conflicting classes
 			conflicting_object.init_conflicting_array();
+			conflicting_object.calculate_conflicting_classes();
 		}
 		
 		// check for guest data
@@ -511,7 +533,7 @@ typeCoursesList = function() {
 		if (current_whitelist[sem].length == whitelist_rules_count && !do_init_conflicting)
 			return true;
 		current_whitelist[sem] = optimizeListRules(current_whitelist[sem], full_course_list[sem], 'ascending', true);
-
+		
 		var subjects = current_subjects[sem];
 		var num_affected_courses = 0;
 		$.each(subjects, function(i_subject, a_subject) {
@@ -538,7 +560,10 @@ typeCoursesList = function() {
 
 		var subjects = current_subjects[sem];
 		var num_affected_courses = 0;
-		$.each(subjects, function(i_subject, a_subject) {
+		var grepCourse = function(course, index) {
+			return !(itemMatchesRule(course, rule));
+		};
+		var evaluateSubject = function(i_subject, a_subject) {
 			var s_subject = a_subject[0];
 			var courses = current_course_list[sem][s_subject];
 			if (do_init_conflicting)
@@ -546,36 +571,37 @@ typeCoursesList = function() {
 			num_affected_courses += courses.length;
 			for(i = 0; i < current_blacklist[sem].length; i++) {
 				rule = current_blacklist[sem][i];
-				courses = $.grep(courses, function(course, index) {
-					return !(itemMatchesRule(course, rule));
-				});
+				courses = $.grep(courses, grepCourse);
 			}
 			num_affected_courses -= courses.length;
 			current_course_list[sem][s_subject] = courses;
-		});
+		};
+		$.each(subjects, evaluateSubject);
 	}
 	// finds out how many courses each rule affects and then sort the rules
 	// stores the number of courses affected in index 3.matchedCourses of the rule
 	optimizeListRules = function(a_rules, a_courses, s_sortby, b_rule_matches) {
 		// find how many courses each rule affects
 		var subjects = current_subjects[sem];
+		var grepCourse = function(course, index) {
+			if (b_rule_matches)
+				return (itemMatchesRule(course, rule));
+			else
+				return !(itemMatchesRule(course, rule));
+		}
+		var evaluateSubject = function(i_subject, a_subject) {
+			var s_subject = a_subject[0];
+			var courses = a_courses[s_subject].concat();
+			num_affected_courses += courses.length;
+			courses = $.grep(courses, grepCourse);
+			num_affected_courses -= courses.length;
+		};
 		for(i = 0; i < a_rules.length; i++) {
 			rule = a_rules[i];
 			//if (typeof(rule[3]) != 'undefined' && typeof(rule[3].matchedCourses) != 'undefined')
 			//	continue;
 			var num_affected_courses = 0;
-			$.each(subjects, function(i_subject, a_subject) {
-				var s_subject = a_subject[0];
-				var courses = a_courses[s_subject].concat();
-				num_affected_courses += courses.length;
-				courses = $.grep(courses, function(course, index) {
-					if (b_rule_matches)
-						return (itemMatchesRule(course, rule));
-					else
-						return !(itemMatchesRule(course, rule));
-				});
-				num_affected_courses -= courses.length;
-			});
+			$.each(subjects, evaluateSubject);
 			if (typeof(rule[3]) == 'undefined')
 				rule[3] = {};
 			rule[3]['matchedCourses'] = num_affected_courses;

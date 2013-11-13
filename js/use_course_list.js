@@ -21,6 +21,9 @@ $(
 
 function updateClassesTab() {
 	$("#subject_selector").change();
+	setTimeout(function() {
+		o_calendar_preview.drawCalendar(o_calendar_preview_events.getEvents());
+	}, 0);
 }
 
 // draws additional selector by cloning the old selector

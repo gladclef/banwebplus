@@ -1,3 +1,7 @@
+function get_name_of_focused_tab() {
+	return $(".tab.selected").children("[name=tab_non_printed_name]").val();
+}
+
 function get_tab_by_tabname(s_tabname) {
 	var jtab = $(".tab."+s_tabname);
 	return jtab;
@@ -45,6 +49,9 @@ function click_tab_by_tabname(s_tabname) {
 }
 
 typeTabInitializations = function() {
+	this.Calendar = function() {
+		o_calendar_preview.tabFocus();
+	};
 	this.Schedule = function() {
 		o_schedule.draw();
 	};

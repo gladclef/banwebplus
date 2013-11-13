@@ -47,6 +47,13 @@ function logout_session() {
 	}
 }
 
+function dont_check_session_expired() {
+	global $global_user;
+	if ($global_user->get_server_setting("session_timeout") == "-1") {
+			return "<script type='text/javascript'>dont_check_session_expired = true;</script>";
+	}
+}
+
 function draw_page_head($outside_content = '') {
 	global $global_path_to_jquery;
 	$a_page = array();
@@ -55,6 +62,7 @@ function draw_page_head($outside_content = '') {
 	$a_page[] = "<link href='/css/main.css' rel='stylesheet' type='text/css'>";
 	$a_page[] = "<link href='/css/login_logout.css' rel='stylesheet' type='text/css'>";
 	$a_page[] = "<link href='/css/popup_notifications.css' rel='stylesheet' type='text/css'>";
+	$a_page[] = "<link href='/css/calendar.css' rel='stylesheet' type='text/css'>";
 	$a_page[] = '<script src="'.$global_path_to_jquery.'"></script>';
 	$a_page[] = '<script src="/js/common_functions.js"></script>';
 	$a_page[] = '<script src="/js/ajax.js"></script>';
@@ -63,6 +71,8 @@ function draw_page_head($outside_content = '') {
 	$a_page[] = '<script src="/js/main.js"></script>';
 	$a_page[] = '<script src="/js/storage.js"></script>';
 	$a_page[] = '<script src="/js/popup_notifications.js"></script>';
+	$a_page[] = '<script src="/js/calendar_preview.js"></script>';
+	$a_page[] = dont_check_session_expired();
 	$a_page[] = "</head>";
 	$a_page[] = "<body>";
 	$a_page[] = "<table class='main_page_container'><tr><td class='centered'>";

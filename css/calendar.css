@@ -1,0 +1,82 @@
+#calendar_preview {
+	width: 820px;
+}
+
+.weekly_calendar_day {
+	display: inline-block;
+	width: 115px;
+	min-height: 80px;
+	color: black;
+	background-color: #eee;
+	box-sizing: border-box;
+}
+
+.weekly_calendar_day_title {
+	width: 111px;
+	margin: 0 2px 0 2px;
+	padding: 5px;
+	border: 1px solid #555;
+	border-radius: 5px;
+	background-color: #ccc;
+	text-align: center;
+	box-sizing: border-box;
+}
+
+.weekly_calendar_day_listing {
+	width: 111px;
+	margin: 4px 2px 0 2px;
+	padding: 0px;
+	border: 1px solid #555;
+	border-radius: 5px;
+	background-color: #eee;
+	position: relative;
+	overflow: hidden;
+	box-sizing: border-box;
+}
+
+.weekly_calendar_day_background {
+	width: 111px;
+	margin: 0;
+	padding: 0 2px;
+	background-color: none;
+	position: relative;
+	overflow: hidden;
+	text-align: left;
+}
+
+.weekly_calendar_day_background_hour {
+	background-color: #eee;
+	position: relative;
+	border: none;
+	margin: 0;
+	padding-right: 2px;
+	top: -14px;
+	left: -4px;
+	display: table;
+}
+
+.weekly_calendar_day_background_table {
+	width: 104px;
+	padding: 0;
+	margin: 0;
+	text-align: left;
+	background-color: none;
+	border: none;
+}
+
+.weekly_calendar_day_background_table td {
+	border-top: 1px solid #bbb;
+	color: #bbb;
+}
+
+.calendar_event {
+	width: 103px;
+	padding: 3px;
+	position: absolute;
+	left: 4px;
+	border: 1px solid rgba(0,0,255,0.6);
+	border-radius: 2px;
+	background-color: rgba(173,216,230,0.6);
+	cursor: pointer;
+	box-sizing: border-box;
+}
