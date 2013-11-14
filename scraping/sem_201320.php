@@ -6,7 +6,6 @@ class semesterData {
 		'AE'=>'Aerospace Engineering',
 		'AFAS'=>'Air Force Aerospace Studies',
 		'ANTH'=>'Anthropology',
-		'ARCH'=>'Archeology',
 		'ART'=>'Art History',
 		'BIOL'=>'Biology',
 		'BA'=>'Business Administration',
@@ -23,9 +22,7 @@ class semesterData {
 		'ECON'=>'Economics',
 		'EDUC'=>'Education',
 		'EE'=>'Electrical Engineering',
-		'ED'=>'Engineering Design',
 		'EMGT'=>'Engineering Management',
-		'EM'=>'Engineering Mechanics',
 		'ES'=>'Engineering Science',
 		'ENGL'=>'English',
 		'ENVE'=>'Environmental Engineering',
@@ -45,7 +42,6 @@ class semesterData {
 		'HYD'=>'Hydrology',
 		'IT'=>'Information Technology',
 		'JAPN'=>'Japanese',
-		'LANG'=>'Language',
 		'LIFE'=>'Lifestyle Activities',
 		'MGT'=>'Management',
 		'MKT'=>'Marketing',
@@ -2406,7 +2402,7 @@ class semesterData {
 			'Location'=>'RH 232',
 			'Time'=>'1830-2000',
 			'CRN'=>'53642',
-			'Course'=>'CED 335C-4',
+			'Course'=>'CED 335C-04',
 			'*Campus'=>'M',
 			'Seats'=>'15',
 			'Instructor'=>'Gaby Benalil'
@@ -3448,7 +3444,7 @@ class semesterData {
 		),
 		array(
 			'subject'=>'CSE',
-			'Enroll'=>'1',
+			'Enroll'=>'2',
 			'Title'=>'Independent Study',
 			'Days'=>' ',
 			'Hrs'=>'1',
@@ -3458,7 +3454,7 @@ class semesterData {
 			'CRN'=>'52710',
 			'Course'=>'CSE 590-01',
 			'*Campus'=>'M',
-			'Seats'=>'9',
+			'Seats'=>'8',
 			'Instructor'=>'Lorie M. Liebrock'
 		),
 		array(
@@ -3538,7 +3534,7 @@ class semesterData {
 		),
 		array(
 			'subject'=>'CSE',
-			'Enroll'=>'4',
+			'Enroll'=>'3',
 			'Title'=>'Thesis',
 			'Days'=>' ',
 			'Hrs'=>'1',
@@ -3548,7 +3544,7 @@ class semesterData {
 			'CRN'=>'52716',
 			'Course'=>'CSE 591-01',
 			'*Campus'=>'M',
-			'Seats'=>'6',
+			'Seats'=>'7',
 			'Instructor'=>'Lorie M. Liebrock'
 		),
 		array(
@@ -9969,7 +9965,7 @@ class semesterData {
 			'Course'=>'MATE 410-01',
 			'*Campus'=>'M',
 			'Seats'=>'12',
-			'Instructor'=>'Nikolai Kalouguine'
+			'Instructor'=>'Nikolai Kalugin'
 		),
 		array(
 			'subject'=>'MATE',
@@ -10164,7 +10160,7 @@ class semesterData {
 			'Course'=>'MATE 491-04',
 			'*Campus'=>'M',
 			'Seats'=>'5',
-			'Instructor'=>'Nikolai Kalouguine'
+			'Instructor'=>'Nikolai Kalugin'
 		),
 		array(
 			'subject'=>'MATE',
@@ -10224,7 +10220,7 @@ class semesterData {
 			'Course'=>'MATE 500-04',
 			'*Campus'=>'M',
 			'Seats'=>'10',
-			'Instructor'=>'Nikolai Kalouguine'
+			'Instructor'=>'Nikolai Kalugin'
 		),
 		array(
 			'subject'=>'MATE',
@@ -10314,7 +10310,7 @@ class semesterData {
 			'Course'=>'MATE 564-01',
 			'*Campus'=>'M',
 			'Seats'=>'18',
-			'Instructor'=>'Nikolai Kalouguine'
+			'Instructor'=>'Nikolai Kalugin'
 		),
 		array(
 			'subject'=>'MATE',
@@ -10329,7 +10325,7 @@ class semesterData {
 			'Course'=>'MATE 564D-01',
 			'*Campus'=>'DE',
 			'Seats'=>'10',
-			'Instructor'=>'Nikolai Kalouguine'
+			'Instructor'=>'Nikolai Kalugin'
 		),
 		array(
 			'subject'=>'MATE',
@@ -10344,7 +10340,7 @@ class semesterData {
 			'Course'=>'MATE 564V-01',
 			'*Campus'=>'M',
 			'Seats'=>'9',
-			'Instructor'=>'Nikolai Kalouguine'
+			'Instructor'=>'Nikolai Kalugin'
 		),
 		array(
 			'subject'=>'MATE',
@@ -10404,7 +10400,7 @@ class semesterData {
 			'Course'=>'MATE 581-04',
 			'*Campus'=>'M',
 			'Seats'=>'10',
-			'Instructor'=>'Nikolai Kalouguine'
+			'Instructor'=>'Nikolai Kalugin'
 		),
 		array(
 			'subject'=>'MATE',
@@ -10464,7 +10460,7 @@ class semesterData {
 			'Course'=>'MATE 590-04',
 			'*Campus'=>'M',
 			'Seats'=>'8',
-			'Instructor'=>'Nikolai Kalouguine'
+			'Instructor'=>'Nikolai Kalugin'
 		),
 		array(
 			'subject'=>'MATE',
@@ -10480,6 +10476,21 @@ class semesterData {
 			'*Campus'=>'M',
 			'Seats'=>'9',
 			'Instructor'=>'Michaelann S. Tartis'
+		),
+		array(
+			'subject'=>'MATE',
+			'Enroll'=>'1',
+			'Title'=>'Independent Study',
+			'Days'=>' ',
+			'Hrs'=>'1',
+			'Limit'=>'1',
+			'Location'=>' ',
+			'Time'=>'',
+			'CRN'=>'53742',
+			'Course'=>'MATE 590-06',
+			'*Campus'=>'M',
+			'Seats'=>'0',
+			'Instructor'=>'Michael W. Riley'
 		),
 		array(
 			'subject'=>'MATE',
@@ -10539,7 +10550,7 @@ class semesterData {
 			'Course'=>'MATE 591-04',
 			'*Campus'=>'M',
 			'Seats'=>'9',
-			'Instructor'=>'Nikolai Kalouguine'
+			'Instructor'=>'Nikolai Kalugin'
 		),
 		array(
 			'subject'=>'MATE',
@@ -10573,7 +10584,7 @@ class semesterData {
 		),
 		array(
 			'subject'=>'MATE',
-			'Enroll'=>'2',
+			'Enroll'=>'1',
 			'Title'=>'Thesis',
 			'Days'=>' ',
 			'Hrs'=>'1',
@@ -10583,7 +10594,7 @@ class semesterData {
 			'CRN'=>'53671',
 			'Course'=>'MATE 591-07',
 			'*Campus'=>'M',
-			'Seats'=>'8',
+			'Seats'=>'9',
 			'Instructor'=>'Michael W. Riley'
 		),
 		array(
@@ -10644,7 +10655,7 @@ class semesterData {
 			'Course'=>'MATE 595-04',
 			'*Campus'=>'M',
 			'Seats'=>'10',
-			'Instructor'=>'Nikolai Kalouguine'
+			'Instructor'=>'Nikolai Kalugin'
 		),
 		array(
 			'subject'=>'MATE',
@@ -15358,7 +15369,7 @@ class semesterData {
 		),
 		array(
 			'subject'=>'PETR',
-			'Enroll'=>'0',
+			'Enroll'=>'1',
 			'Title'=>'Independent Study',
 			'Days'=>' ',
 			'Hrs'=>'1',
@@ -15368,7 +15379,7 @@ class semesterData {
 			'CRN'=>'52586',
 			'Course'=>'PETR 590-05',
 			'*Campus'=>'M',
-			'Seats'=>'10',
+			'Seats'=>'9',
 			'Instructor'=>'Tan Nguyen'
 		),
 		array(
@@ -15388,7 +15399,7 @@ class semesterData {
 		),
 		array(
 			'subject'=>'PETR',
-			'Enroll'=>'0',
+			'Enroll'=>'1',
 			'Title'=>'Independent Study',
 			'Days'=>' ',
 			'Hrs'=>'1',
@@ -15398,7 +15409,7 @@ class semesterData {
 			'CRN'=>'52643',
 			'Course'=>'PETR 590-07',
 			'*Campus'=>'M',
-			'Seats'=>'10',
+			'Seats'=>'9',
 			'Instructor'=>'Reid Grigg'
 		),
 		array(
@@ -15508,7 +15519,7 @@ class semesterData {
 		),
 		array(
 			'subject'=>'PETR',
-			'Enroll'=>'6',
+			'Enroll'=>'5',
 			'Title'=>'Thesis',
 			'Days'=>' ',
 			'Hrs'=>'1',
@@ -15518,7 +15529,7 @@ class semesterData {
 			'CRN'=>'52587',
 			'Course'=>'PETR 591-05',
 			'*Campus'=>'M',
-			'Seats'=>'4',
+			'Seats'=>'5',
 			'Instructor'=>'Tan Nguyen'
 		),
 		array(
@@ -15538,7 +15549,7 @@ class semesterData {
 		),
 		array(
 			'subject'=>'PETR',
-			'Enroll'=>'1',
+			'Enroll'=>'0',
 			'Title'=>'Thesis',
 			'Days'=>' ',
 			'Hrs'=>'1',
@@ -15548,7 +15559,7 @@ class semesterData {
 			'CRN'=>'52616',
 			'Course'=>'PETR 591-07',
 			'*Campus'=>'M',
-			'Seats'=>'9',
+			'Seats'=>'10',
 			'Instructor'=>'Reid Grigg'
 		),
 		array(
@@ -17301,7 +17312,7 @@ class semesterData {
 			'Location'=>'WORKC 310',
 			'Time'=>'0900-0950',
 			'CRN'=>'53388',
-			'Course'=>'PHYS 515-014',
+			'Course'=>'PHYS 515-01',
 			'*Campus'=>'M',
 			'Seats'=>'5',
 			'Instructor'=>'Sharon L. Sessions'

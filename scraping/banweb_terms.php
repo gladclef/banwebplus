@@ -5,6 +5,5 @@ $terms = array(
 	 array('201410','Summer 2013'),
 	 array('201420','Fall 2013'),
 	 array('201430','Spring 2014'),
-	 array('201510','Summer 2014'),
 );
 ?>
