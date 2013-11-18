@@ -64,6 +64,7 @@ class user {
 				return "print success[*note*]Settings already saved";
 		
 		$a_current = db_query("SELECT * FROM `[database]`.`[table]` WHERE `user_id`='[user_id]' AND `type`='server'", $query_vars);
+		create_row_if_not_existing($query_vars);
 		$query_string = 'UPDATE `[database]`.`[table]` SET '.array_to_update_clause($a_settings).' WHERE `user_id`=\'[user_id]\' AND `type`=\'[type]\'';
 		db_query($query_string, array_merge($a_settings, $query_vars));
 		if (mysql_affected_rows() == 0) {
@@ -242,17 +243,17 @@ class user {
 		global $settings_table;
 		$userid = $this->id;
 
+		if ($this->name == "guest") {
+				$this->a_server_settings = array('session_timeout'=>'10');
+				return;
+		}
+
+		// load server settings
 		$a_settings_vars = array("database"=>$maindb, "table"=>$settings_table, "user_id"=>$userid, "type"=>"server");
-
-		// ensure that user settings exist
-		create_row_if_not_existing($a_settings_vars);
-
-		// load server settings		
 		$s_settings_string = "SELECT * FROM `[database]`.`[table]` WHERE `user_id`='[user_id]'";
 		$a_settings = db_query($s_settings_string, $a_settings_vars);
 		if (is_array($a_settings) && count($a_settings) > 0)
 				$this->a_server_settings = $a_settings[0];
-
 		// load other settings
 	}
 }

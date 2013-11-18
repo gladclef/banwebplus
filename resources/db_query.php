@@ -105,7 +105,7 @@ function create_row_if_not_existing($a_vars, $b_print_queries = FALSE) {
 			return FALSE;
 	// get the where and set strings
 	$s_where = array_to_where_clause($a_properties);
-	$s_set = array_to_insert_clause($a_properties);
+	$s_set = array_to_set_clause($a_properties);
 	// check if it exists
 	$s_query_string = "SELECT `id` FROM `[database]`.`[table]` WHERE $s_where";
 	$a_query_vars = array("database"=>$database, "table"=>$table);
