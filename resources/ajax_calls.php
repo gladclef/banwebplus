@@ -109,7 +109,7 @@ class ajax {
 		$s_dirname = dirname(__FILE__).'/../scraping/';
 		$s_fullname = $s_dirname.$s_filename;
 		if (!file_exists($s_fullname))
-				return 'file doesn\'t exists';
+				return 'file "'.$s_fullname.'" doesn\'t exists';
 	
 		require($s_fullname);
 		if (class_exists("semesterData"))
