@@ -47,7 +47,6 @@ class icalendarFunctions {
 								$s_part_line = substr($s_line, 0, 75);
 								$a_new_cal[] = $s_part_line;
 								$s_line = $s_indent.substr($s_line, 75);
-								$s_indent .= "\t";
 						}
 						$a_new_cal[] = $s_line;
 				} else {
