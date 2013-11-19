@@ -17,7 +17,7 @@ class icalendarFunctions {
 		$this->o_user = new user($s_username, NULL, $a_users[0]['pass']);
 		if (!$this->o_user->exists_in_db())
 				return;
-		$this->a_generated_settings = db_query("SELECT * FROM `[database]`.`generated_settings` WHERE `user_id`='[id]'", array('id'=>$this->o_user->get_id()));
+		$this->a_generated_settings = db_query("SELECT * FROM `[database]`.`generated_settings` WHERE `user_id`='[id]' AND `private_icalendar_key`='[key]'", array('database'=>$maindb, 'id'=>$this->o_user->get_id(), 'key'=>$s_key));
 		if (count($this->a_generated_settings) == 0)
 				return;
 		$this->b_exists = TRUE;
