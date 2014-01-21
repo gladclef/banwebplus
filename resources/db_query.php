@@ -36,12 +36,15 @@ function db_query($s_query, $a_values=NULL, $b_print_query = FALSE) {
 function open_db() {
 	global $on_bens_computer;
 
-	if ($on_bens_computer == 'main')
+	if ($on_bens_computer == 'main') {
 			$link = mysql_connect('localhost', 'banwebplus', 'MmE3YTJiOWY3OTNmMzlkNjNlNzIzMzUy');
-	else if ($on_bens_computer == 'ben_laptop')
+	} else if ($on_bens_computer == 'ben_laptop') {
 			$link = mysql_connect('localhost', 'root', 'password');
-	else
+	} else if ($on_bens_computer == 'ben_desktop') {			
+			$link = mysql_connect('localhost', 'banwebplus', 'password');
+	} else {
 			$link = mysql_connect('localhost', 'root', 's5TE1PuC');
+	}
 	if ($link) {
 			return TRUE;
 	} else {

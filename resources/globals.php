@@ -8,6 +8,9 @@ if ($_SERVER['SERVER_ADDR'] == '192.168.116.128') {
 		$on_bens_computer = 'ben_laptop';
 } else if ($_SERVER['DOCUMENT_ROOT'] == '/new_banweb') {
 	$on_bens_computer = 'ben_worktop';
+} else if ($_SERVER['SERVER_ADDR'] == '192.168.169.128') {
+		$maindb = 'banweb_test_main';
+		$on_bens_computer = 'ben_desktop';
 }
 
 $global_user = NULL;
