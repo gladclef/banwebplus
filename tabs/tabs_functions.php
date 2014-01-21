@@ -27,7 +27,7 @@ function draw_tabs() {
 	$a_retval[] = '<div class="spacer_for_div_contents">&nbsp;</div>';
 	foreach($a_tabs_with_access as $a_tab) {
 			$s_tab_name = $a_tab['name'];
-			$a_retval[] = '<div class="tab_contents_div centered" id="'.$s_tab_name.'">'.load_tab_contents($s_tab_name).'</div>';
+			$a_retval[] = "\t".'<div class="tab_contents_div centered" id="'.$s_tab_name.'">'.str_replace("\n", "\n\t\t", load_tab_contents($s_tab_name))."\n\t".'</div>';
 	}
 	$a_retval[] = '</div></td></tr></table>';
 	

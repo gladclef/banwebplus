@@ -3,7 +3,8 @@
 require_once(dirname(__FILE__)."/../resources/globals.php");
 
 function init_users_tab() {
-	return '<table class=\'table_title\'><tr><td>
+	$s_retval = '
+<table class=\'table_title\'><tr><td>
     <div class=\'centered\'>Choose an User</div>
     <table class=\'centered\'><tr><td>
         <input type=\'button\' value=\'Load Users\' onclick=\'o_userManager.populateUsers()\'></input>
@@ -18,15 +19,17 @@ function init_users_tab() {
     <table class=\'centered\'>
         <tr>
             <td id=\'user_action_selector_container\'>
-                '.create_user_action_buttons().'
+                '.create_user_action_buttons();//.'
+	$s_retval .= '
             </td>
         </tr>
         <tr>
             <td id=\'user_action_form_container\'>
             </td>
         </tr>
-    </div>
+    </table>
 </td></tr></table>';
+	return $s_retval;
 }
 
 function create_user_action_buttons() {
@@ -48,7 +51,7 @@ function create_user_action_buttons() {
 							$b_has_access = FALSE;
 			if (!$b_has_access)
 					continue;
-			$a_retval[] = '<input type="button" value="'.$a_action['name'].'" onclick="'.$a_action['onclick'].'">';
+			$a_retval[] = '<input type="button" value="'.$a_action['name'].'" onclick="'.$a_action['onclick'].'"></input>';
 	}
 
 	return implode('
