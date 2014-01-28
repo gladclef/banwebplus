@@ -1,0 +1,3 @@
+Not updating listing for Spring 2014 during Spring 2014.
+Spring 2014 classes E212 and Math382, which start at 9:00AM, say that they go from 10AM to midnight on a droid phone.
+Can scroll the page but not the list of classes on droid 2.3.4 phone after the 23rd class.
