@@ -208,6 +208,11 @@ class ajax {
 	function create_feedback() {
 		return feedbackTab::handelCreateFeedbackAJAX();
 	}
+
+	function delete_feedback() {
+		$s_feedback_id = get_post_var("feedback_id");
+		return feedbackTab::handelDeleteFeedbackAJAX($s_feedback_id);
+	}
 }
 
 $s_command = get_post_var("command");

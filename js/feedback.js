@@ -63,6 +63,18 @@ typeFeedback = function() {
 	this.create_feedback = function() {
 		send_ajax_call_from_form("/resources/ajax_calls.php", "create_feedback_form");
 	};
+
+	this.delete_feedback = function(i_feedback_id) {
+		var jspan = $("#feedback_"+i_feedback_id);
+
+		// check if the user really wants to perform this action
+		if (!confirm("Are you sure you want to delete this feedback?\n\nQ: "+jspan.text())) {
+			return;
+		}
+
+		// the user really wants to delete the feedback
+		send_ajax_call_from_form("/resources/ajax_calls.php", "delete_feedback_"+i_feedback_id+"_form");
+	};
 };
 
 o_feedback = new typeFeedback();

@@ -79,6 +79,16 @@ class feedbackTab {
     <div class='recent_feedback'>
         <span style='font-weight:bold'>Q</span>: {$s_query}{$s_edit_query}<br /><br /><span style='font-weight:bold;'>A</span>: {$s_response}{$s_edit_response}<br />{$s_timedisplay}
     </div>";
+				if ($global_user->has_access("deletefeedback") || $a_feedback["querier_name"] == $global_user->get_name()) {
+						$s_retval .= "
+    <div class='centered'>
+        <form id='delete_feedback_{$id}_form'>
+            <input type='button' onclick='o_feedback.delete_feedback({$id});' value='Delete'></input>
+            <input type='hidden' name='command' value='delete_feedback'></input>
+            <input type='hidden' name='feedback_id' value='{$id}'></input>
+        </form>
+    </div>";
+				}
 		}
 		$s_retval .= "
 </div>";
@@ -102,7 +112,7 @@ class feedbackTab {
 		}
 		
 		// load feedbacks from the database
-		$a_feedbacks = db_query("SELECT * FROM `{$maindb}`.`feedback` WHERE `datetime`>'[starttime]' AND `is_response`='0' ORDER BY `datetime` DESC LIMIT [start],[end]", array("starttime"=>$t_since, "start"=>$i_start, "end"=>$i_end));
+		$a_feedbacks = db_query("SELECT * FROM `{$maindb}`.`feedback` WHERE `datetime`>'[starttime]' AND `is_response`='0' AND `deleted`='0' ORDER BY `datetime` DESC LIMIT [start],[end]", array("starttime"=>$t_since, "start"=>$i_start, "end"=>$i_end));
 		if (!is_array($a_feedbacks) || count($a_feedbacks) == 0) {
 				return array();
 		}
@@ -187,6 +197,28 @@ class feedbackTab {
 		$a_insert_response = array("userid"=>$global_user->get_id(), "datetime"=>date("Y-m-d H:i:s"), "is_response"=>1, "original_feedback_id"=>mysql_insert_id());
 		$s_insert_response = array_to_insert_clause($a_insert_response);
 		$query = db_query("INSERT INTO `{$maindb}`.`feedback` {$s_insert_response}", $a_insert_response);
+		return "reload page[*note*]";
+	}
+
+	/**
+	 * Used to delete a feedback via ajax
+	 * Marks the feedback as "deleted=1"
+	 * @$feedback_id integer the id of the feedback
+	 */
+	public static function handelDeleteFeedbackAJAX($feedback_id) {
+		global $maindb;
+		global $global_user;
+		
+		// check that the user has permission
+		if (!$global_user->has_access("createfeedback.deletefeedback")) {
+				return "alert[*note*]Incorrect permission";
+		}
+		
+		// try and delete the feedback
+		$query = db_query("UPDATE `{$maindb}`.`feedback` SET `deleted`='1' WHERE `id`='[id]'", array("id"=>$feedback_id));
+		if ($query === FALSE || mysql_affected_rows() == 0) {
+				return "alert[*note*]Failed to update database";
+		}
 		return "reload page[*note*]";
 	}
 
