@@ -179,6 +179,8 @@ function interpret_common_ajax_commands(commands_array) {
 			$(form_string).submit();
 		} else if (command == "alert") {
 			alert(note);
+		} else if (command == "reload page") {
+			location.reload(true);
 		}
 	}
 }

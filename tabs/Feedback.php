@@ -28,15 +28,25 @@ class feedbackTab {
 		global $global_user;
 		$username = $global_user->get_name();
 		
-		$s_header = '
+		$s_header = "";
+		$s_header .= '
 <table class=\'table_title\'><tr><td>
     <div class=\'centered\'>Recent Feedback</div>
 </td></tr></table>';
+		if ($global_user->has_access("createfeedback")) {
+				$s_header .= "
+<div class='centered'>
+    <form id='create_feedback_form'>
+        <input type='hidden' name='command' value='create_feedback'>
+        <input type='button' onclick='o_feedback.create_feedback();' value='Create New'>
+    </form>
+</div>";
+		}
 		$s_retval = "";
 		$s_retval .= $s_header;
-		$a_feedbacks = self::loadRecentFeedbacks();
 
 		// check for any feedbacks
+		$a_feedbacks = self::loadRecentFeedbacks();
 		if (count($a_feedbacks) == 0) {
 				$s_retval .= "
 <div class='centered'>
@@ -92,7 +102,7 @@ class feedbackTab {
 		}
 		
 		// load feedbacks from the database
-		$a_feedbacks = db_query("SELECT * FROM `{$maindb}`.`feedback` WHERE `datetime`>'[starttime]' AND `is_response`='0' LIMIT [start],[end]", array("starttime"=>$t_since, "start"=>$i_start, "end"=>$i_end));
+		$a_feedbacks = db_query("SELECT * FROM `{$maindb}`.`feedback` WHERE `datetime`>'[starttime]' AND `is_response`='0' ORDER BY `datetime` DESC LIMIT [start],[end]", array("starttime"=>$t_since, "start"=>$i_start, "end"=>$i_end));
 		if (!is_array($a_feedbacks) || count($a_feedbacks) == 0) {
 				return array();
 		}
@@ -154,6 +164,31 @@ class feedbackTab {
 		return "";
 	}
 
+	/**
+	 * creates a new feedback and response
+	 * @return strong one of "alert[*note*]message" on error or "reload page[*note*]" on success
+	 */
+	public static function handelCreateFeedbackAJAX() {
+		global $maindb;
+		global $global_user;
+		
+		// check if the user has permission
+		if (!$global_user->has_access("createfeedback")) {
+				return "alert[*note*]Incorrect permissions";
+		}
+
+		// create the new feedback
+		$a_insert_feedback = array("userid"=>$global_user->get_id(), "datetime"=>date("Y-m-d H:i:s"));
+		$s_insert_feedback = array_to_insert_clause($a_insert_feedback);
+		$query = db_query("INSERT INTO `{$maindb}`.`feedback` {$s_insert_feedback}", $a_insert_feedback);
+		if ($query === FALSE) {
+				return "alert[*note*]Failed to insert into database";
+		}
+		$a_insert_response = array("userid"=>$global_user->get_id(), "datetime"=>date("Y-m-d H:i:s"), "is_response"=>1, "original_feedback_id"=>mysql_insert_id());
+		$s_insert_response = array_to_insert_clause($a_insert_response);
+		$query = db_query("INSERT INTO `{$maindb}`.`feedback` {$s_insert_response}", $a_insert_response);
+		return "reload page[*note*]";
+	}
 
 	/**
 	 * loads a user and returns their username

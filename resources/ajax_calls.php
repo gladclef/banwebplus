@@ -204,6 +204,10 @@ class ajax {
 		$s_new_query_string = get_post_var("feedback_text");
 		return feedbackTab::handelEditFeedbackAJAX($s_feedback_id, $s_new_query_string);
 	}
+
+	function create_feedback() {
+		return feedbackTab::handelCreateFeedbackAJAX();
+	}
 }
 
 $s_command = get_post_var("command");

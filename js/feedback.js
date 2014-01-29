@@ -6,7 +6,7 @@ typeFeedback = function() {
 		// get some values
 		var jedit_button = $(edit_button);
 		var jspan = $("#feedback_"+i_feedback_id);
-		var width = parseInt(jspan.width());
+		var width = Math.max(parseInt(jspan.width()), 200);
 		var height = parseInt(jspan.height()) + 40;
 		var text = jspan[0].innerHTML;
 
@@ -58,6 +58,10 @@ typeFeedback = function() {
 		jform.remove();
 		jedit_button.show();
 		jspan.show();
+	};
+
+	this.create_feedback = function() {
+		send_ajax_call_from_form("/resources/ajax_calls.php", "create_feedback_form");
 	};
 };
 
