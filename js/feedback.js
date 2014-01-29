@@ -1,4 +1,6 @@
 typeFeedback = function() {
+	this.old_feedback_values = [];
+	
 	this.edit_query = function(edit_button, i_feedback_id) {
 		
 		// get some values
@@ -6,11 +8,18 @@ typeFeedback = function() {
 		var jspan = $("#feedback_"+i_feedback_id);
 		var width = parseInt(jspan.width());
 		var height = parseInt(jspan.height()) + 40;
-		var text = jspan.text();
+		var text = jspan[0].innerHTML;
+
+		if (!this.old_feedback_values[i_feedback_id]) {
+			this.old_feedback_values[i_feedback_id] = text;
+		}
+
+		while(text.match("<br />") && text.match("<br />").length > 0) { text = text.replace("<br />", "\n\r"); }
+		while(text.match("<br>") && text.match("<br>").length > 0) { text = text.replace("<br>", "\n"); }
 		
 		// create the form
-		var jform = $("<form id='feedback_"+i_feedback_id+"_form'>\n    <input type='hidden' name='feedback_id' value='"+i_feedback_id+"'></input>\n    <input type='textbox' name='feedback_text' style='width:"+width+"px; height:"+height+"px; box-sizing:border-box;'></input>\n    <br />\n    <input type='button' value='Submit' onclick='o_feedback.submit_edit_query("+i_feedback_id+");'></input>\n    <input type='button' value='Cancel' onclick='o_feedback.cancel_edit_query("+i_feedback_id+");'></input>\n</form>");
-		jform.find("input[name=feedback_text]").val(text);
+		var jform = $("<form id='feedback_"+i_feedback_id+"_form' onkeypress='cancel_enter_keypress(event);'>\n    <input type='hidden' name='feedback_id' value='"+i_feedback_id+"'></input><input type='hidden' name='command' value='edit_feedback'></input>\n    <textarea name='feedback_text' style='width:"+width+"px; height:"+height+"px; box-sizing:border-box;'></textarea>\n    <br />\n    <input type='button' value='Submit' onclick='o_feedback.submit_edit_query("+i_feedback_id+");'></input>\n    <input type='button' value='Cancel' onclick='o_feedback.cancel_edit_query("+i_feedback_id+");'></input>\n</form>");
+		jform.find("[name=feedback_text]").text(text);
 		jform.insertBefore(jedit_button);
 		jspan.hide();
 		jedit_button.hide();
@@ -20,10 +29,24 @@ typeFeedback = function() {
 		var jspan = $("#feedback_"+i_feedback_id);
 		var jedit_button = $("#feedback_"+i_feedback_id+"_edit_button");
 		var jform = $("#feedback_"+i_feedback_id+"_form");
+		var text = jform.find("[name=feedback_text]")[0].value;
+
+		while(text.match("\n\r") && text.match("\n\r").length > 0) { text = text.replace("\n\r", "<br />"); }
+		while(text.match("\r\n") && text.match("\r\n").length > 0) { text = text.replace("\r\n", "<br />"); }
+		while(text.match("\n") && text.match("\n").length > 0) { text = text.replace("\n", "<br />"); }
+		while(text.match("\r") && text.match("\r").length > 0) { text = text.replace("\r", "<br />"); }
 
 		jedit_button.show();
 		jspan.show();
-		jspan.text(jform.find("input[name=feedback_text]").val());
+		jspan.html(text);
+		jform.hide();
+
+		var commands = send_ajax_call_from_form("/resources/ajax_calls.php", jform.prop("id"));
+		if (commands.length > 1 && commands[1][0] == "reset old values") {
+			jspan.html(this.old_feedback_values[i_feedback_id]);
+		} else {
+			this.old_feedback_values[i_feedback_id] = text;
+		}
 		jform.remove();
 	};
 

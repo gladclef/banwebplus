@@ -8,7 +8,7 @@ function init_feedback_tab() {
     <div class=\'centered\'>Email Bugs/Enhancement Ideas To Developer</div>
     <div id=\'email_developer_container\'>
         <table style=\'font-size:normal;font-weight:normal;text-align:center;\' class=\'centered\'><tr><td>
-            <form id=\'email_developer\' style=\'text-align:left;\'>
+            <form id=\'email_developer\' style=\'text-align:left;\' action=\'#scroll_to_element\'>
                 <label class=\'errors\'></label>
                 Subject<br />
                 <input type=\'text\' size=\'50\' name=\'email_subject\' /><br />
@@ -125,6 +125,35 @@ class feedbackTab {
 		
 		return $a_feedbacks;
 	}
+
+	/**
+	 * updates feedback entries if the user has the proper access
+	 * @$s_feedback_id      string the string representation of the feedback id
+	 * @$s_new_query_string string the new query string to insert into the database
+	 * @return              string one of "alert[*note*]message[*command*]reset old value[*note*]" on error or "" on success
+	 */
+	public static function handelEditFeedbackAJAX($s_feedback_id, $s_new_query_string) {
+		global $global_user;
+		global $maindb;
+
+		// try and find the note
+		$id = (int)$s_feedback_id;
+		$a_feedbacks = db_query("SELECT * FROM `{$maindb}`.`feedback` WHERE `id`='{$id}'");
+		if (!is_array($a_feedbacks) || count($a_feedbacks) == 0) {
+				return "alert[*note*]Feedback {$id} not found. Value not saved.[*command*]reset old values[*note*]";
+		}
+		if ($a_feedbacks[0]["userid"] != $global_user->get_id()) {
+				return "alert[*note*]Incorrect permissions. Value not saved.[*command*]reset old values[*note*]";
+		}
+		
+		// try and update the note
+		$query = db_query("UPDATE `{$maindb}`.`feedback` SET `query`='[query]' WHERE `id`='[id]'", array("id"=>$id, "query"=>$s_new_query_string));
+		if ($query === FALSE) {
+				return "alert[*note*]Failed to update database. Value not saved.[*command*]reset old values[*note*]";
+		}
+		return "";
+	}
+
 
 	/**
 	 * loads a user and returns their username

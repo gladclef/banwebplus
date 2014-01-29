@@ -2,6 +2,7 @@
 require_once(dirname(__FILE__)."/common_functions.php");
 require_once(dirname(__FILE__)."/check_logged_in.php");
 require_once(dirname(__FILE__)."/db_query.php");
+require_once(dirname(__FILE__)."/../tabs/Feedback.php");
 
 // only functions within this class can be called by ajax
 class ajax {
@@ -196,6 +197,12 @@ class ajax {
 				return "print error[*note*]Please include a body in your email.<br />";
 		mail("bbean@cs.nmt.edu", "Banwebplus Feedback: {$s_subject}", $s_body, "From: ".$global_user->get_email());
 		return "print success[*note*]Thank you for your feedback!<br />";
+	}
+
+	function edit_feedback() {
+		$s_feedback_id = get_post_var("feedback_id");
+		$s_new_query_string = get_post_var("feedback_text");
+		return feedbackTab::handelEditFeedbackAJAX($s_feedback_id, $s_new_query_string);
 	}
 }
 

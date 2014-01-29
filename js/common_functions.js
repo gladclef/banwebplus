@@ -118,3 +118,9 @@ function get_date() {
 	s_retval += $.strPad(d.getSeconds(),2);
 	return s_retval;
 }
+
+function cancel_enter_keypress(e) {
+	if (e.which == 13) {
+		e.stopPropagation();
+	}
+}
