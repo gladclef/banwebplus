@@ -17,10 +17,12 @@ class user {
 
 	function __construct($username, $password, $crypt_password) {
 		$this->name = $username;
-		$this->exists = $this->load_from_db($password, $crypt_password);
+		$a_user = $this->load_from_db($password, $crypt_password);
+		$this->exists = ($a_user !== FALSE);
 		if ($this->exists) {
 				$this->set_accesses();
 				$this->load_settings();
+				self::global_user($a_user, $this);
 		}
 	}
 
@@ -229,13 +231,13 @@ class user {
 		else
 				$a_users = db_query("SELECT * FROM `[maindb]`.`[userdb]` WHERE `username`='[username]' AND `pass`='[crypt_password]'", array("maindb"=>$maindb, "userdb"=>$userdb, "username"=>$username, "crypt_password"=>$crypt_password));
 		if ($a_users === FALSE)
-				return FALSE;
+				return NULL;
 		if (count($a_users) == 0)
-				return FALSE;
+				return NULL;
 		$this->id = $a_users[0]['id'];
 		$this->accesses_string = $a_users[0]['accesses'];
 		$this->email = $a_users[0]['email'];
-		return TRUE;
+		return $a_users[0];
 	}
 
 	private function load_settings() {
@@ -255,6 +257,69 @@ class user {
 		if (is_array($a_settings) && count($a_settings) > 0)
 				$this->a_server_settings = $a_settings[0];
 		// load other settings
+	}
+
+	/*******************************************************
+	 *           S T A T I C   F U N C T I O N S           *
+	 ******************************************************/
+	
+	/**
+	 * retrieves a user by their id
+	 * @$i_user_id integer the id to search for
+	 * @return     object  either a user object or NULL
+	 */
+	public static function load_user_by_id($i_user_id) {
+
+		global $maindb;
+		
+		// check if the user has already been loaded
+		$o_user = self::global_user(NULL, NULL, "id", $i_user_id);
+		if ($o_user !== NULL) {
+				return $o_user;
+		}
+		
+		// load the user
+		$a_users = db_query("SELECT `{$maindb}`.`username`,`pass` FROM `students` WHERE `id`='[id]'", array("id"=>$i_user_id));
+		if (is_array($a_users) && count($a_users) > 0) {
+				$o_user = new user($a_users[0]['username'], NULL, $a_users[0]['pass']);
+		}
+		return $o_user;
+	}
+
+	/**
+	 * Stores, or loads, a user
+	 * (think of this function as a basic user manager)
+	 * @$a_user   array        The database representation of a user, used to store users
+	 * @$s_key    string       The key to search for a user by
+	 * @$wt_value weakly typed The value to match to the key
+	 * @return    object       Either the user object, or NULL if it can't be found
+	 */
+	private static function global_user($a_user, $o_user, $s_key = "", $wt_value = NULL) {
+		
+		static $a_users;
+		if (!isset($a_users)) {
+				$a_users = array();
+		}
+		$o_user_retval = NULL;
+
+		// determine if a user is being stored or loaded
+		if ($a_user === NULL || $o_user === NULL) {
+				
+				// return the already loaded user
+				for($i = 0; $i < count($a_users); $i++) {
+						if ($a_users[$i][0][$s_key] == $wt_value) {
+								$o_user_retval = $a_users[$i][1];
+								break;
+						}
+				}
+		} else {
+				
+				// store the user
+				$a_users[] = array($a_user, $o_user);
+				$o_user_retval = $o_user;
+		}
+
+		return $o_user_retval;
 	}
 }
 
