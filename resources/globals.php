@@ -1,29 +1,30 @@
 <?php
-$maindb = "banwebplus";
-$userdb = "students";
-$settings_table = "user_settings";
-$on_bens_computer = 'main';
-if ($_SERVER['SERVER_ADDR'] == '192.168.116.128') {
-		$maindb = "banweb_test_main";
-		$on_bens_computer = 'ben_laptop';
-} else if ($_SERVER['DOCUMENT_ROOT'] == '/new_banweb') {
-	$on_bens_computer = 'ben_worktop';
-} else if ($_SERVER['SERVER_ADDR'] == '192.168.169.128') {
-		$maindb = 'banweb_test_main';
-		$on_bens_computer = 'ben_desktop';
-}
 
-$global_user = NULL;
-$global_opened_db = FALSE;
-$session_started = FALSE;
-$global_path_to_jquery = "/jquery/js/jquery-1.9.0.js";
-if ($on_bens_computer == 'ben_worktop')
-	$global_path_to_jquery = "/jquery-ui-1.10.0.custom/js/jquery-1.9.0.js";
-$tab_init_function = NULL; // redefined with each tab file required
-
-date_default_timezone_set('America/Denver');
-
+define_global_vars();
 require_once(dirname(__FILE__)."/common_functions.php");
 require_once(dirname(__FILE__)."/../objects/user.php");
+
+function define_global_vars() {
+	global $maindb;
+	global $on_bens_computer;
+	global $global_user;
+	global $global_opened_db;
+	global $session_started;
+	global $global_path_to_jquery;
+	global $tab_init_function;
+
+	$a_configs = parse_ini_file(dirname(__FILE__)."/server_config.ini");
+
+	$maindb = $a_configs["maindb"];
+	$on_bens_computer = $a_configs["on_bens_computer"];
+
+	$global_user = NULL;
+	$global_opened_db = FALSE;
+	$session_started = FALSE;
+	$global_path_to_jquery = $a_configs["global_path_to_jquery"];
+	$tab_init_function = NULL; // redefined with each tab file required
+
+	date_default_timezone_set($a_configs["timezone"]);
+}
 
 ?>
