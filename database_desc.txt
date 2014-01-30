@@ -1,4 +1,4 @@
-a:12:{i:0;a:4:{s:5:"Table";s:10:"access_log";s:12:"Create Table";s:445:"CREATE TABLE `access_log` (
+a:2:{s:6:"Tables";a:12:{i:0;a:4:{s:5:"Table";s:10:"access_log";s:12:"Create Table";s:445:"CREATE TABLE `access_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `username` varchar(255) NOT NULL,
   `ip_address` varchar(255) NOT NULL,
@@ -97,4 +97,4 @@ a:12:{i:0;a:4:{s:5:"Table";s:10:"access_log";s:12:"Create Table";s:445:"CREATE T
   `enable_icalendar` tinyint(4) NOT NULL,
   `type` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=17 DEFAULT CHARSET=latin1";s:7:"columns";a:6:{i:0;a:2:{s:4:"name";s:2:"id";s:4:"desc";s:31:"int(11) NOT NULL AUTO_INCREMENT";}i:1;a:2:{s:4:"name";s:7:"user_id";s:4:"desc";s:16:"int(11) NOT NULL";}i:2;a:2:{s:4:"name";s:15:"session_timeout";s:4:"desc";s:16:"int(11) NOT NULL";}i:3;a:2:{s:4:"name";s:16:"default_semester";s:4:"desc";s:21:"varchar(255) NOT NULL";}i:4;a:2:{s:4:"name";s:16:"enable_icalendar";s:4:"desc";s:19:"tinyint(4) NOT NULL";}i:5;a:2:{s:4:"name";s:4:"type";s:4:"desc";s:21:"varchar(255) NOT NULL";}}s:4:"keys";a:1:{i:0;s:18:"PRIMARY KEY (`id`)";}}}
+) ENGINE=MyISAM AUTO_INCREMENT=17 DEFAULT CHARSET=latin1";s:7:"columns";a:6:{i:0;a:2:{s:4:"name";s:2:"id";s:4:"desc";s:31:"int(11) NOT NULL AUTO_INCREMENT";}i:1;a:2:{s:4:"name";s:7:"user_id";s:4:"desc";s:16:"int(11) NOT NULL";}i:2;a:2:{s:4:"name";s:15:"session_timeout";s:4:"desc";s:16:"int(11) NOT NULL";}i:3;a:2:{s:4:"name";s:16:"default_semester";s:4:"desc";s:21:"varchar(255) NOT NULL";}i:4;a:2:{s:4:"name";s:16:"enable_icalendar";s:4:"desc";s:19:"tinyint(4) NOT NULL";}i:5;a:2:{s:4:"name";s:4:"type";s:4:"desc";s:21:"varchar(255) NOT NULL";}}s:4:"keys";a:1:{i:0;s:18:"PRIMARY KEY (`id`)";}}}s:8:"Accesses";N;}

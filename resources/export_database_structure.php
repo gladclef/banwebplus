@@ -12,20 +12,26 @@ if (isset($_GET["action"])) {
 function executeAction($s_action) {
 	if ($s_action == "save") {
 			saveTables();
-	} else {
+	} else if ($s_action == "load") {
 			loadTables();
+	} else if ($s_action == "save_accesses") {
+			saveAccesses();
 	}
 }
 
 function drawOptions() {
 	echo "<form action='' method='GET'><input type='hidden' name='action' value='save'></input><input type='submit' value='Save Tables'></input></form>
-<form action='' method='GET'><input type='hidden' name='action' value='load'></input><input type='submit' value='Load Tables'></input></form>";
+<form action='' method='GET'><input type='hidden' name='action' value='load'></input><input type='submit' value='Update Tables'></input></form>
+<form action='' method='GET'><input type='hidden' name='action' value='save_accesses'></input><input type='submit' value='Save Accesses'></input></form>
+<form action='' method='GET'><input type='hidden' name='action' value='load_accesses'></input><input type='submit' value='Update Accesses'></input></form>";
 }
 
 function saveTables() {
-	$a_tables = getTables();
-	$s_tables = serialize($a_tables);
 	$filename = dirname(__FILE__)."/../database_desc.txt";
+	$a_tables = unserialize(file_get_contents($filename));
+	$a_new_tables = array("Tables"=>getTables());
+	$a_tables = array_merge($a_new_tables, array("Accesses"=>$a_accesses));
+	$s_tables = serialize($a_tables);
 	file_put_contents($filename, $s_tables);
 	echo "<pre>saved to file ".realpath($filename).":\n\nmodtime:\n".date("Y-m-d H:i:s",filemtime($filename))." (current time ".date("Y-m-d H:i:s").")\n\ncontents:\n".file_get_contents($filename)."</pre>";
 }
@@ -33,8 +39,46 @@ function saveTables() {
 function loadTables() {
 	$filename = dirname(__FILE__)."/../database_desc.txt";
 	$a_file_tables = unserialize(file_get_contents($filename));
+	$a_file_tables = $a_file_tables["Tables"];
 	$a_tables = getTables();
 	updateTables($a_tables, $a_file_tables);
+}
+
+function saveAccesses() {
+	global $maindb;
+	$a_accesses = db_query("SELECT * FROM `{$maindb}`.`accesses`");
+	$filename = dirname(__FILE__)."/../database_desc.txt";
+	$a_tables = unserialize(file_get_contents($filename));
+	$a_tables = array_merge($a_tables, array("Accesses"=>$a_accesses));
+	file_put_contents($filename, serialize($a_tables));
+	echo "<pre>saved to file ".realpath($filename).":\n\nmodtime:\n".date("Y-m-d H:i:s",filemtime($filename))." (current time ".date("Y-m-d H:i:s").")\n\ncontents:\n".file_get_contents($filename)."</pre>";	
+}
+
+function loadAccesses() {
+	$filename = dirname(__FILE__)."/../database_desc.txt";
+	$a_tables = unserialize(file_get_contents($filename));
+	$a_accesses = $a_tables["Accesses"];
+	$a_curr_accesses = db_query("SELECT * FROM `{$maindb}`.`accesses`");
+	updateAccesses($a_curr_accesses, $a_accesses);
+}
+
+function updateAccesses($a_curr_accesses, $a_accesses) {
+	global $maindb;
+	foreach($a_accesses as $a_access) {
+			$b_found = FALSE;
+			foreach($a_curr_accesses as $a_curr_acc) {
+					if ($a_curr_acc["name"] == $a_access["name"]) {
+							db_query("UPDATE `{$maindb}`.`accesses` SET ".array_to_update_clause($a_access)." WHERE `name`='[name]'", $a_access, 1);
+							echo "\n";
+							$b_found = TRUE;
+							break;
+					}
+			}
+			if (!$b_found) {
+					db_query("UPDATE `{$maindb}`.`accesses` INSERT ".array_to_insert_clause($a_access), $a_access, 1);
+					echo "\n";
+			}
+	}
 }
 
 function updateTables($a_old_tables, $a_new_tables) {
@@ -112,8 +156,6 @@ function updateTables($a_old_tables, $a_new_tables) {
 			// check for keys to modify
 			foreach($a_table["keys"] as $k=>$s_key) {
 					$b_found = FALSE;
-					
-					echo "{$s_key}\n";
 					
 					// does the key already exist?
 					foreach($a_curr_table["keys"] as $s_curr_key) {
