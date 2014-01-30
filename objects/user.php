@@ -55,12 +55,11 @@ class user {
 
 	public function update_settings($s_type, $a_settings) {
 		global $maindb;
-		global $settings_table;
 		if ($this->check_is_guest())
 				return 'error|settings can\'t be saved as a guest';
 
-		$query_string = 'SELECT `id` FROM `[database]`.`[table]` WHERE '.array_to_where_clause($a_settings).' AND `user_id`=\'[user_id]\' AND `type`=\'[type]\'';
-		$query_vars = array("database"=>$maindb, "table"=>$settings_table, "user_id"=>$this->id, "type"=>$s_type);
+		$query_string = 'SELECT `id` FROM `[database]`.`user_settings` WHERE '.array_to_where_clause($a_settings).' AND `user_id`=\'[user_id]\' AND `type`=\'[type]\'';
+		$query_vars = array("database"=>$maindb, "user_id"=>$this->id, "type"=>$s_type);
 		$a_exists = db_query($query_string, $query_vars);
 		if(count($a_exists) > 0)
 				return "print success[*note*]Settings already saved";
@@ -79,10 +78,9 @@ class user {
 
 	public function get_crypt_password() {
 		global $maindb;
-		global $userdb;
 		if (!$this->exists)
 				return '';
-		$a_users = db_query("SELECT `pass` FROM `[maindb]`.`[userdb]` WHERE `username`='[username]'", array("maindb"=>$maindb, "userdb"=>$userdb, "username"=>$this->name));
+		$a_users = db_query("SELECT `pass` FROM `[maindb]`.`students` WHERE `username`='[username]'", array("maindb"=>$maindb, "username"=>$this->name));
 		if ($a_users !== FALSE) {
 				if (count($a_users) > 0) {
 						$a_user = $a_users[0];
@@ -139,7 +137,6 @@ class user {
 	 */
 	private function updateSpecialSettings($a_settings, $a_current) {
 		global $maindb;
-		global $settings_table;
 		
 		foreach($a_settings as $setting_name=>$setting_value) {
 				
@@ -223,13 +220,12 @@ class user {
 
 	private function load_from_db($password, $crypt_password) {
 		global $maindb;
-		global $userdb;
 		$username = $this->name;
 
 		if ($password !== NULL)
-				$a_users = db_query("SELECT * FROM `[maindb]`.`[userdb]` WHERE `username`='[username]' AND `pass`=AES_ENCRYPT('[username]','[password]')", array("maindb"=>$maindb, "userdb"=>$userdb, "username"=>$username, "password"=>$password));
+				$a_users = db_query("SELECT * FROM `[maindb]`.`students` WHERE `username`='[username]' AND `pass`=AES_ENCRYPT('[username]','[password]')", array("maindb"=>$maindb, "username"=>$username, "password"=>$password));
 		else
-				$a_users = db_query("SELECT * FROM `[maindb]`.`[userdb]` WHERE `username`='[username]' AND `pass`='[crypt_password]'", array("maindb"=>$maindb, "userdb"=>$userdb, "username"=>$username, "crypt_password"=>$crypt_password));
+				$a_users = db_query("SELECT * FROM `[maindb]`.`students` WHERE `username`='[username]' AND `pass`='[crypt_password]'", array("maindb"=>$maindb, "username"=>$username, "crypt_password"=>$crypt_password));
 		if ($a_users === FALSE)
 				return NULL;
 		if (count($a_users) == 0)
@@ -242,7 +238,6 @@ class user {
 
 	private function load_settings() {
 		global $maindb;
-		global $settings_table;
 		$userid = $this->id;
 
 		if ($this->name == "guest") {
@@ -251,8 +246,8 @@ class user {
 		}
 
 		// load server settings
-		$a_settings_vars = array("database"=>$maindb, "table"=>$settings_table, "user_id"=>$userid, "type"=>"server");
-		$s_settings_string = "SELECT * FROM `[database]`.`[table]` WHERE `user_id`='[user_id]'";
+		$a_settings_vars = array("database"=>$maindb, "user_id"=>$userid, "type"=>"server");
+		$s_settings_string = "SELECT * FROM `[database]`.`user_settings` WHERE `user_id`='[user_id]'";
 		$a_settings = db_query($s_settings_string, $a_settings_vars);
 		if (is_array($a_settings) && count($a_settings) > 0)
 				$this->a_server_settings = $a_settings[0];

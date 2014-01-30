@@ -36,15 +36,8 @@ function db_query($s_query, $a_values=NULL, $b_print_query = FALSE) {
 function open_db() {
 	global $on_bens_computer;
 
-	if ($on_bens_computer == 'main') {
-			$link = mysql_connect('localhost', 'banwebplus', 'MmE3YTJiOWY3OTNmMzlkNjNlNzIzMzUy');
-	} else if ($on_bens_computer == 'ben_laptop') {
-			$link = mysql_connect('localhost', 'root', 'password');
-	} else if ($on_bens_computer == 'ben_desktop') {			
-			$link = mysql_connect('localhost', 'banwebplus', 'password');
-	} else {
-			$link = mysql_connect('localhost', 'root', 's5TE1PuC');
-	}
+	$a_configs = parse_ini_file(dirname(__FILE__)."/mysql_config.ini");
+	$link = mysql_connect($a_configs["host"], $a_configs["user"], $a_configs["password"]);
 	if ($link) {
 			return TRUE;
 	} else {
