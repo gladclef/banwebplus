@@ -48,7 +48,7 @@ function loadTables() {
 
 function saveCommon_Data() {
 	global $maindb;
-	$a_common_data = db_query("SELECT * FROM `{$maindb}`.`common_data`");
+	$a_common_data = getCommon_date();
 	$filename = dirname(__FILE__)."/../database_desc.txt";
 	$a_tables = unserialize(file_get_contents($filename));
 	$a_tables = array_merge($a_tables, array("Common_Data"=>$a_common_data));
@@ -61,11 +61,16 @@ function loadCommon_Data() {
 	$filename = dirname(__FILE__)."/../database_desc.txt";
 	$a_tables = unserialize(file_get_contents($filename));
 	$a_common_data = $a_tables["Common_Data"];
-	$a_curr_common_data = array(
-		array("name"=>"accesses", "rows"=>db_query("SELECT * FROM `{$maindb}`.`buglog`")),
-		array("name"=>"buglog", "rows"=>db_query("SELECT * FROM `{$maindb}`.`buglog`"))
-	);
+	$a_curr_common_data = getCommon_date();
 	updateCommon_Data($a_curr_common_data, $a_common_data);
+}
+
+function getCommon_date() {
+	global $maindb;
+	return array(
+		array("name"=>"accesses", "index"=>"name", "rows"=>db_query("SELECT * FROM `{$maindb}`.`accesses`")),
+		array("name"=>"buglog", "index"=>"id", "rows"=>db_query("SELECT * FROM `{$maindb}`.`buglog`"))
+	);
 }
 
 function updateCommon_Data($a_curr_common_data, $a_common_data) {
@@ -73,16 +78,24 @@ function updateCommon_Data($a_curr_common_data, $a_common_data) {
 	echo "<pre>";
 	foreach($a_common_data as $a_table) {
 			$s_tablename = mysql_real_escape_string($a_table["name"]);
+			$s_index = mysql_real_escape_string($a_table["index"]);
 			foreach($a_table["rows"] as $a_row) {
 					$b_found = FALSE;
-					foreach($a_curr_common_data as $a_curr_acc) {
-							if ($a_curr_acc["name"] == $a_row["name"]) {
-									if (print_r($a_row,TRUE) != print_r($a_curr_acc,TRUE)) {
-											db_query("UPDATE `{$maindb}`.`{$s_tablename}` SET ".array_to_update_clause($a_row)." WHERE `name`='[name]'", $a_row, 1);
-									}
-									$b_found = TRUE;
-									break;
+					foreach($a_curr_common_data as $a_curr_table) {
+							if ($a_curr_table["name"] != $s_tablename) {
+									continue;
 							}
+							foreach($a_curr_table["rows"] as $a_curr_acc) {
+									if ($a_curr_acc[$s_index] == $a_row[$s_index]) {
+											if (print_r($a_row,TRUE) != print_r($a_curr_acc,TRUE)) {
+													db_query("UPDATE `{$maindb}`.`{$s_tablename}` SET ".array_to_update_clause($a_row)." WHERE `{$s_index}`='[{$s_index}]'", $a_row, 1);
+													echo "\n";
+											}
+											$b_found = TRUE;
+											break;
+									}
+							}
+							break;
 					}
 					if (!$b_found) {
 							db_query("INSERT INTO `{$maindb}`.`{$s_tablename}` ".array_to_insert_clause($a_row), $a_row, 1);
