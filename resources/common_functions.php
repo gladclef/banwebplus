@@ -79,6 +79,7 @@ function draw_page_head($outside_content = '') {
 	$a_page[] = '<script src="/js/storage.js"></script>';
 	$a_page[] = '<script src="/js/popup_notifications.js"></script>';
 	$a_page[] = '<script src="/js/calendar_preview.js"></script>';
+	$a_page[] = '<script src="/js/feedback.js"></script>';
 	$a_page[] = dont_check_session_expired();
 	$a_page[] = "</head>";
 	$a_page[] = "<body>";
