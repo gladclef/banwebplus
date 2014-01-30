@@ -200,20 +200,26 @@ class ajax {
 	}
 
 	function edit_post() {
-		global $o_feedback;
 		$s_post_id = get_post_var("post_id");
 		$s_new_query_string = get_post_var("post_text");
 		$s_tablename = get_post_var("tablename");
 		if ($s_tablename == "feedback") {
+				global $o_feedback;
 				return $o_feedback->handelEditPostAJAX($s_post_id, $s_new_query_string);
+		} else if ($s_tablename == "buglog") {
+				global $o_bugtracker;
+				return $o_bugtracker->handelEditPostAJAX($s_post_id, $s_new_query_string);
 		}
 	}
 
 	function create_post() {
-		global $o_feedback;
 		$s_tablename = get_post_var("tablename");
 		if ($s_tablename == "feedback") {
-			return $o_feedback->handelCreatePostAJAX();
+				global $o_feedback;
+				return $o_feedback->handelCreatePostAJAX();
+		} else if ($s_tablename == "buglog") {
+				global $o_bugtracker;
+				return $o_bugtracker->handelCreatePostAJAX();
 		}
 	}
 
@@ -222,7 +228,11 @@ class ajax {
 		$s_post_id = get_post_var("post_id");
 		$s_tablename = get_post_var("tablename");
 		if ($s_tablename == "feedback") {
-			return $o_feedback->handelDeletePostAJAX($s_post_id);
+				global $o_feedback;
+				return $o_feedback->handelDeletePostAJAX($s_post_id);
+		} else if ($s_tablename == "buglog") {
+				global $o_bugtracker;
+				return $o_bugtracker->handelDeletePostAJAX($s_post_id);
 		}
 	}
 }

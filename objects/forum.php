@@ -22,10 +22,10 @@ class forum_object_type {
 	 */
 	public function setRange($i_datetime_start, $i_num_feeds) {
 		if ($i_datetime_start !== NULL) {
-				$this->$a_range["datetime_start"] = (int)$i_datetime_start;
+				$this->a_range["datetime_start"] = (int)$i_datetime_start;
 		}
 		if ($i_num_feeds !== NULL) {
-				$this->$a_range["num_feeds"] = (int)$i_num_feeds;
+				$this->a_range["num_feeds"] = (int)$i_num_feeds;
 		}
 	}
 
