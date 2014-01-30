@@ -173,7 +173,7 @@ function updateTables($a_old_tables, $a_new_tables) {
 			$s_after = "";
 			foreach($a_table["columns"] as $col_key=>$a_column) {
 					$s_colname = $a_column["name"];
-					db_query("ALTER TABLE ADD COLUMN [colname] [desc] [after]", array("colname"=>$s_colname, "desc"=>$a_column["desc"], "after"=>$s_after), 1);
+					db_query("ALTER TABLE `{$maindb}`.`[table]` ADD COLUMN [colname] [desc] [after]", array("table"=>$s_tablename, "colname"=>$s_colname, "desc"=>$a_column["desc"], "after"=>$s_after), 1);
 					echo "\n";
 					$s_after = "AFTER {$s_colname}";
 			}
