@@ -3,8 +3,9 @@ require_once(dirname(__FILE__)."/common_functions.php");
 require_once(dirname(__FILE__)."/globals.php");
 
 if ($global_opened_db === FALSE) {
-		if (open_db())
-						  $global_opened_db = TRUE;
+		if (open_db()) {
+				$global_opened_db = TRUE;
+		}
 }
 
 function replace_values_in_db_query_string($s_query, $a_values) {
@@ -22,14 +23,17 @@ function db_query($s_query, $a_values=NULL, $b_print_query = FALSE) {
 			$s_query_string = replace_values_in_db_query_string($s_query, $a_values);
 	else
 			$s_query_string = $s_query;
-	if ($b_print_query)
-		error_log($s_query_string);
+	if ($b_print_query === TRUE || $b_print_query === 2)
+			error_log($s_query_string);
+	else if ($b_print_query === 1)
+			echo $s_query_string;
 	$wt_retval = mysql_query($s_query_string);
 	if ($wt_retval === TRUE || $wt_retval === FALSE)
 			return $wt_retval;
 	$a_retval = array();
 	while ($row = mysql_fetch_assoc($wt_retval))
 			$a_retval[] = $row;
+	mysql_free_result($wt_retval);
 	return $a_retval;
 }
 
