@@ -135,9 +135,13 @@ function updateTables($a_old_tables, $a_new_tables) {
 			}
 
 			// check for columns that need to be deleted
-			foreach($a_curr_cols as $a_curr_column) {
+			foreach($a_curr_cols as $col_key=>$a_curr_column) {
 					$b_found = FALSE;
 					$s_colname = $a_curr_column["name"];
+					if ($s_colname == "") {
+						unset($a_curr_cols[$col_key]);
+						continue;
+					}
 					foreach($a_table["columns"] as $col_key=>$a_column) {
 							if ($s_colname == $a_column["name"]) {
 									$b_found = TRUE;
