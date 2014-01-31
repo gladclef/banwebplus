@@ -2,6 +2,7 @@
 *.css~
 *.pyc
 *.js~
+*.ini~
 sem_*.php
 sem_*.py
 sem_*.pyc
