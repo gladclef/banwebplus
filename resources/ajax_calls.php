@@ -205,10 +205,10 @@ class ajax {
 		$s_tablename = get_post_var("tablename");
 		if ($s_tablename == "feedback") {
 				global $o_feedback;
-				return $o_feedback->handelEditPostAJAX($s_post_id, $s_new_query_string);
+				return $o_feedback->handleEditPostAJAX($s_post_id, $s_new_query_string);
 		} else if ($s_tablename == "buglog") {
 				global $o_bugtracker;
-				return $o_bugtracker->handelEditPostAJAX($s_post_id, $s_new_query_string);
+				return $o_bugtracker->handleEditPostAJAX($s_post_id, $s_new_query_string);
 		}
 	}
 
@@ -217,37 +217,43 @@ class ajax {
 		$b_no_response = (get_post_var("noresponse") === "1") ? TRUE : FALSE;
 		if ($s_tablename == "feedback") {
 				global $o_feedback;
-				return $o_feedback->handelCreatePostAJAX($b_no_response);
+				return $o_feedback->handleCreatePostAJAX($b_no_response);
 		} else if ($s_tablename == "buglog") {
 				global $o_bugtracker;
-				return $o_bugtracker->handelCreatePostAJAX($b_no_response);
+				return $o_bugtracker->handleCreatePostAJAX($b_no_response);
 		}
 	}
 
 	function delete_post() {
-		global $o_feedback;
 		$s_post_id = get_post_var("post_id");
 		$s_tablename = get_post_var("tablename");
 		if ($s_tablename == "feedback") {
 				global $o_feedback;
-				return $o_feedback->handelDeletePostAJAX($s_post_id);
+				return $o_feedback->handleDeletePostAJAX($s_post_id);
 		} else if ($s_tablename == "buglog") {
 				global $o_bugtracker;
-				return $o_bugtracker->handelDeletePostAJAX($s_post_id);
+				return $o_bugtracker->handleDeletePostAJAX($s_post_id);
 		}
 	}
 
 	function respond_post() {
-		global $o_feedback;
 		$s_post_id = get_post_var("post_id");
 		$s_tablename = get_post_var("tablename");
 		if ($s_tablename == "feedback") {
 				global $o_feedback;
-				return $o_feedback->handelRespondPostAJAX($s_post_id);
+				return $o_feedback->handleRespondPostAJAX($s_post_id);
 		} else if ($s_tablename == "buglog") {
 				global $o_bugtracker;
-				return $o_bugtracker->handelRespondPostAJAX($s_post_id);
+				return $o_bugtracker->handleRespondPostAJAX($s_post_id);
 		}
+	}
+
+	function change_bug_owner() {
+		$s_post_id = get_post_var("post_id");
+		$s_tablename = get_post_var("tablename");
+		$s_userid = get_post_var("userid");
+		global $o_bugtracker;
+		return $o_bugtracker->handleChangeBugOwnerAJAX($s_post_id, $s_userid);
 	}
 }
 

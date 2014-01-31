@@ -124,15 +124,15 @@ class bugtracker_object_type extends forum_object_type {
 		
 		// get the owner string
 		$s_owner = $this->getUsernameForId($a_post["owner_userid"]);
-		$s_owner = "Owner: <span style='font-weight:bold;'>{$s_owner}</span>";
+		$s_owner = "Owner: <span style='font-weight:bold;' id='bug_owner_{$id}'>{$s_owner}</span>";
 		if ($this->user->has_access($this->s_deleteaccess)) {
 				$s_owner .= "
     <input type='button' value='Change' onclick='o_bugtracker.showChangeOwner(this, event);'></input>
     <form class='changeOwner' id='post_change_owner_{$id}_{$this->forum_instance}' style='display:none; margin:0;'>
         <input type='hidden' name='tablename' value='{$this->s_tablename}'></input>
         <input type='hidden' name='post_id' value='{$id}'></input>
-        <input type='hidden' name='command' value='change_owner'></input>
-        <select name='user'>";
+        <input type='hidden' name='command' value='change_bug_owner'></input>
+        <select name='userid'>";
 				foreach(db_query("SELECT `id`,`username` FROM `{$maindb}`.`students` WHERE `deleted`='0'") as $a_student) {
 						$s_owner .= "
             <option value='".$a_student["id"]."'>".$a_student["username"]."</option>";
@@ -190,6 +190,33 @@ class bugtracker_object_type extends forum_object_type {
         {$s_wrapper}{$s_query}{$s_wrapper_mid}<br />{$s_edit_query}{$s_respond_query}{$s_delete_query}<br />{$s_owner}<br />{$s_timedisplay}<br />{$s_responses}{$s_wrapper_end}
     </div>";
 		return $s_retval;
+	}
+
+	/**
+	 * Changes the owner of the bug
+	 * @$s_post_id string id of the post
+	 * @$s_userid  string id of the user that should own the bug
+	 * @return     string should be "alert[*note*]message" on failure or "set value[*note*]{'element_find_by':string,'html':string}" on success
+	 */
+	public function handleChangeBugOwnerAJAX($s_post_id, $s_userid) {
+		global $maindb;
+		
+		// check that the user has permission
+		if (!$this->user->has_access($this->s_createaccess)) {
+				return "alert[*note*]Incorrect permission";
+		}
+		
+		// check that the post and owner exist
+		$a_posts = db_query("SELECT `id` FROM `{$maindb}`.`buglog` WHERE `id`='[id]'", array("id"=>$s_post_id));
+		$a_users = db_query("SELECT `username` FROM `{$maindb}`.`students` WHERE `id`='[id]'", array("id"=>$s_userid));
+		if (!is_array($a_posts) || !is_array($a_users) || count($a_posts) == 0 || count($a_users) == 0) {
+				return "alert[*note*]Error: either the user can't be found or the note can't be found in the database";
+		}
+
+		// change the owner and return
+		db_query("UPDATE `{$maindb}`.`buglog` SET `owner_userid`='[userid]' WHERE `id`='[id]'", array("id"=>$s_post_id, "userid"=>$s_userid));
+		$s_json = json_encode(array("element_find_by"=>"#bug_owner_{$s_post_id}", "html"=>$a_users[0]["username"]));
+		return "set value[*note*]{$s_json}";
 	}
 }
 

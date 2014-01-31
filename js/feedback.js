@@ -114,6 +114,11 @@ typeBugtracker = function() {
 			event.cancelBubble = true;
 		}
 	};
+
+	this.changeOwner = function(element) {
+		var jform = get_parent_by_tag("form", $(element));
+		send_ajax_call_from_form("/resources/ajax_calls.php", jform.prop("id"));
+	}
 }
 
 o_forum = new typeForum();

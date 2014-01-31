@@ -131,6 +131,9 @@ function send_ajax_call_from_form(php_file_name, form_id) {
 			$("#"+id_string).submit();
 		} else if (command == "clear field") {
 			jform.find("input[name="+note+"]").val("");
+		} else if (command == "set value") {
+			var parts = JSON.parse(note);
+			$(parts.element_find_by).html(parts.html);
 		}
 	}
 	

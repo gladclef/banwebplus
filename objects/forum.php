@@ -194,7 +194,7 @@ class forum_object_type {
 	 * @$s_new_query_string string the new query string to insert into the database
 	 * @return              string one of "alert[*note*]message[*command*]reset old value[*note*]" on error or "" on success
 	 */
-	public function handelEditPostAJAX($s_post_id, $s_new_query_string) {
+	public function handleEditPostAJAX($s_post_id, $s_new_query_string) {
 		global $maindb;
 
 		// try and find the note
@@ -220,7 +220,7 @@ class forum_object_type {
 	 * @$b_no_response boolean if TRUE, don't automatically generate a response to the post
 	 * @return         string  one of "alert[*note*]message" on error or "reload page[*note*]" on success
 	 */
-	public function handelCreatePostAJAX($b_no_response = FALSE) {
+	public function handleCreatePostAJAX($b_no_response = FALSE) {
 		global $maindb;
 		
 		// check if the user has permission
@@ -246,7 +246,7 @@ class forum_object_type {
 		return "reload page[*note*]";
 	}
 
-	public function handelRespondPostAJAX($post_id) {
+	public function handleRespondPostAJAX($post_id) {
 		global $maindb;
 		
 		// check if the user has permission
@@ -276,7 +276,7 @@ class forum_object_type {
 	 * Marks the post as "deleted=1"
 	 * @$post_id integer the id of the post
 	 */
-	public function handelDeletePostAJAX($post_id) {
+	public function handleDeletePostAJAX($post_id) {
 		global $maindb;
 		
 		// check that the user has permission
