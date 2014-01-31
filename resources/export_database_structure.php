@@ -34,8 +34,13 @@ function saveTables() {
 	$a_new_tables = array("Tables"=>getTables());
 	$a_tables = array_merge($a_tables, $a_new_tables);
 	$s_tables = serialize($a_tables);
-	file_put_contents($filename, $s_tables);
-	echo "<pre>saved to file ".realpath($filename).":\n\nmodtime:\n".date("Y-m-d H:i:s",filemtime($filename))." (current time ".date("Y-m-d H:i:s").")\n\ncontents:\n".file_get_contents($filename)."</pre>";
+	$success = file_put_contents($filename, $s_tables);
+	if ($success === FALSE) {
+			echo "<span style='color:red;'>ERROR:</span> failed to save file";
+	} else {
+			echo "<pre>saved to file ".realpath($filename).":\n\nmodtime:\n".date("Y-m-d H:i:s",filemtime($filename))." (current time ".date("Y-m-d H:i:s").")</pre>";
+	}
+	echo "<pre>\n\ncontents:\n".file_get_contents($filename)."</pre>";
 }
 
 function loadTables() {
@@ -52,8 +57,13 @@ function saveCommon_Data() {
 	$filename = dirname(__FILE__)."/../database_desc.txt";
 	$a_tables = unserialize(file_get_contents($filename));
 	$a_tables = array_merge($a_tables, array("Common_Data"=>$a_common_data));
-	file_put_contents($filename, serialize($a_tables));
-	echo "<pre>saved to file ".realpath($filename).":\n\nmodtime:\n".date("Y-m-d H:i:s",filemtime($filename))." (current time ".date("Y-m-d H:i:s").")\n\ncontents:\n".file_get_contents($filename)."</pre>";	
+	$success = file_put_contents($filename, serialize($a_tables));
+	if ($success === FALSE) {
+			echo "<span style='color:red;'>ERROR:</span> failed to save file";
+	} else {
+			echo "<pre>saved to file ".realpath($filename).":\n\nmodtime:\n".date("Y-m-d H:i:s",filemtime($filename))." (current time ".date("Y-m-d H:i:s").")</pre>";
+	}
+	echo "<pre>\n\ncontents:\n".file_get_contents($filename)."</pre>";	
 }
 
 function loadCommon_Data() {
