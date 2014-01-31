@@ -210,11 +210,11 @@ def main(parser):
 	terms = []
 
 	# load the latest three semester available on banweb
-	numLatestYears = 3
+	numLatestSemesters = 3
 	latestYear = 0
 	latestSemester = 0
 	latestYearSemester = "201320"
-	latestYearSemesters = [""]*numLatestYears
+	latestYearSemesters = [""]*numLatestSemesters
 	latestYearSemesters[0] = latestYearSemester
 
 	for t in termsList:
@@ -224,8 +224,8 @@ def main(parser):
 			latestYear = year
 			latestSemester = semester
 			latestYearSemester = t[0]
-			for i in range(numLatestYears-1):
-				latestYearSemesters[numLatestYears-i-1] = latestYearSemesters[numLatestYears-i-2]
+			for i in range(numLatestSemesters-1):
+				latestYearSemesters[numLatestSemesters-i-1] = latestYearSemesters[numLatestSemesters-i-2]
 			latestYearSemesters[0] = latestYearSemester
 	
 	for t in termsList:
