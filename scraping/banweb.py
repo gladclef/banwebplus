@@ -209,9 +209,13 @@ def main(parser):
 
 	terms = []
 
+	# load the latest three semester available on banweb
+	numLatestYears = 3
 	latestYear = 0
 	latestSemester = 0
 	latestYearSemester = "201320"
+	latestYearSemesters = [""]*numLatestYears
+	latestYearSemesters[0] = latestYearSemester
 
 	for t in termsList:
 		year = int(t[0][0:4])
@@ -220,11 +224,14 @@ def main(parser):
 			latestYear = year
 			latestSemester = semester
 			latestYearSemester = t[0]
+			for i in range(numLatestYears-1):
+				latestYearSemesters[numLatestYears-i-1] = latestYearSemesters[numLatestYears-i-2]
+			latestYearSemesters[0] = latestYearSemester
 	
 	for t in termsList:
 		semester = t[0]
 		filename = "sem_"+semester+".py"
-		if (os.path.exists(filename) and semester != str(latestYear)+str(latestSemester)):
+		if (os.path.exists(path+filename) and semester not in latestYearSemesters):
 			continue
 		terms.append(copy.copy(getTerm(t, subjects, parser)))
 
