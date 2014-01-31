@@ -100,4 +100,21 @@ typeForum = function() {
 	}
 };
 
+typeBugtracker = function() {
+	this.showChangeOwner = function(element, event) {
+		var jelement = $(element);
+		var jchange_form = jelement.siblings(".changeOwner");
+		jchange_form.show();
+		jchange_form.css("display","inline-block");
+		jelement.hide()
+		console.log(event);
+		if (event.preventDefault) {
+			event.preventDefault();
+		} else {
+			event.cancelBubble = true;
+		}
+	};
+}
+
 o_forum = new typeForum();
+o_bugtracker = new typeBugtracker();

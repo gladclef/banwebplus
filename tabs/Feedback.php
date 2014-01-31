@@ -104,6 +104,7 @@ class bugtracker_object_type extends forum_object_type {
 	private function drawPost($id, $a_post, $i_post_depth) {
 		
 		// init some values
+		global $maindb;
 		$s_retval = "";
 		$s_edit_query = "";
 		$s_response_query = "";
@@ -124,9 +125,26 @@ class bugtracker_object_type extends forum_object_type {
 		// get the owner string
 		$s_owner = $this->getUsernameForId($a_post["owner_userid"]);
 		$s_owner = "Owner: <span style='font-weight:bold;'>{$s_owner}</span>";
+		if ($this->user->has_access($this->s_deleteaccess)) {
+				$s_owner .= "
+    <input type='button' value='Change' onclick='o_bugtracker.showChangeOwner(this, event);'></input>
+    <form class='changeOwner' id='post_change_owner_{$id}_{$this->forum_instance}' style='display:none; margin:0;'>
+        <input type='hidden' name='tablename' value='{$this->s_tablename}'></input>
+        <input type='hidden' name='post_id' value='{$id}'></input>
+        <input type='hidden' name='command' value='change_owner'></input>
+        <select name='user'>";
+				foreach(db_query("SELECT `id`,`username` FROM `{$maindb}`.`students` WHERE `deleted`='0'") as $a_student) {
+						$s_owner .= "
+            <option value='".$a_student["id"]."'>".$a_student["username"]."</option>";
+				}
+				$s_owner .= "
+        </select>
+        <input type='button' value='Apply' onclick='o_bugtracker.changeOwner(this);'></input>
+    </form>";
+		}
 
 		// get the query string
-		$s_query = "{$s_owner}<br /><span id='post_{$id}_{$this->forum_instance}'>".str_replace(array("\n","\r","\r\n"), "<br />", $a_post['query'])."</span> <span style='opacity:0.5;'>~ {$s_querier_name}</span>";
+		$s_query = "<span id='post_{$id}_{$this->forum_instance}'>".str_replace(array("\n","\r","\r\n"), "<br />", $a_post['query'])."</span> <span style='opacity:0.5;'>~ {$s_querier_name}</span>";
 
 		// get the edit string
 		if ($s_username == $s_querier_name) {
@@ -169,7 +187,7 @@ class bugtracker_object_type extends forum_object_type {
 		$s_timedisplay = "<span style='color:{$s_time_color}'>Submitted ".date("F j, Y", strtotime($a_post['datetime']))." at ".date("g:ia", strtotime($a_post['datetime']))."</span>";
 		$s_retval .= "
     <div class='{$s_stylename} depth_{$i_min_post_depth} {$s_wrapper_collapsed} {$s_wrapper_noresponses}'>
-        {$s_wrapper}{$s_query}{$s_wrapper_mid}<br />{$s_edit_query}{$s_respond_query}{$s_delete_query}<br />{$s_timedisplay}<br />{$s_responses}{$s_wrapper_end}
+        {$s_wrapper}{$s_query}{$s_wrapper_mid}<br />{$s_edit_query}{$s_respond_query}{$s_delete_query}<br />{$s_owner}<br />{$s_timedisplay}<br />{$s_responses}{$s_wrapper_end}
     </div>";
 		return $s_retval;
 	}
