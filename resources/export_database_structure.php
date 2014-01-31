@@ -32,7 +32,7 @@ function saveTables() {
 	$filename = dirname(__FILE__)."/../database_desc.txt";
 	$a_tables = unserialize(file_get_contents($filename));
 	$a_new_tables = array("Tables"=>getTables());
-	$a_tables = array_merge($a_new_tables, array("Accesses"=>$a_accesses));
+	$a_tables = array_merge($a_tables, $a_new_tables);
 	$s_tables = serialize($a_tables);
 	file_put_contents($filename, $s_tables);
 	echo "<pre>saved to file ".realpath($filename).":\n\nmodtime:\n".date("Y-m-d H:i:s",filemtime($filename))." (current time ".date("Y-m-d H:i:s").")\n\ncontents:\n".file_get_contents($filename)."</pre>";
