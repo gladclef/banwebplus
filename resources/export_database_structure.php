@@ -68,23 +68,19 @@ function loadAccesses() {
 function updateAccesses($a_curr_accesses, $a_accesses) {
 	global $maindb;
 	echo "<pre>";
-	foreach($a_curr_accesses as $a_curr_acc) {
-			echo $a_curr_acc["name"]."\n";
-	}
-	echo "\n";
 	foreach($a_accesses as $a_access) {
-			echo $a_access["name"]."\n";
 			$b_found = FALSE;
 			foreach($a_curr_accesses as $a_curr_acc) {
 					if ($a_curr_acc["name"] == $a_access["name"]) {
-							db_query("UPDATE `{$maindb}`.`accesses` SET ".array_to_update_clause($a_access)." WHERE `name`='[name]'", $a_access, 1);
-							echo "\n";
+							if (print_r($a_access,TRUE) != print_r($a_curr_acc,TRUE)) {
+									db_query("UPDATE `{$maindb}`.`accesses` SET ".array_to_update_clause($a_access)." WHERE `name`='[name]'", $a_access, 1);
+							}
 							$b_found = TRUE;
 							break;
 					}
 			}
 			if (!$b_found) {
-					db_query("UPDATE `{$maindb}`.`accesses` INSERT ".array_to_insert_clause($a_access), $a_access, 1);
+					db_query("INSERT INTO `{$maindb}`.`accesses` ".array_to_insert_clause($a_access), $a_access, 1);
 					echo "\n";
 			}
 	}
@@ -110,7 +106,6 @@ function updateTables($a_old_tables, $a_new_tables) {
 	
 	// check for non-existant tables
 	foreach($a_new_tables as $k=>$a_table) {
-			echo $a_table["Table"]."\n";
 			if (!isset($a_tables[$a_table["Table"]])) {
 					db_query(str_replace("CREATE TABLE ", "CREATE TABLE `{$maindb}`.", $a_table["Create Table"]), 1);
 					echo "\n";
