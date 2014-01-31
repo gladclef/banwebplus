@@ -16,6 +16,8 @@ function executeAction($s_action) {
 			loadTables();
 	} else if ($s_action == "save_accesses") {
 			saveAccesses();
+	} else if ($s_action == "load_accesses") {
+			loadAccesses();
 	}
 }
 
@@ -55,6 +57,7 @@ function saveAccesses() {
 }
 
 function loadAccesses() {
+	global $maindb;
 	$filename = dirname(__FILE__)."/../database_desc.txt";
 	$a_tables = unserialize(file_get_contents($filename));
 	$a_accesses = $a_tables["Accesses"];
@@ -64,7 +67,13 @@ function loadAccesses() {
 
 function updateAccesses($a_curr_accesses, $a_accesses) {
 	global $maindb;
+	echo "<pre>";
+	foreach($a_curr_accesses as $a_curr_acc) {
+			echo $a_curr_acc["name"]."\n";
+	}
+	echo "\n";
 	foreach($a_accesses as $a_access) {
+			echo $a_access["name"]."\n";
 			$b_found = FALSE;
 			foreach($a_curr_accesses as $a_curr_acc) {
 					if ($a_curr_acc["name"] == $a_access["name"]) {
@@ -79,6 +88,7 @@ function updateAccesses($a_curr_accesses, $a_accesses) {
 					echo "\n";
 			}
 	}
+	echo "</pre>";
 }
 
 function updateTables($a_old_tables, $a_new_tables) {
@@ -100,8 +110,9 @@ function updateTables($a_old_tables, $a_new_tables) {
 	
 	// check for non-existant tables
 	foreach($a_new_tables as $k=>$a_table) {
+			echo $a_table["Table"]."\n";
 			if (!isset($a_tables[$a_table["Table"]])) {
-					db_query(replace("CREATE TABLE ", "CREATE TABLE `{$maindb}` ", $a_table["Create Table"]), 1);
+					db_query(str_replace("CREATE TABLE ", "CREATE TABLE `{$maindb}`.", $a_table["Create Table"]), 1);
 					echo "\n";
 					unset($a_new_tables[$k]);
 			}
