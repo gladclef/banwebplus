@@ -255,6 +255,14 @@ class ajax {
 		global $o_bugtracker;
 		return $o_bugtracker->handleChangeBugOwnerAJAX($s_post_id, $s_userid);
 	}
+
+	function change_bug_status() {
+		$s_post_id = get_post_var("post_id");
+		$s_tablename = get_post_var("tablename");
+		$s_status = get_post_var("status");
+		global $o_bugtracker;
+		return $o_bugtracker->handleChangeBugStatusAJAX($s_post_id, $s_status);
+	}
 }
 
 $s_command = get_post_var("command");

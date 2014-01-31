@@ -134,6 +134,12 @@ function send_ajax_call_from_form(php_file_name, form_id) {
 		} else if (command == "set value") {
 			var parts = JSON.parse(note);
 			$(parts.element_find_by).html(parts.html);
+		} else if (command == "remove class") {
+			var parts = JSON.parse(note);
+			$(parts.element_find_by).removeClass(parts['class']);
+		} else if (command == "add class") {
+			var parts = JSON.parse(note);
+			$(parts.element_find_by).addClass(parts['class']);
 		}
 	}
 	
