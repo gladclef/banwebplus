@@ -218,14 +218,14 @@ class forum_object_type {
 	/**
 	 * creates a new post and response
 	 * @$b_no_response boolean if TRUE, don't automatically generate a response to the post
-	 * @return         string  one of "alert[*note*]message" on error or "reload page[*note*]" on success
+	 * @return         array   array("success"=>boolean, "create_id"=>integer, "response"=>one of "alert[*note*]message" on error or "reload page[*note*]" on success)
 	 */
 	public function handleCreatePostAJAX($b_no_response = FALSE) {
 		global $maindb;
 		
 		// check if the user has permission
 		if (!$this->user->has_access($this->s_createaccess)) {
-				return "alert[*note*]Incorrect permissions";
+				return array("success"=>FALSE, "create_id"=>0, "response"=>"alert[*note*]Incorrect permissions");
 		}
 
 		// create the new post
@@ -233,8 +233,9 @@ class forum_object_type {
 		$s_insert_post = array_to_insert_clause($a_insert_post);
 		$query = db_query("INSERT INTO `{$maindb}`.`[table]` {$s_insert_post}", array_merge($a_insert_post,array("table"=>$this->s_tablename)));
 		if ($query === FALSE) {
-				return "alert[*note*]Failed to insert into database";
+				return array("success"=>FALSE, "create_id"=>0, "response"=>"alert[*note*]Failed to insert into database");
 		}
+		$i_insert_id = mysql_insert_id();
 
 		// create the response
 		if (!$b_no_response) {
@@ -243,7 +244,7 @@ class forum_object_type {
 				$query = db_query("INSERT INTO `{$maindb}`.`[table]` {$s_insert_response}", array_merge($a_insert_response,array("table"=>$this->s_tablename)));
 		}
 
-		return "reload page[*note*]";
+		return array("success"=>TRUE, "create_id"=>$i_insert_id, "response"=>"reload page[*note*]");
 	}
 
 	public function handleRespondPostAJAX($post_id) {

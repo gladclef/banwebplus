@@ -217,11 +217,12 @@ class ajax {
 		$b_no_response = (get_post_var("noresponse") === "1") ? TRUE : FALSE;
 		if ($s_tablename == "feedback") {
 				global $o_feedback;
-				return $o_feedback->handleCreatePostAJAX($b_no_response);
+				$a_response = $o_feedback->handleCreatePostAJAX($b_no_response);
 		} else if ($s_tablename == "buglog") {
 				global $o_bugtracker;
-				return $o_bugtracker->handleCreatePostAJAX($b_no_response);
+				$a_response = $o_bugtracker->handleCreatePostAJAX($b_no_response);
 		}
+		return $a_response["response"];
 	}
 
 	function delete_post() {
