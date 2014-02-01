@@ -6,7 +6,8 @@
 sem_*.php
 sem_*.py
 sem_*.pyc
-/scraping/
-/scraping_bk/
 *.ini
 database_desc.txt
+/scraping/
+/scraping_bk/
+
