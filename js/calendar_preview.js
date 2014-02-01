@@ -60,7 +60,7 @@ typeCalendarPreview = function() {
 	}
 
 	this.eventToJqueryObject = function(event) {
-		var retval = $("<div class='calendar_event' onmouseover='o_calendar_preview.mouseOver(this);' onmouseout='o_calendar_preview.mouseOut(this);' onclick='o_calendar_preview.drawEventDetails(this, "+event.id+");' ontouchstart='o_calendar_preview.drawEventDetails(this, "+event.id+");'>"+event.title+"</div>");
+		var retval = $("<div class='calendar_event' onmouseover='o_calendar_preview.mouseOver(this);' onmouseout='o_calendar_preview.mouseOut(this);' onclick='o_calendar_preview.drawEventDetails(this, \""+event.id+"\");' ontouchstart='o_calendar_preview.drawEventDetails(this, \""+event.id+"\");'>"+event.title+"</div>");
 		return retval;
 	}
 	
@@ -262,16 +262,23 @@ typeCalendarPreviewEvents = function() {
 				return;
 			}
 			var course = o_courses.getClassByCRN(crn).course;
-			var title = course[titleIndex];
+			var parent = o_courses.getParentClass(crn);
+			var title = (parent === null) ? course[titleIndex] : parent.course[titleIndex];
 			var description = "";
 			for(var i = 0; i < headers.length; i++) {
 				if (["Conflicts", "Select"].indexOf(headers[i]) >= 0) {
 					continue;
 				}
-				if (description != "") {
-					description += "<br />";
+				if (course[i] != "" || headers[i] == "Course") {
+					if (description != "") {
+						description += "<br />";
+					}
+					if (headers[i] == "Course" && parent !== null) {
+						description += headers[i]+": "+parent.course[i];
+					} else {
+						description += headers[i]+": "+course[i];
+					}
 				}
-				description += headers[i]+": "+course[i];
 			}
 			var conflictions = [];
 			if (conflicts[crn] && conflicts[crn].length > 0) {

@@ -41,12 +41,14 @@ function load_semester_classes_from_database($s_year, $s_semester) {
 	if ($a_classes_db === FALSE || count($a_classes_db) == 0) {
 			return "Failed to load the classes for the semester, given semester ({$s_year}, {$s_semester}) possibly out of range.";
 	}
-	for ($i = 0; $i < count($a_classes_db); $i++) {
-			if ($a_classes_db[$i]["CRN"] == 0) {
-					$a_classes_db[$i]["CRN"] = $a_classes_db[$i]["parent_class"];
+	$a_classes = $a_classes_db;
+	for ($i = 0; $i < count($a_classes); $i++) {
+			if ($a_classes[$i]["CRN"] == 0) {
+					$a_classes[$i]["CRN"] = ((string)$a_classes[$i]["parent_class"])."A";
+			} else {
+					$a_classes[$i]["CRN"] = (string)$a_classes[$i]["CRN"];
 			}
 	}
-	$a_classes = $a_classes_db;
 	
 	$a_retval = array('name'=>$s_name, 'subjects'=>$a_subjects, 'classes'=>$a_classes);
 	$s_semester_data = json_encode($a_retval);

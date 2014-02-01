@@ -161,7 +161,7 @@ class user {
 				return array();
 		foreach($a_user_data as $k=>$a_class) {
 				$crn = $a_class->crn;
-				if (!is_numeric($crn))
+				if (strlen($crn) < 5)
 						unset($a_user_data[$k]);
 		}
 		return $a_user_data;

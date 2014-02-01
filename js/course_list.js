@@ -126,7 +126,7 @@ typeCoursesList = function() {
 			if (a_classes.length == 0)
 				b_all_selected = false;
 			for (var i = 0; i < a_classes.length; i++) {
-				if ($.inArray(parseInt(a_classes[i][crn_index]), a_user_classes) == -1) {
+				if ($.inArray(a_classes[i][crn_index].trim(), a_user_classes) == -1) {
 					b_all_selected = false;
 					break;
 				}
@@ -150,6 +150,22 @@ typeCoursesList = function() {
 	this.getBlacklist = function() {
 		return current_blacklist[semester];
 	}
+
+	this.getParentClassCRN = function(crn) {
+		parentCRN = "";
+		if (crn.substr(-1) == "A") {
+			parentCRN = crn.substr(0,crn.length-1);
+		}
+		return parentCRN;
+	}
+	this.getParentClass = function (crn) {
+		parentCRN = this.getParentClassCRN(crn);
+		if (parentCRN == "") {
+			return null;
+		} else {
+			return this.getClassByCRN(parentCRN);
+		}
+	};
 	
 	// returns an array('subject'=>subject, 'index'=>index in subject, 'course'=>array of the course)
 	this.getClassByCRN = function(crn) {
@@ -250,6 +266,21 @@ typeCoursesList = function() {
 	
 	// returns the number of classes added
 	this.addUserClass = function(CRN) {
+		
+		// adds the parent/child class, if there is one
+		var addParentChildClass = function(CRN) {
+			parentCRN = o_courses.getParentClassCRN(CRN);
+			if (parentCRN == "") {
+				child = o_courses.getClassByCRN(CRN+"A");
+				if (!child.subject) {
+					return;
+				}
+				o_courses.addUserClass(CRN+"A");
+			} else {
+				o_courses.addUserClass(parentCRN);
+			}
+		};
+		
 		if (current_user_classes[semester].indexOf(CRN) == -1) {
 			var a_class = this.getClassByCRN(CRN);
 			if (typeof(a_class.index) == 'undefined')
@@ -257,6 +288,7 @@ typeCoursesList = function() {
 			current_user_classes[semester].push(CRN);
 			recently_selected_classes[semester] = removeFromArray(recently_selected_classes[semester], CRN);
 			conflicting_object.calculate_conflicting_classes_add_class(CRN, conflicting_object.update_class_show_conflictions);
+			addParentChildClass(CRN);
 			this.saveUserClasses();
 			return 1;
 		}
@@ -265,11 +297,27 @@ typeCoursesList = function() {
 
 	// returns the number of classes removed
 	this.removeUserClass = function(CRN) {
+
+		// removes the parent/child class, if there is one
+		var removeParentChildClass = function(CRN) {
+			parentCRN = o_courses.getParentClassCRN(CRN);
+			if (parentCRN == "") {
+				child = o_courses.getClassByCRN(CRN+"A");
+				if (!child.subject) {
+					return;
+				}
+				o_courses.removeUserClass(CRN+"A");
+			} else {
+				o_courses.removeUserClass(parentCRN);
+			}
+		};
+		
 		var index = current_user_classes[semester].indexOf(CRN)
 		if (index > -1) {
 			current_user_classes[semester] = remove_from_array_by_index(current_user_classes[semester], index);
 			recently_selected_classes[semester] = appendToArray(recently_selected_classes[semester], CRN);
 			conflicting_object.calculate_conflicting_classes_remove_class(CRN, conflicting_object.update_class_show_conflictions);
+			removeParentChildClass(CRN);
 			this.saveUserClasses();
 			return 1;
 		}
@@ -385,7 +433,7 @@ typeCoursesList = function() {
 	}
 	removeFromArray = function(array, item) {
 		if (array.indexOf(item) > -1)
-			array.pop(item)
+			array.splice(array.indexOf(item),1)
 		return array;
 	}
 	// returns the index of the matched element, or -1 if it's not in the array
@@ -446,7 +494,7 @@ typeCoursesList = function() {
 					var course = [];
 					course[0] = ''; // conflicts
 					course[1] = ''; // select
-					course[2] = a_courses[i]['CRN'];
+					course[2] = a_courses[i]['CRN'] + "";
 					course[3] = a_courses[i]['Course'];
 					course[4] = a_courses[i]['*Campus'];
 					course[5] = a_courses[i]['Days'];
@@ -470,7 +518,7 @@ typeCoursesList = function() {
 		// function to analyze everything
 		var addRulesAnalyzeLists = function(user_classes, user_whitelist, user_blacklist, sem) {
 			for (var i = 0; i < user_classes.length; i++)
-				current_user_classes[sem][i] = parseInt(user_classes[i].crn);
+				current_user_classes[sem][i] = (user_classes[i].crn + "").trim();
 			for (var i = 0; i < user_whitelist.length; i++) {
 				var rule = user_whitelist[i];
 				current_whitelist[sem][i] = rule;

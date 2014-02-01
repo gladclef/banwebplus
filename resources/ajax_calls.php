@@ -7,6 +7,8 @@ require_once(dirname(__FILE__)."/load_semester_classes_from_database.php");
 
 // only functions within this class can be called by ajax
 class ajax {
+	
+	// saves the user's class selection to the db
 	function save_classes($s_classes, $s_year, $s_semester, $s_timestamp) {
 		global $maindb;
 		global $global_user;

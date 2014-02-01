@@ -189,14 +189,14 @@ function set_selected_classes(jcontainer_of_table) {
 			a_rows = $(a_rows[0]).children();
 		if (a_rows.length == 0)
 			return;
-		var i_crn_index = get_crn_index($(a_rows[0]));
-		if (i_crn_index < 0)
+		var s_crn_index = get_crn_index($(a_rows[0]));
+		if (s_crn_index < 0)
 			return;
 		var current_user_classes = o_courses.getUserClasses();
 		for(var i = 1; i < a_rows.length; i++) {
 			var jrow = $(a_rows[i]);
-			var i_crn_of_class = parseInt($(jrow.children()[i_crn_index]).text());
-			if (jQuery.inArray(i_crn_of_class,current_user_classes) == -1) {
+			var s_crn_of_class = $(jrow.children()[s_crn_index]).text().trim();
+			if (jQuery.inArray(s_crn_of_class,current_user_classes) == -1) {
 				edit_class_row_property(jrow, i_select_index, '');
 				jrow.removeClass("selected");
 			} else {
@@ -215,14 +215,14 @@ function set_conflicting_classes(jcontainer_of_table) {
 		a_rows = $(a_rows[0]).children();
 	if (a_rows.length == 0)
 		return;
-	var i_crn_index = get_crn_index($(a_rows[0]));
-	if (i_crn_index < 0)
+	var s_crn_index = get_crn_index($(a_rows[0]));
+	if (s_crn_index < 0)
 		return;
 	for(var i = 1; i < a_rows.length; i++) {
 		var jrow = $(a_rows[i]);
-		var i_crn_of_class = parseInt($(jrow.children()[i_crn_index]).text());
+		var s_crn_of_class = $(jrow.children()[s_crn_index]).text().trim();
 		var a_con_classes = conflicting_object.getConflictingClasses();
-		if (jQuery.inArray(i_crn_of_class, a_con_classes) == -1) {
+		if (jQuery.inArray(s_crn_of_class, a_con_classes) == -1) {
 			jrow.removeClass("conflicting");
 		} else {
 			jrow.addClass("conflicting");
@@ -245,13 +245,13 @@ function create_courses_table(jcontainer, a_col_names, a_rows, wt_class, row_cli
 }
 
 function get_crn_index(jheader_row) {
-	var i_crn_index = -1;
+	var s_crn_index = -1+"";
 	for (var i = 0; i < jheader_row.children().length; i++)
 		if ($(jheader_row.children()[i]).text().toLowerCase() == "crn") {
-			i_crn_index = i;
+			s_crn_index = i+"";
 			break;
 		}
-	return i_crn_index;
+	return s_crn_index;
 }
 
 function get_crn_index_from_headers(a_headers) {
@@ -271,13 +271,13 @@ function get_index_of_header(s_name, a_headers) {
 
 // finds the row and changes the value at i_index to s_newval
 function edit_class_row_property(jclass_row, i_index, s_newval) {
-	var i_crn_index = get_crn_index_from_headers(headers);
+	var s_crn_index = get_crn_index_from_headers(headers);
 	var a_tds = jclass_row.children();
-	var s_crn = $(a_tds[i_crn_index]).text();
+	var s_crn = $(a_tds[s_crn_index]).text();
 	var jtd = $(a_tds[i_index]);
 	jtd.html(s_newval);
 	var a_class = o_courses.getClassByCRN(s_crn);
-	if (s_crn == a_class[i_crn_index]) {
+	if (s_crn == a_class[s_crn_index]) {
 		a_class[i_index] = s_newval;
 	}
 }
@@ -286,24 +286,22 @@ function add_remove_class(class_row) {
 	// get the index of "CRN" in the table header
 	var jclass_row = $(class_row);
 	var jheader_row = $(jclass_row.siblings()[0]);
-	var i_crn_index = get_crn_index(jheader_row);
+	var s_crn_index = get_crn_index(jheader_row);
 	var i_select_index = get_index_of_header("select", headers);
-	if (i_crn_index == -1)
+	if (s_crn_index == -1+"")
 		return;
 	// get the CRN of the class
-	var i_crn = parseInt(
-		$(jclass_row.children()[i_crn_index]).text()
-	);
+	var s_crn = $(jclass_row.children()[s_crn_index]).text().trim();
 	// add or remove the class from the user's schedule
 	if (!jclass_row.hasClass("selected")) {
 		// saves/updates conflicts automatically
-		o_courses.addUserClass(i_crn);
+		o_courses.addUserClass(s_crn);
 		// update the gui
 		jclass_row.addClass("selected");
 		if (i_select_index > -1)
 			edit_class_row_property(jclass_row, i_select_index, '<div class="centered"><img src="/images/blue_sphere.png" style="width:21px;height:21px"></div>');
 	} else {
-		o_courses.removeUserClass(i_crn);
+		o_courses.removeUserClass(s_crn);
 		jclass_row.removeClass("selected");
 		if (i_select_index > -1)
 			edit_class_row_property(jclass_row, i_select_index, "");
@@ -315,16 +313,16 @@ function add_remove_class(class_row) {
 }
 
 // gets a class from the list of all classes by crn
-function get_class(i_class_crn) {
-	var a_class_vars = o_courses.getClassByCRN(i_class_crn);
+function get_class(s_class_crn) {
+	var a_class_vars = o_courses.getClassByCRN(s_class_crn);
 	if (typeof(a_class_vars) != 'undefined' && typeof(a_class_vars['course']) != 'undefined')
 		return a_class_vars['course'];
 	return null;
 }
 
 // a_class should be the row from full_course_list
-function get_class_stats_from_class_array(a_class, i_crn_index, i_day_index, i_time_index) {
-	i_id = parseInt(a_class[i_crn_index]);
+function get_class_stats_from_class_array(a_class, s_crn_index, i_day_index, i_time_index) {
+	i_id = a_class[s_crn_index].trim();
 	a_days = a_class[i_day_index].split(' ');
 	i_st = parse_int(a_class[i_time_index].split('-')[0]);
 	i_et = parse_int(a_class[i_time_index].split('-')[1]);

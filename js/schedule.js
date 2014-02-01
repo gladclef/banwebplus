@@ -8,8 +8,8 @@ typeSchedulerTab = function() {
 		kill_children(jrecent_cont);
 		
 		// get the crn index
-		var i_crn_index = get_crn_index_from_headers(headers);
-		if (i_crn_index < 0)
+		var s_crn_index = get_crn_index_from_headers(headers);
+		if (s_crn_index < 0)
 			return;
 		
 		// get the classes to add to the tables
@@ -20,10 +20,10 @@ typeSchedulerTab = function() {
 		var recent_classes = [];
 		for (var i = 0; i < all_classes.length; i++) {
 			var a_class = all_classes[i];
-			var i_crn = parseInt(a_class[i_crn_index]);
-			if (jQuery.inArray(i_crn, user_classes) >= 0)
+			var s_crn = a_class[s_crn_index].trim();
+			if (jQuery.inArray(s_crn, user_classes) >= 0)
 				current_classes.push(a_class);
-			if (jQuery.inArray(i_crn, recently_selected_classes) >= 0)
+			if (jQuery.inArray(s_crn, recently_selected_classes) >= 0)
 				recent_classes.push(a_class);
 		}
 		
@@ -38,17 +38,17 @@ typeSchedulerTab = function() {
 	this.addByCRN = function(jbutton) {
 		var jdiv = get_parent_by_tag('div', jbutton);
 		var crn = jdiv.find('input[name=crn]').val();
-		var i_crn = parseInt(crn);
+		var s_crn = crn.trim();
 		var i_classes_added = 0;
 		var jerrors = jdiv.find('[name=errors]');
 		
-		i_classes_added = o_courses.addUserClass(i_crn);
+		i_classes_added = o_courses.addUserClass(s_crn);
 		if (i_classes_added == 0) {
 			var user_classes = o_courses.getUserClasses();
 			var b_class_selected = false;
 			
 			$.each(user_classes, function(k, v) {
-				if (v == i_crn)
+				if (v == s_crn)
 					b_class_selected = true;
 			});
 			
