@@ -41,12 +41,25 @@ function load_semester_classes_from_database($s_year, $s_semester) {
 	if ($a_classes_db === FALSE || count($a_classes_db) == 0) {
 			return "Failed to load the classes for the semester, given semester ({$s_year}, {$s_semester}) possibly out of range.";
 	}
-	$a_classes = $a_classes_db;
-	for ($i = 0; $i < count($a_classes); $i++) {
-			if ($a_classes[$i]["CRN"] == 0) {
-					$a_classes[$i]["CRN"] = ((string)$a_classes[$i]["parent_class"])."A";
+	$a_subclasses = array();
+	foreach($a_classes_db as $k=>$a_class) {
+			if ($a_class["CRN"] == 0) {
+					$a_classes_db[$k]["CRN"] = ((string)$a_class["parent_class"])."A";
+					$a_subclasses[] = $a_classes_db[$k];
+					unset($a_classes_db[$k]);
 			} else {
-					$a_classes[$i]["CRN"] = (string)$a_classes[$i]["CRN"];
+					$a_classes_db[$k]["CRN"] = (string)$a_class["CRN"];
+			}
+	}
+	foreach($a_classes_db as $a_class) {
+			$a_classes[] = $a_class;
+			$crn = $a_class["CRN"];
+			$subcrn = $crn+"A";
+			foreach($a_subclasses as $k=>$a_subclass) {
+					if ($a_subclass["CRN"] == $subcrn) {
+							$a_classes[] = $a_subclass;
+							unset($a_subclass[$k]);
+					}
 			}
 	}
 	
