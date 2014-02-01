@@ -4,15 +4,16 @@ import argparse
 
 # given a course from a sem_[0-9]+.py file, it will verify that the course is valid
 def courseIsValid(course):
+    isSubclass = course[u'Type'] == u'subclass'
     for index in [u'Enroll', u'Seats', u'Hrs', u'CRN', u'Limit']:
-        if not re.search('\-?[0-9]+', course[index]):
+        if isSubclass or not re.search('\-?[0-9]+', course[index]):
             #print index
             return False
-    if not re.search('[\ U][\ M][\ T][\ W][\ R][\ F][\ S]', course[u'Days']):
+    if isSubclass or not re.search('[\ U][\ M][\ T][\ W][\ R][\ F][\ S]', course[u'Days']):
         if course[u'Days'] != ' ':
             #print u'Days'
             return False
-    if not re.search('[A-Z]+[\ ]+[0-9]+', course[u'Course']):
+    if isSubclass or not re.search('[A-Z]+[\ ]+[0-9]+', course[u'Course']):
         #print u'Course'
         return False
     if u'Time' in course:
@@ -46,7 +47,7 @@ def translate_file(filename, path):
     for subject in m.classes:
         for course in subject:
             if not courseIsValid(course):
-                print course
+                print "invalid: "+str(course)
                 print ''
                 continue
             fout.write("\t\tarray(\n");

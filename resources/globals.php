@@ -12,12 +12,15 @@ function define_global_vars() {
 	global $session_started;
 	global $global_path_to_jquery;
 	global $tab_init_function;
+	global $db_is_already_connected;
 
 	$a_configs = parse_ini_file(dirname(__FILE__)."/server_config.ini");
 
 	$maindb = $a_configs["maindb"];
 	$on_bens_computer = $a_configs["on_bens_computer"];
 
+	if ($db_is_already_connected !== TRUE)
+			$db_is_already_connected = FALSE;
 	$global_user = NULL;
 	$global_opened_db = FALSE;
 	$session_started = FALSE;

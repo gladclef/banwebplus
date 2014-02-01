@@ -37,10 +37,10 @@ class classList:
 	def getHeaders(self):
 		return self.headers
 	
-	def isClass(self, bs4tr):
+	def determinClassType(self, bs4tr):
 		tds = bs4tr.findAll("td")
 		if (len(self.headers) == 0):
-			return False
+			return "none"
 		if (len(tds) == len(self.headers)):
 			countWithContent = 0
 			for td in tds:
@@ -49,11 +49,15 @@ class classList:
 				text = td.contents[0]
 				if (text.strip() != ""):
 					countWithContent += 1
-			if (float(countWithContent) / float(len(self.headers)) > 0.5):
-				return True
-		return False
+			ratio = float(countWithContent) / float(len(self.headers))
+			if (ratio > 0.5):
+				return "class"
+			if (countWithContent > 2 or ratio > 0.5):
+				return "subclass"
+		return "none"
 	def addClass(self, bs4tr):
-		if (self.isClass(bs4tr)):
+		classType = self.determinClassType(bs4tr)
+		if (classType == "class" or classType == "subclass"):
 			tds = bs4tr.findAll("td")
 			classStats = {}
 			for i in range(len(tds)):
@@ -62,6 +66,7 @@ class classList:
 					continue
 				text = td.contents[0]
 				classStats[self.headers[i]] = text
+			classStats["Type"] = classType
 			self.classes.append(classStats)
 			print_verbose("adding class: "+str(classStats))
 			return True

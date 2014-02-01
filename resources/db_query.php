@@ -39,10 +39,16 @@ function db_query($s_query, $a_values=NULL, $b_print_query = FALSE) {
 
 function open_db() {
 	global $on_bens_computer;
+	global $db_is_already_connected;
+
+	if ($db_is_already_connected === TRUE) {
+			return TRUE;
+	}
 
 	$a_configs = parse_ini_file(dirname(__FILE__)."/mysql_config.ini");
 	$link = mysql_connect($a_configs["host"], $a_configs["user"], $a_configs["password"]);
 	if ($link) {
+			$db_is_already_connected = TRUE;
 			return TRUE;
 	} else {
 			return FALSE;
