@@ -3,6 +3,7 @@ require_once(dirname(__FILE__)."/common_functions.php");
 require_once(dirname(__FILE__)."/check_logged_in.php");
 require_once(dirname(__FILE__)."/db_query.php");
 require_once(dirname(__FILE__)."/../tabs/Feedback.php");
+require_once(dirname(__FILE__)."/load_semester_classes_from_database.php");
 
 // only functions within this class can be called by ajax
 class ajax {
@@ -108,19 +109,7 @@ class ajax {
 	function load_semester_classes($s_year, $s_semester) {
 		$s_year = get_post_var('year', $s_year);
 		$s_semester = get_post_var('semester', $s_semester);
-
-		$s_filename = "sem_".$s_year.$s_semester.".php";
-		$s_dirname = dirname(__FILE__).'/../scraping/';
-		$s_fullname = $s_dirname.$s_filename;
-		if (!file_exists($s_fullname))
-				return 'file "'.$s_fullname.'" doesn\'t exists';
-	
-		require($s_fullname);
-		if (class_exists("semesterData"))
-				$s_semester = semesterData::to_json();
-		else
-				$s_semester = $s_classes_json;
-		return $s_semester;
+		return load_semester_classes_from_database($s_year, $s_semester);
 	}
 
 	function update_settings($setting_type) {
