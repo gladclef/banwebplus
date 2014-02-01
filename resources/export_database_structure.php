@@ -22,10 +22,10 @@ function executeAction($s_action) {
 }
 
 function drawOptions() {
-	echo "<form action='' method='GET'><input type='hidden' name='action' value='save'></input><input type='submit' value='Save Tables'></input></form>
-<form action='' method='GET'><input type='hidden' name='action' value='load'></input><input type='submit' value='Update Tables'></input></form>
-<form action='' method='GET'><input type='hidden' name='action' value='save_common_data'></input><input type='submit' value='Save Common_Data'></input></form>
-<form action='' method='GET'><input type='hidden' name='action' value='load_common_data'></input><input type='submit' value='Update Common_Data'></input></form>";
+	echo "<form action='' method='GET'><input type='hidden' name='action' value='save'></input><input type='submit' value='Save Tables'></input> saves the current table configuration to a file (db->file)</form>
+<form action='' method='GET'><input type='hidden' name='action' value='load'></input><input type='submit' value='Update Tables'></input> takes the table configuration in a file and applies it to the database (file->db)</form>
+<form action='' method='GET'><input type='hidden' name='action' value='save_common_data'></input><input type='submit' value='Save Common_Data'></input> saves the accesses, buglog, and feedback to a file (db->file)</form>
+<form action='' method='GET'><input type='hidden' name='action' value='load_common_data'></input><input type='submit' value='Update Common_Data'></input> takes the accesses, buglog, and feedback from a file and applies it to the database (file->db)</form>";
 }
 
 function saveTables() {

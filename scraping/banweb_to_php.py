@@ -6,14 +6,14 @@ import argparse
 def courseIsValid(course):
     isSubclass = course[u'Type'] == u'subclass'
     for index in [u'Enroll', u'Seats', u'Hrs', u'CRN', u'Limit']:
-        if isSubclass or not re.search('\-?[0-9]+', course[index]):
+        if not isSubclass and not re.search('\-?[0-9]+', course[index]):
             #print index
             return False
-    if isSubclass or not re.search('[\ U][\ M][\ T][\ W][\ R][\ F][\ S]', course[u'Days']):
+    if not isSubclass and not re.search('[\ U][\ M][\ T][\ W][\ R][\ F][\ S]', course[u'Days']):
         if course[u'Days'] != ' ':
             #print u'Days'
             return False
-    if isSubclass or not re.search('[A-Z]+[\ ]+[0-9]+', course[u'Course']):
+    if not isSubclass and not re.search('[A-Z]+[\ ]+[0-9]+', course[u'Course']):
         #print u'Course'
         return False
     if u'Time' in course:
@@ -50,6 +50,7 @@ def translate_file(filename, path):
                 print "invalid: "+str(course)
                 print ''
                 continue
+            isSubclass = course[u'Type'] == u'subclass'
             fout.write("\t\tarray(\n");
             fout.write("\t\t\t'subject'=>'"+s(m.subjects[subject_index][0])+"'")
             for part in course:

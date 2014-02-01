@@ -55,7 +55,7 @@ function loadTerm($term) {
 	return $semesterData;
 }
 
-function saveData($s_semester, $s_year, $a_data_to_save, $a_keys, $s_primary_key, $s_table, $exclude_comparison_columns = NULL) {
+function saveData($s_semester, $s_year, $a_data_to_save, $a_keys, $s_primary_key, $s_table, $exclude_comparison_columns = NULL, $a_searchby = NULL) {
 	
 	global $maindb;
 
@@ -70,7 +70,10 @@ function saveData($s_semester, $s_year, $a_data_to_save, $a_keys, $s_primary_key
 	
 	// load existing data from the database
 	// loads them each as an "primary_key"=>array("key"=>value, ...)
-	$db_data_loaded = db_query("SELECT {$s_keylist} FROM `{$maindb}`.`{$s_table}` WHERE `year`='[year]' AND `semester`='[semester]' ORDER BY `{$s_primary_key}`", array("semester"=>$s_semester, "year"=>$s_year));
+	$a_searchby = ($a_searchby === NULL) ? array() : $a_searchby;
+	$a_searchby = array_merge(array("semester"=>$s_semester, "year"=>$s_year), $a_searchby);
+	$s_where_clause = array_to_where_clause($a_searchby);
+	$db_data_loaded = db_query("SELECT {$s_keylist} FROM `{$maindb}`.`{$s_table}` WHERE {$s_where_clause} ORDER BY `{$s_primary_key}`", $a_searchby);
 	$db_data = array();
 	foreach($db_data_loaded as $db_row) {
 			$db_data[$db_row[$s_primary_key]] = $db_row;
@@ -126,12 +129,12 @@ function saveData($s_semester, $s_year, $a_data_to_save, $a_keys, $s_primary_key
 	// change, then remove, then add
 	foreach($data_to_change as $a_row) {
 			$s_update_clause = array_to_update_clause($a_row);
-			$success = db_query("UPDATE `{$maindb}`.`{$s_table}` SET {$s_update_clause} WHERE `{$s_primary_key}`='[$s_primary_key]'", $a_row);
+			$success = db_query("UPDATE `{$maindb}`.`{$s_table}` SET {$s_update_clause} WHERE `{$s_primary_key}`='[$s_primary_key]' {$s_where_clause}", array_merge($a_searchby, $a_row));
 			if ($success === FALSE)
 					echo mysql_error()."\n";
 	}
 	foreach($data_to_remove as $primary_value) {
-			$success = db_query("DELETE FROM `{$maindb}`.`{$s_table}` WHERE `{$s_primary_key}`='[{$s_primary_key}]'", array("{$s_primary_key}"=>$primary_value));
+			$success = db_query("DELETE FROM `{$maindb}`.`{$s_table}` WHERE `{$s_primary_key}`='[{$s_primary_key}]' {$s_where_clause}", array_merge($a_searchby, array("{$s_primary_key}"=>$primary_value)));
 			if ($success === FALSE)
 					echo mysql_error()."\n";
 	}
@@ -141,6 +144,14 @@ function saveData($s_semester, $s_year, $a_data_to_save, $a_keys, $s_primary_key
 			$success = db_query("INSERT INTO `{$maindb}`.`{$s_table}` {$s_insert_clause}", $a_row);
 			if ($success === FALSE)
 					echo mysql_error()."\n";
+	}
+}
+
+function fillClass(&$a_class, $a_keys) {
+	foreach($a_keys as $k=>$v) {
+			if (!isset($a_class[$k])) {
+					$a_class[$k] = $v;
+			}
 	}
 }
 
@@ -189,20 +200,27 @@ function saveClasses($term) {
 	// build the class data
 	$last_class_crn = "";
 	$classes_to_save = array();
+	$subclasses_to_save = array();
 	foreach($term["classes"] as $a_class) {
+			fillClass($a_class, array("CRN"=>0, "subject"=>"", "Course"=>"", "*Campus"=>"", "Days"=>"", "Time"=>"", "Location"=>"", "Hrs"=>0, "Title"=>"", "Instructor"=>"", "Seats"=>0, "Limit"=>0, "Enroll"=>0));
 			$a_days = str_split(str_replace(" ", "", $a_class["Days"]));
 			$a_days_times_locations = array();
 			foreach($a_days as $s_day) {
 					$a_days_times_locations[] = array($s_day, $a_class["Time"], $a_class["Location"]);
 			}
 			$days_times_locations = json_encode($a_days_times_locations);
-			if (trim($a_class["CRN"]) == "") {
+			if ((int)$a_class["CRN"] == 0) {
 					$parent_class = (int)$last_class_crn;
+					$subclass_index++;
+					$is_subclass = TRUE;
 			} else {
 					$last_class_crn = $a_class["CRN"];
 					$parent_class = 0;
+					$subclass_index = 0;
+					$is_subclass = FALSE;
 			}
-			$a_class = array("crn"=>$a_class["CRN"],
+			$save_parent_class = (int)"{$parent_class}{$subclass_index}";
+			$a_class_to_save = array("crn"=>$a_class["CRN"],
 							 "year"=>$year, "semester"=>$s_sem,
 							 "subject"=>$a_class["subject"],
 							 "course"=>$a_class["Course"],
@@ -219,9 +237,13 @@ function saveClasses($term) {
 							 "seats"=>$a_class["Seats"],
 							 "limit"=>$a_class["Limit"],
 							 "enroll"=>$a_class["Enroll"],
-							 "parent_class"=>$parent_class,
+							 "parent_class"=>$save_parent_class,
 							 "last_mod_time"=>$modtime);
-			$classes_to_save[] = $a_class;
+			if ($is_subclass) {
+					$subclasses_to_save[] = $a_class_to_save;
+			} else {
+					$classes_to_save[] = $a_class_to_save;
+			}
 	}
 
 	// build the array of fields to pass through
@@ -230,7 +252,8 @@ function saveClasses($term) {
 			$fields[] = $k;
 	}
 	
-	return saveData($semester, $year, $classes_to_save, $fields, "crn", "classes", array("last_mod_time"));
+	saveData($semester, $year, $subclasses_to_save, $fields, "parent_class", "classes", array("last_mod_time"), array("crn"=>"0"));
+	return saveData($semester, $year, $classes_to_save, $fields, "crn", "classes", array("last_mod_time"), array("parent_class"=>"0"));
 }
 
 if (!open_db()) {

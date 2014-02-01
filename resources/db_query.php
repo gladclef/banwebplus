@@ -55,7 +55,7 @@ function open_db() {
 	}
 }
 
-// returns "(`key1`,`key2`,...) VALUES ('value1','value2',...)"
+// returns "`key1`='value1' AND `key2`='value2' AND ..."
 function array_to_where_clause($a_vars) {
 	$a_where = array();
 	foreach($a_vars as $k=>$v) {
@@ -67,7 +67,7 @@ function array_to_where_clause($a_vars) {
 	return $s_where;
 }
 
-// returns "`key1`='value1' AND `key2`='value2' AND ..."
+// returns "(`key1`,`key2`,...) VALUES ('value1','value2',...)"
 function array_to_set_clause($a_vars) {
 	$a_set = array();
 	$a_values = array();
