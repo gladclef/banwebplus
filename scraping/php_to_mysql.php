@@ -219,26 +219,27 @@ function saveClasses($term) {
 					$subclass_index = 0;
 					$is_subclass = FALSE;
 			}
-			$save_parent_class = (int)"{$parent_class}{$subclass_index}";
+			$subclass_id = (int)"{$parent_class}{$subclass_index}";
 			$a_class_to_save = array("crn"=>$a_class["CRN"],
-							 "year"=>$year, "semester"=>$s_sem,
-							 "subject"=>$a_class["subject"],
-							 "course"=>$a_class["Course"],
-							 "campus"=>$a_class["*Campus"],
-							 "days"=>$a_class["Days"],
-							 "days_times_locations"=>$days_times_locations,
-							 "start_date"=>$start_date,
-							 "end_date"=>$end_date,
-							 "time"=>$a_class["Time"],
-							 "location"=>$a_class["Location"],
-							 "hours"=>$a_class["Hrs"],
-							 "title"=>$a_class["Title"],
-							 "instructor"=>$a_class["Instructor"],
-							 "seats"=>$a_class["Seats"],
-							 "limit"=>$a_class["Limit"],
-							 "enroll"=>$a_class["Enroll"],
-							 "parent_class"=>$save_parent_class,
-							 "last_mod_time"=>$modtime);
+									 "year"=>$year, "semester"=>$s_sem,
+									 "subject"=>$a_class["subject"],
+									 "course"=>$a_class["Course"],
+									 "campus"=>$a_class["*Campus"],
+									 "days"=>$a_class["Days"],
+									 "days_times_locations"=>$days_times_locations,
+									 "start_date"=>$start_date,
+									 "end_date"=>$end_date,
+									 "time"=>$a_class["Time"],
+									 "location"=>$a_class["Location"],
+									 "hours"=>$a_class["Hrs"],
+									 "title"=>$a_class["Title"],
+									 "instructor"=>$a_class["Instructor"],
+									 "seats"=>$a_class["Seats"],
+									 "limit"=>$a_class["Limit"],
+									 "enroll"=>$a_class["Enroll"],
+									 "parent_class"=>$parent_class,
+									 "subclass_identifier"=>$subclass_id,
+									 "last_mod_time"=>$modtime);
 			if ($is_subclass) {
 					$subclasses_to_save[] = $a_class_to_save;
 			} else {
@@ -252,7 +253,7 @@ function saveClasses($term) {
 			$fields[] = $k;
 	}
 	
-	saveData($semester, $year, $subclasses_to_save, $fields, "parent_class", "classes", array("last_mod_time"), array("crn"=>"0"));
+	saveData($semester, $year, $subclasses_to_save, $fields, "subclass_identifier", "classes", array("last_mod_time"), array("crn"=>"0"));
 	return saveData($semester, $year, $classes_to_save, $fields, "crn", "classes", array("last_mod_time"), array("parent_class"=>"0"));
 }
 
