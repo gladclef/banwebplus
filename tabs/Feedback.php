@@ -32,6 +32,7 @@ class feedback_object_type extends forum_object_type {
 	function __construct() {
 		parent::__construct("feedback");
 		$this->setPostNames("feedback", "feedback", "recent_feedback");
+		$this->setAccesses("createfeedback","createfeedback.deletefeedback");
 	}
 }
 
