@@ -144,6 +144,26 @@ class user {
 		}
 		return FALSE;
 	}
+	public function delete_account() {
+		global $maindb;
+		$username = $this->name;
+		$id = $this->get_id();
+		$a_username = array("username"=>$username);
+		$a_id = array("id"=>$id);
+		db_query("DELETE FROM `{$maindb}`.`access_log` WHERE `username`='[username]'", $a_username);
+		db_query("DELETE FROM `{$maindb}`.`blacklist_preferences` WHERE `user_id`='[id]'", $a_id);
+		db_query("DELETE FROM `{$maindb}`.`generated_settings` WHERE `user_id`='[id]'", $a_id);
+		db_query("DELETE FROM `{$maindb}`.`semester_blacklist` WHERE `user_id`='[id]'", $a_id);
+		db_query("DELETE FROM `{$maindb}`.`semester_classes` WHERE `user_id`='[id]'", $a_id);
+		db_query("DELETE FROM `{$maindb}`.`semester_whitelist` WHERE `user_id`='[id]'", $a_id);
+		$query = db_query("DELETE FROM `{$maindb}`.`students` WHERE `id`='[id]'", $a_id);
+		$affected_rows = mysql_affected_rows();
+		db_query("DELETE FROM `{$maindb}`.`user_settings` WHERE `user_id`='[id]'", $a_id);
+		if ($query !== FALSE && $affected_rows) {
+				return TRUE;
+		}
+		return FALSE;
+	}
 
 	/*********************************************************************
 	 *                   P R I V A T E   F U N C T I O N S               *

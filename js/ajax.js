@@ -65,6 +65,7 @@ function send_ajax_call_from_form_super(php_file_name, form_id, callback) {
 	var jerror = jpassbox.find('label.error');
 
 	$($("div")[0]).append(jpassbox);
+	jpassword.focus();
 	jpassword.keydown(function(event) {
 		if (event.which == 13) {
 			if (jpassword.val() == '') {

@@ -44,7 +44,7 @@ function init_account() {
                 <label class='errors'></label><br />
                 <input class='user_verification_disable' type='radio' onclick='o_account_manager.drawDelete(this);' name='user_verification'></input> I want to disable my account.<br />
                 <div style='display:inline-block; display:none;'><input class='user_verification_delete' type='radio' name='user_verification'></input> I want to delete my account.<br /></div>
-                <input class='submit' type='button' onclick='o_account_manager.disableAccount(this);' value='Disable'></input><br />
+                <input class='submit' type='button' onclick='o_account_manager.disableAccount(this);' value='Submit'></input><br />
                 <label class='disable_verification'></label>
             </form>", $section_break));
 

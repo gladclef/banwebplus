@@ -59,8 +59,8 @@ o_userManager = {
 			jdisabled.show();
 			jnormal.hide();
 		} else {
-			jnormal.hide();
-			jdisabled.show();
+			jnormal.show();
+			jdisabled.hide();
 		}
 	},
 	
@@ -87,7 +87,7 @@ o_userManager = {
 		switch(which) {
 		case 'resetPassword':
 			s_setval += "<form id='user_action_form_container_form'>Enter the new password: ";
-			s_setval += "<input type='password' name='password'></input>";
+			s_setval += "<input type='password' name='password' onkeydown='form_enter_press(this, event);'></input>";
 			s_setval += "<input type='button' value='Submit' onclick='send_ajax_call_from_form_super(\"/resources/ajax_calls_super.php\", \"user_action_form_container_form\", null);'></input>";
 			s_setval += "<input type='hidden' name='username' value='"+this.selectedUsername+"' ></input>";
 			s_setval += "<input type='hidden' name='command' value='reset_password'></input>";

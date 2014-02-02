@@ -152,3 +152,14 @@ function get_username() {
 	}
 	return jcontainer.html();
 }
+
+function form_enter_press(element, e) {
+	if (e.which == 13) {
+		var jelement = $(element);
+		var jform = get_parent_by_tag("form", jelement);
+		var jbutton = jform.find("input[value=Submit]");
+		if (jbutton.length > 0) {
+			jbutton.click();
+		}
+	}
+}
