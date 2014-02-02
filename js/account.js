@@ -56,6 +56,16 @@ typeAccountManager = function() {
 		var jpass = jform.find(".password");
 		var jsubmit = jform.find(".submit");
 		var jcancel = jform.find(".cancel");
+		jpass.focus();
+
+		// bind the password field
+		jpass.keydown(function(e) {
+			if (e.which == 13) {
+				jsubmit.click();
+				e.preventDefault();
+				return false;
+			}
+		});
 		
 		// bind the buttons
 		var kill = function() {
@@ -64,25 +74,53 @@ typeAccountManager = function() {
 		jcancel.click(kill);
 		jsubmit.click(function() {
 			draw_error(jform, "Contacting server...", null);
-			send_ajax_call("/pages/login/login_ajax.php", {username:get_username(), password:jpass.val(), command:"verify_password"}, function(success){
+			vars = {username:get_username(), password:jpass.val(), command:"verify_password"};
+			send_ajax_call("/resources/ajax_calls.php", vars, function(success){
 				if (success == "success") {
 					draw_error(jform, "Success", true);
+					setTimeout(kill, 200);
+					callback(vars, true);
 				} else {
-					draw_error(jform, "Failure", true);
+					draw_error(jform, "Failure", false);
+					callback(vars, false);
 				}
 			});
 		});
 	};
 
+	this.keyPress = function(e, form_element) {
+		
+		if (e.which == 13) {
+			var jform = get_parent_by_tag("form", $(form_element));
+			var jsubmit = jform.find(".submit");
+			jsubmit.click();
+		}
+	};
+
 	this.changePassword = function(form_element) {
 		
-		var form = get_parent_by_tag("form", $(form_element));
+		var jform = get_parent_by_tag("form", $(form_element));
+		var jpass = jform.find(".p2");
 
 		// verify the passwords
 		if (!this.verifyPasswords(form_element)) {
-			draw_error(form, "Error: invalid password", false);
+			draw_error(jform, "Error: invalid password", false);
 			return false;
 		}
+
+		// try to update the password
+		this.authenticateUser(function(vars, success) {
+			if (success) {
+				vars = {username:vars.username, password:vars.password, new_password:jpass.val(), command:"change_password"};
+				send_ajax_call("/resources/ajax_calls.php", vars, function(success) {
+					if (success == "success") {
+						draw_error(jform, "Success: your password has been changed", true);
+					} else {
+						draw_error(jform, "Error: failed to update your password", false);
+					}
+				});
+			}
+		}, "changing your password");
 	};
 
 	this.changeUsername = function(form_element) {
