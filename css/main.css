@@ -164,8 +164,3 @@ a.account_link {
 a.account_link:hover {
 	color:blue;
 }
-.account_management_section form{
-	display:inline-block;
-	margin:0;
-	padding:0;
-}

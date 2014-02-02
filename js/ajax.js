@@ -1,14 +1,12 @@
 var send_ajax_call_retval = "";
-function send_ajax_call(php_file_name, posts, callback) {
-	a_message = send_async_ajax_call(php_file_name, posts, false, callback);
+function send_ajax_call(php_file_name, posts) {
+	a_message = send_async_ajax_call(php_file_name, posts, false);
 	return a_message;
 }
 
-function send_async_ajax_call(php_file_name, posts, async, callback) {
+function send_async_ajax_call(php_file_name, posts, async) {
 	if (typeof(async) == 'undefined')
 		async = true;
-	if (typeof(callback) == 'undefined')
-		callback = null
 	var ajax_object = {
 		url: php_file_name,
 		async: async,
@@ -18,9 +16,6 @@ function send_async_ajax_call(php_file_name, posts, async, callback) {
 		timeout: 10000,
 		success: function(data) {
 			send_ajax_call_retval = data;
-			if (callback !== null) {
-				callback(data);
-			}
 		},
 		error: function(xhr, ajaxOptions, thrownError) {
 			if (parseInt(xhr.status) == 0 && thrownError) {
