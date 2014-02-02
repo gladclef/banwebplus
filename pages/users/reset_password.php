@@ -18,8 +18,6 @@ function draw_reset_password_page() {
 		 */
 		function verify_passwords() {
 
-			console.log('hi');
-
 			var jp1 = $("#p1");
 			var jp2 = $("#p2");
 			var jlabel = $("#password_verification");

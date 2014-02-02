@@ -18,7 +18,7 @@ class user {
 	function __construct($username, $password, $crypt_password) {
 		$this->name = $username;
 		$a_user = $this->load_from_db($password, $crypt_password);
-		$this->exists = ($a_user !== FALSE);
+		$this->exists = ($a_user !== FALSE && $a_user !== NULL);
 		if ($this->exists) {
 				$this->set_accesses();
 				$this->load_settings();
