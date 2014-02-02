@@ -124,3 +124,31 @@ function cancel_enter_keypress(e) {
 		e.stopPropagation();
 	}
 }
+
+function draw_error(jform, s_errormsg, t_success) {
+	var jerror = jform.find(".errors");
+	if (t_success === true) {
+		jerror.stop(true, true);
+		jerror.css({color:"green", opacity:0});
+		jerror.html(s_errormsg);
+		jerror.animate({opacity:1}, 200);
+	} else if (t_success === false) {
+		jerror.stop(true, true);
+		jerror.css({color:"red", opacity:0});
+		jerror.html(s_errormsg);
+		jerror.animate({opacity:1}, 200);
+	} else {
+		jerror.stop(true, true);
+		jerror.css({color:"lightgrey", opacity:1});
+		jerror.html(s_errormsg);
+	}
+}
+
+function get_username() {
+	var jcontainer = $(".logout_bar");
+	jcontainer = jcontainer.find(".username_label");
+	while (jcontainer.children().length > 0) {
+		jcontainer = $(jcontainer.children()[0]);
+	}
+	return jcontainer.html();
+}
