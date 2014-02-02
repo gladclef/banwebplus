@@ -13,8 +13,17 @@ class ajax_super {
 		$a_retval = user_funcs::reset_password($username, "", $password, TRUE);
 		if ($a_retval[0])
 				return "print success[*note*]".$a_retval[1];
-		if ($a_retval[0])
-				return "print failure[*note*]".$a_retval[1];
+		return "print failure[*note*]".$a_retval[1];
+	}
+
+	function enable_account() {
+		global $maindb;
+		$username = get_post_var("username");
+		$query = db_query("UPDATE `{$maindb}`.`students` SET `disabled`='0' WHERE `username`='[username]'", array("username"=>$username));
+		if ($query !== FALSE && mysql_affected_rows() > 0) {
+				return "print success[*note*]The account has been enabled. Reload the page to see the affects of the changes.";
+		}
+		return "print failure[*note*]Failed to enable account \"{$username}\".";
 	}
 }
 

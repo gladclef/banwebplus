@@ -100,6 +100,14 @@ o_userManager = {
 			break;
 		case 'delete':
 			break;
+		case 'enableAccount':
+			s_setval += "<form id='user_action_form_container_form'>";
+			s_setval += "<input type='hidden' name='username' value='"+this.selectedUsername+"' ></input>";
+			s_setval += "<input type='hidden' name='command' value='enable_account'></input>";
+			s_setval += "<label class='error'></label>";
+			s_setval += "</form>";
+			s_setval += "<script type='text/javascript'>send_ajax_call_from_form_super(\"/resources/ajax_calls_super.php\", \"user_action_form_container_form\", null);</script>";
+			break;
 		}
 		
 		// insert the content
