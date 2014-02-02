@@ -3,7 +3,7 @@
 require_once(dirname(__FILE__)."/globals.php");
 require_once(dirname(__FILE__)."/db_query.php");
 
-function load_semester_classes_from_database($s_year, $s_semester) {
+function load_semester_classes_from_database($s_year, $s_semester, $s_output_type = "json") {
 	
 	// get some common variables
 	global $maindb;
@@ -64,8 +64,12 @@ function load_semester_classes_from_database($s_year, $s_semester) {
 	}
 	
 	$a_retval = array('name'=>$s_name, 'subjects'=>$a_subjects, 'classes'=>$a_classes);
-	$s_semester_data = json_encode($a_retval);
-	return $s_semester_data;
+	if ($s_output_type == "json") {
+			$s_semester_data = json_encode($a_retval);
+			return $s_semester_data;
+	} else if ($s_output_type == "array") {
+			return $a_retval;
+	}
 }
 
 ?>

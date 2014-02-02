@@ -1,6 +1,7 @@
 <?php
 
 require_once(dirname(__FILE__)."/../../objects/user.php");
+require_once(dirname(__FILE__)."/../../resources/load_semester_classes_from_database.php");
 
 class icalendarFunctions {
 	private $b_exists = FALSE;
@@ -187,7 +188,7 @@ END:VTIMEZONE";
 		if (!isset($this->o_classList->$s_year->$s_semester)) {
 				$this->o_classList->$s_year->$s_semester = new stdClass();
 				$o_class = $this->o_classList->$s_year->$s_semester;
-				require(dirname(__FILE__)."/../../scraping/sem_{$s_year}{$s_semester}.php");
+				$semesterData = load_semester_classes_from_database($s_year, $s_semester, "array");
 				foreach($semesterData['classes'] as $a_class) {
 						$s_crn = $a_class['CRN'];
 						$o_class->$s_crn = $a_class;
@@ -236,6 +237,9 @@ END:VTIMEZONE";
 		// get a description of the class
 		$a_description = array();
 		foreach($a_class as $k=>$v) {
+				if (in_array($k, array("parent_class"))) {
+						continue;
+				}
 				$a_description[] = trim($k).": ".trim($v);
 		}
 		$s_description = $this->quotes( implode(", ", $a_description) );
