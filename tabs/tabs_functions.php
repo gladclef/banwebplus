@@ -19,7 +19,9 @@ function draw_tabs() {
 			$s_tab_name = $a_tab['name'];
 			$s_tab_printed_name = $a_tab['printed_name'];
 			$s_tab_id = 'tab_id_'.$s_tab_name;
-			$a_retval[] = '<td class="tab '.$s_tab_name.'" id="'.$s_tab_id.'" onclick="draw_tab(\''.$s_tab_name.'\')" onmouseover="$(\'#'.$s_tab_id.'\').addClass(\'mouse_hover\');" onmouseout="$(\'#'.$s_tab_id.'\').removeClass(\'mouse_hover\');"><input type="hidden" name="tab_non_printed_name" value="'.$s_tab_name.'"></input>'.$s_tab_printed_name.'</td>';
+			if ((int)$a_tab["draw_tab"] == 1) {
+					$a_retval[] = '<td class="tab '.$s_tab_name.'" id="'.$s_tab_id.'" onclick="draw_tab(\''.$s_tab_name.'\')" onmouseover="$(\'#'.$s_tab_id.'\').addClass(\'mouse_hover\');" onmouseout="$(\'#'.$s_tab_id.'\').removeClass(\'mouse_hover\');"><input type="hidden" name="tab_non_printed_name" value="'.$s_tab_name.'"></input>'.$s_tab_printed_name.'</td>';
+			}
 			$a_retval = array_merge($a_retval, draw_tab_include_files($s_tab_name));
 	}
 	$a_retval[] = '</tr></table></td><td></td></tr>';

@@ -143,3 +143,24 @@ table.main_page_content {
 .recent_bugs.status_fixed{
 	background-color:#afa;
 }
+
+.account_management_section{
+	border:0px none;
+	border-radius:1px;
+}
+.account_management_section .title{
+	text-size:18px;
+	font-weight:bold;
+	display:block;
+	margin:1px;
+}
+.account_management_section .body{
+	margin-left:20px;
+	margin-bottom:16px;
+}
+a.account_link {
+	color:white;
+}
+a.account_link:hover {
+	color:blue;
+}

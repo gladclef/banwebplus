@@ -68,6 +68,8 @@ typeTabInitializations = function() {
 	};
 	this.Users = function() {
 	};
+	this.Account = function() {
+	};
 
 	// returns the currently selected tab, as {jtab:jquery object, name:string}
 	this.getSelectedTab = function() {
