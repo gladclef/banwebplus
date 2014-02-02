@@ -19,8 +19,12 @@ function init_users_tab() {
     <table class=\'centered\'>
         <tr>
             <td id=\'user_action_selector_container\'>
-                '.create_user_action_buttons();//.'
-	$s_retval .= '
+                <div class=\'normal_actions\'>
+                    '.create_user_action_buttons("normal").'
+                </div>
+                <div style=\'display:none;\' class=\'disabled_actions\'>
+                    '.create_user_action_buttons("disabled").'
+                </div>
             </td>
         </tr>
         <tr>
@@ -32,15 +36,22 @@ function init_users_tab() {
 	return $s_retval;
 }
 
-function create_user_action_buttons() {
+function create_user_action_buttons($s_type = "normal") {
 	global $global_user;
 
-	$a_actions = array(
-		array("name"=>"Create New", "access"=>"users.create", "onclick"=>''),
-		array("name"=>"Modify Accesses", "access"=>"users.modify|accesses", "onclick"=>''),
-		array("name"=>"Reset Password", "access"=>"users.modify.password", "onclick"=>'o_userManager.populateUserManagement(\'resetPassword\');'),
-		array("name"=>"Delete", "access"=>"users.delete", "onclick"=>'')
-	);
+	if ($s_type == "normal") {
+			$a_actions = array(
+				array("name"=>"Create New", "access"=>"users.create", "onclick"=>''),
+				array("name"=>"Modify Accesses", "access"=>"users.modify|accesses", "onclick"=>''),
+				array("name"=>"Reset Password", "access"=>"users.modify.password", "onclick"=>'o_userManager.populateUserManagement(\'resetPassword\');'),
+				array("name"=>"Disable", "access"=>"users", "onclick"=>''),
+				array("name"=>"Delete", "access"=>"users.delete", "onclick"=>'')
+			);
+	} else if ($s_type == "disabled") {
+			$a_actions = array(
+				array("name"=>"Enable", "access"=>"users", "onclick"=>"o_userManager.populateUserManagement('enableAccount');")
+			);
+	}
 
 	$a_retval = array();
 	foreach($a_actions as $a_action) {

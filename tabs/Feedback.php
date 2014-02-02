@@ -142,7 +142,7 @@ class bugtracker_object_type extends forum_object_type {
         <input type='hidden' name='post_id' value='{$id}'></input>
         <input type='hidden' name='command' value='change_bug_owner'></input>
         <select name='userid'>";
-				$a_students = db_query("SELECT `id`,`username` FROM `{$maindb}`.`students` WHERE `deleted`='0'");
+				$a_students = db_query("SELECT `id`,`username` FROM `{$maindb}`.`students` WHERE `disabled`='0'");
 				$a_students = array_merge($a_students, array("id"=>-1, "username"=>"none"));
 				foreach($a_students as $a_student) {
 						$s_owner .= "

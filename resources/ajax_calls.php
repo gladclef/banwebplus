@@ -169,10 +169,13 @@ class ajax {
 
 	/**
 	 * Get all of the users in the `students` table as a json string
+	 * @$b_ignore_disabled boolean if true, checks the 'disabled' flag on the user's account
 	 */
-	function get_full_users_list() {
+	function get_full_users_list($b_ignore_disabled = TRUE) {
 		global $maindb;
-		$a_query_results = db_query("SELECT `username`,`email` FROM `[maindb]`.`students`", array("maindb"=>$maindb));
+		$b_ignore_disabled = (bool)get_post_var("ignore_disabled", $b_ignore_disabled);
+		$s_disabled = ($b_ignore_disabled) ? "WHERE `disabled`='0'" : "";
+		$a_query_results = db_query("SELECT `username`,`email`,`disabled` FROM `[maindb]`.`students` {$s_disabled}", array("maindb"=>$maindb));
 		if (count($a_query_results) == 0 || $a_query_results === FALSE)
 				return json_encode((object)array('success'=>FALSE, 'details'=>'MySQL query failed'));
 		return json_encode((object)array('success'=>TRUE, 'details'=>$a_query_results));
@@ -280,6 +283,23 @@ class ajax {
 		} else {
 				return "failure";
 		}
+	}
+
+	function disable_account() {
+		global $global_user;
+		$b_verified = $this->verify_password() == "success";
+		if ($b_verified && $global_user->disable_account()) {
+				return "success";
+		}
+		return "failure";
+	}
+
+	function delete_account() {
+		global $global_user;
+		if ($this->verify_password() == "success" && $global_user->delete_account()) {
+				return "success";
+		}
+		return "failure";
 	}
 }
 

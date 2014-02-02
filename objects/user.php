@@ -131,7 +131,15 @@ class user {
 				return False;
 		}
 		$a_query = db_query("UPDATE `{$maindb}`.`students` SET `pass`=AES_ENCRYPT('[username]','[password]') WHERE `username`='[username]'", array("username"=>$this->name, "password"=>$s_password));
-		if ($a_query !== FALSE) {
+		if ($a_query !== FALSE && mysql_affected_rows() > 0) {
+				return TRUE;
+		}
+		return FALSE;
+	}
+	public function disable_account() {
+		global $maindb;
+		$a_query = db_query("UPDATE `{$maindb}`.`students` SET `disabled`='1' WHERE `username`='[name]'", array("name"=>$this->name));
+		if ($a_query !== FALSE && mysql_affected_rows() > 0) {
 				return TRUE;
 		}
 		return FALSE;
@@ -235,9 +243,9 @@ class user {
 		$username = $this->name;
 
 		if ($password !== NULL)
-				$a_users = db_query("SELECT * FROM `[maindb]`.`students` WHERE `username`='[username]' AND `pass`=AES_ENCRYPT('[username]','[password]')", array("maindb"=>$maindb, "username"=>$username, "password"=>$password));
+				$a_users = db_query("SELECT * FROM `[maindb]`.`students` WHERE `username`='[username]' AND `pass`=AES_ENCRYPT('[username]','[password]') AND `disabled`='0'", array("maindb"=>$maindb, "username"=>$username, "password"=>$password));
 		else
-				$a_users = db_query("SELECT * FROM `[maindb]`.`students` WHERE `username`='[username]' AND `pass`='[crypt_password]'", array("maindb"=>$maindb, "username"=>$username, "crypt_password"=>$crypt_password));
+				$a_users = db_query("SELECT * FROM `[maindb]`.`students` WHERE `username`='[username]' AND `pass`='[crypt_password]' AND `disabled`='0'", array("maindb"=>$maindb, "username"=>$username, "crypt_password"=>$crypt_password));
 		if ($a_users === FALSE)
 				return NULL;
 		if (count($a_users) == 0)
@@ -272,10 +280,11 @@ class user {
 	
 	/**
 	 * retrieves a user by their id
-	 * @$i_user_id integer the id to search for
-	 * @return     object  either a user object or NULL
+	 * @$i_user_id         integer the id to search for
+	 * @$b_ignore_disabled boolean if true, checks the 'disabled' flag on the user's account
+	 * @return             object  either a user object or NULL
 	 */
-	public static function load_user_by_id($i_user_id) {
+	public static function load_user_by_id($i_user_id, $b_ignore_disabled = TRUE) {
 
 		global $maindb;
 		
@@ -286,7 +295,8 @@ class user {
 		}
 		
 		// load the user
-		$a_users = db_query("SELECT `username`,`pass` FROM `{$maindb}`.`students` WHERE `id`='[id]'", array("id"=>$i_user_id));
+		$s_disabled = ($b_ignore_disabled) ? "AND `disabled`='0'" : "";
+		$a_users = db_query("SELECT `username`,`pass` FROM `{$maindb}`.`students` WHERE `id`='[id]' {$s_disabled}", array("id"=>$i_user_id));
 		if (is_array($a_users) && count($a_users) > 0) {
 				$o_user = new user($a_users[0]['username'], NULL, $a_users[0]['pass']);
 				// note: creating a new user registers the user with global_user

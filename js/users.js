@@ -1,6 +1,7 @@
 o_userManager = {
 	users: null,
 	selectedUsername: null,
+	disabledUsers: null,
 	
 	/**
 	 * Load the list of users from the server
@@ -50,6 +51,17 @@ o_userManager = {
 		$("#userManagementChooseUser").hide();
 		$("#userManagementApplyAction").find("span.username").text(s_username);
 		$("#userManagementApplyAction").show();
+
+		// check for disabled/non-disabled account
+		var jdisabled = $("#userManagementApplyAction").find(".disabled_actions");
+		var jnormal = $("#userManagementApplyAction").find(".normal_actions");
+		if (this.disabledUsers.indexOf(s_username) >= 0) {
+			jdisabled.show();
+			jnormal.hide();
+		} else {
+			jnormal.hide();
+			jdisabled.show();
+		}
 	},
 	
 	/**
@@ -114,21 +126,52 @@ o_userManager = {
 		var users = users_array.users;
 
 		var a_col_names = [];
+		var username_index = 0;
+		var i = 0;
 		$.each(users[0], function(k,v) {
-			a_col_names.push(k);
+			if (k == "username") {
+				username_index = i;
+			}
+			if (k != "disabled") {
+				a_col_names.push(k);
+			}
+			i++;
 		});
 		
+		// get the rows to add to the table
+		// get the names of the disabled students
 		var a_rows = [];
+		var disabled = [];
 		$.each(users, function(key,user) {
 			var a_row = [];
 			$.each(user, function(k,v) {
-				a_row.push(v);
+				if (k != "disabled") {
+					a_row.push(v);
+				} else if (parse_int(v) == 1) {
+					disabled.push(user.username);
+				}
 			});
 			a_rows.push(a_row);
 		});
+		this.disabledUsers = disabled;
 		
 		var table = create_table(a_col_names, a_rows, null, "o_userManager.selectUser");
 		$("#user_list_content_container").html("");
 		$("#user_list_content_container").append(table);
+
+		// mark disabled rows
+		var jtable = $("#user_list_content_container").find("table");
+		var rows = jtable.find("tr");
+		$.each(rows, function(k,v) {
+			var jtr = $(v);
+			var cols = jtr.find("td");
+			if (cols.length == 0) {
+				return;
+			}
+			var username = $(cols[username_index]).text();
+			if (disabled.indexOf(username) > -1) {
+				jtr.addClass("disabled");
+			}
+		});
 	},
 };

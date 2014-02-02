@@ -169,3 +169,10 @@ a.account_link:hover {
 	margin:0;
 	padding:0;
 }
+
+#user_list_content_container tr.disabled {
+	color:#aaa;
+}
+#user_list_content_container tr.disabled.mouse_hover {
+	color:black;
+}

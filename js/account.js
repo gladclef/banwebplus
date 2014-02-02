@@ -137,17 +137,46 @@ typeAccountManager = function() {
 		draw_error(form, "Contacting server...", null);
 	};
 
+	this.drawDelete = function(form_element) {
+
+		var jform = get_parent_by_tag("form", $(form_element));
+		var jdelete = jform.find(".user_verification_delete");
+		var jdiv = get_parent_by_tag("div", jdelete);
+		
+		jdiv.show();
+	}
+
 	this.disableAccount = function(form_element) {
 		
-		var form = get_parent_by_tag("form", $(form_element));
-		var checkbox = form.find(".user_verification");
+		var jform = get_parent_by_tag("form", $(form_element));
+		var jdisable = jform.find(".user_verification_disable");
+		var jdelete = jform.find(".user_verification_delete");
+		var b_disable = jdisable[0].checked;
+		var b_delete = jdelete[0].checked;
 		
 		// check that the checkbox is checked
-		if (!checkbox[0].checked) {
-			draw_error(form, "Please confirm", false);
+		if (!b_disable && !b_delete) {
+			draw_error(jform, "Please confirm", false);
 			return false;
 		}
-		draw_error(form, "Contacting server...", null);
+
+		// try to disable/delete the account
+		s_action = (b_disable) ? "disabling your account" : "deleting your account";
+		s_command = (b_disable) ? "disable_account" : "delete_account";
+		s_success = (b_disable) ? "your account hass be disabled" : "your account has been deleted";
+		s_failure = (b_disable) ? "failed to disable your account" : "failed to delete your account";
+		this.authenticateUser(function(vars, success) {
+			if (success) {
+				vars = {username:vars.username, password:vars.password, command:s_command};
+				send_ajax_call("/resources/ajax_calls.php", vars, function(success) {
+					if (success == "success") {
+						draw_error(jform, "Success: "+s_success, true);
+					} else {
+						draw_error(jform, "Error: "+s_failure, false);
+					}
+				});
+			}
+		}, s_action);
 	};
 };
 

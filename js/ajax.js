@@ -31,6 +31,9 @@ function send_async_ajax_call(php_file_name, posts, async, callback) {
 			}
 			//alert("Error sending request: ("+xhr.status+") "+thrownError);
 			send_ajax_call_retval = "error";
+			if (callback !== null) {
+				callback(data);
+			}
 		}
 	};
 	

@@ -12,7 +12,7 @@ class icalendarFunctions {
 	function __construct($s_username, $s_key) {
 		global $maindb;
 
-		$a_users = db_query("SELECT * FROM `[database]`.`students` WHERE `username`='[username]'", array('database'=>$maindb, 'username'=>$s_username));
+		$a_users = db_query("SELECT * FROM `[database]`.`students` WHERE `username`='[username]' AND `disabled`='0'", array('database'=>$maindb, 'username'=>$s_username));
 		if (count($a_users) == 0)
 				return;
 		$this->o_user = new user($s_username, NULL, $a_users[0]['pass']);

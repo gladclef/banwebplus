@@ -35,15 +35,18 @@ function init_account() {
                 New Username: <input class='username' type='textbox' size='20'></input><br />
                 <input class='submit' type='button' onclick='o_account_manager.changeUsername(this);' value='Submit'></input><br />
                 <label class='username_verification'></label>
-            </form>", $section_break))."
+            </form>", $section_break));
+	}
+
+	$s_retval .= "
     ".str_replace("__TITLE__", "Disable Account",
 				  str_replace("__BODY__", "<form>
                 <label class='errors'></label><br />
-                <input class='user_verification' type='checkbox'></input> Yes, I want to disable my account.<br />
+                <input class='user_verification_disable' type='radio' onclick='o_account_manager.drawDelete(this);' name='user_verification'></input> I want to disable my account.<br />
+                <div style='display:inline-block; display:none;'><input class='user_verification_delete' type='radio' name='user_verification'></input> I want to delete my account.<br /></div>
                 <input class='submit' type='button' onclick='o_account_manager.disableAccount(this);' value='Disable'></input><br />
                 <label class='disable_verification'></label>
             </form>", $section_break));
-	}
 
 	$s_retval .= "
     {$section_footer}
