@@ -264,7 +264,7 @@ class ajax {
 		$s_username = get_post_var('username');
 		$s_new_password = get_post_var('new_password');
 		$success = $this->verify_password();
-		if ($success == "success") {
+		if ($success == "success" && $s_username != "guest") {
 				$success = ($global_user->update_password($s_new_password)) ? "success" : "failure";
 				if ($success) {
 						$global_user = new user($s_username, $s_new_password, "");
@@ -288,7 +288,8 @@ class ajax {
 	function disable_account() {
 		global $global_user;
 		$b_verified = $this->verify_password() == "success";
-		if ($b_verified && $global_user->disable_account()) {
+		$is_guest = $global_user->get_name() == "guest";
+		if ($b_verified && !$is_guest && $global_user->disable_account()) {
 				return "success";
 		}
 		return "failure";
@@ -296,7 +297,9 @@ class ajax {
 
 	function delete_account() {
 		global $global_user;
-		if ($this->verify_password() == "success" && $global_user->delete_account()) {
+		$b_verified = $this->verify_password() == "success";
+		$is_guest = $global_user->get_name() == "guest";
+		if ($b_verified && !$is_guest && $global_user->delete_account()) {
 				return "success";
 		}
 		return "failure";

@@ -3,6 +3,10 @@
 function init_account() {
 	global $global_user;
 
+	if ($global_user->get_name() == "guest") {
+			return "Guest can't change account settings";
+	}
+
 	$section_head = "<div class='account_management_section'>
         <div class='title'>
             __TITLE__
