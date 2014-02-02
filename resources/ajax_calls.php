@@ -255,31 +255,6 @@ class ajax {
 		global $o_bugtracker;
 		return $o_bugtracker->handleChangeBugStatusAJAX($s_post_id, $s_status);
 	}
-
-	function change_password() {
-		global $global_user;
-		$s_username = get_post_var("username");
-		$s_new_password = get_post_var("new_password");
-		$success = $this->verify_password();
-		if ($success == "success") {
-				$success = ($global_user->update_password($s_new_password) == TRUE) ? "success" : "failure";
-				if ($success == "success") {
-						$global_user = new user($s_username, $s_new_password, '');
-						login_session($global_user);
-				}
-		}
-		return $success;
-	}
-
-	function verify_password() {
-		$s_username = get_post_var("username");
-		$s_password = get_post_var("password");
-		$o_user = new user($s_username, $s_password, '');
-		if ($o_user->exists_in_db()) {
-				return "success";
-		}
-		return "failure";
-	}
 }
 
 $s_command = get_post_var("command");

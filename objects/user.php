@@ -124,15 +124,6 @@ class user {
 	public function save_user_blacklist($s_year, $s_semester, $s_json_saveval, $s_timestamp) {
 		return $this->save_time_dependent_user_data($s_year, $s_semester, 'semester_blacklist', $s_json_saveval, $s_timestamp);
 	}
-	
-	public function update_password($s_password) {
-		global $maindb;
-		$a_query = db_query("UPDATE `{$maindb}`.`students` SET `pass`=AES_ENCRYPT('[username]','[password]') WHERE `username`='[username]'", array("username"=>$this->name, "password"=>$s_password));
-		if ($a_query !== FALSE) {
-				return TRUE;
-		}
-		return FALSE;
-	}
 
 	/*********************************************************************
 	 *                   P R I V A T E   F U N C T I O N S               *
