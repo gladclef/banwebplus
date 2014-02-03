@@ -149,7 +149,10 @@ def getTerm(semester, subjects, parser):
 		subjectName = subject[0]
 		if (type(parser.subject) == type("")):
 			if (parser.subject != subjectName):
-				continue;
+				continue
+		t.addSubject(subject)
+		if (subjectName == "CUSTOM"):
+			continue
 		url = "http://banweb7.nmt.edu/pls/PROD/hwzkcrof.P_UncgSrchCrsOff?p_term="+t.getSemester()+"&p_subj="+subjectName.replace(" ", "%20")
 		print url
 		page = urllib2.urlopen(url)
@@ -157,7 +160,6 @@ def getTerm(semester, subjects, parser):
 		trs = soup.findAll("tr")
 		trs = trs[1:] #discard the retarded row that banweb is retarded about
 		print_verbose("adding subject "+subjectName)
-		t.addSubject(subject)
 		if (len(trs) == 0):
 			print_verbose("no table rows...no classes subject")
 			continue
@@ -190,6 +192,7 @@ def main(parser):
 			termsList = getRetardedSelectSyntaxFromBanweb(node)[:]
 		elif nodeAttribs[u"name"] == u"p_subj":
 			subjects = getRetardedSelectSyntaxFromBanweb(node)[:]
+	subjects.append(["CUSTOM","Custom"])
 
 	# account for terms that have been listed before but
 	# have since been removed from banweb

@@ -304,6 +304,13 @@ class ajax {
 		}
 		return "failure";
 	}
+
+	function add_custom_class() {
+		global $global_user;
+		$s_values = get_post_var("values");
+		$a_values = json_decode($s_values);
+		return save_custom_class_to_db($a_values, $global_user->get_id());
+	}
 }
 
 $s_command = get_post_var("command");

@@ -9,7 +9,7 @@ window.tabCustomClasses = {
 		var getDefaultDescription = function(propertyName) {
 			var randVal = o_listsTab.populateValuePlaceholder($("<input value='"+propertyName+"'>"), $("<input value='contains'>"), "", true, []);
 			var retval = randVal;
-			var defaults = { Course:'CUSTOM 001', '*Campus':'M', Days:'W', Time:'1600-1800', Location:'Field', Hrs:'2', Title:'Soccor Practice', Instructor:'Soccor Coach', Seats:'20', Limit:'20', Enroll:'20' }
+			var defaults = { '*Campus':'M', Days:'W', Time:'1600-1800', Location:'Field', Hrs:'2', Title:'Soccor Practice', Instructor:'Soccor Coach', Seats:'20', Limit:'20', Enroll:'20' }
 			if (defaults[propertyName]) {
 				retval = defaults[propertyName];
 			}
@@ -17,13 +17,14 @@ window.tabCustomClasses = {
 		}
 		
 		var jcontainer = $("#custom_add_class");
-		var thead = "<table cellpadding='0px' cellspacing='0px'><tr>'";
+		var thead = "<table cellpadding='0px' cellspacing='0px'><tr>";
 		var tbody = "<tr>";
 		var customHeaders = headers;
 		
 		// get the properties to draw
 		customHeaders = $.grep(customHeaders, function(v,k) {
-			if (v != "Select" && v != "Conflicts") {
+			var dontAdd = ["Select", "Conflicts", "Course", "Seats", "Enroll"];
+			if (dontAdd.indexOf(v) == -1) {
 				return true;
 			} else {
 				return false;
@@ -55,7 +56,41 @@ window.tabCustomClasses = {
 
 		kill_children(jcontainer);
 		jcontainer.html("");
-		jcontainer.append("<form id='createCustomClassForm'>"+table+addNewButton+"</form>");
+		jcontainer.append("<form id='createCustomClassForm'><label class='errors'></label><br />"+table+addNewButton+"</form>");
+	},
+
+	addClass: function() {
+
+		// some common values
+		var jform = $("#createCustomClassForm");
+		var a_course = jform.serializeArray();
+		var values = JSON.stringify(a_course);
+		
+		// check that the class hass all its parts
+		for(var i = 0; i < a_course.length; i++) {
+			if (a_course[i].value == "") {
+				draw_error(jform, "Fill in all parts of the class before submitting", false);
+				return;
+			}
+		}
+		
+		// contact the server to try and add the class
+		send_ajax_call("/resources/ajax_calls.php", {command:"add_custom_class", values:values}, function(success) {
+			if (success != "success") {
+				if (success == "failure") {
+					draw_error(jform, "Failed to add class", false);
+				} else {
+					draw_error(jform, success, false);
+				}
+				return;
+			}
+			tabCustomClasses.drawAddClasses();
+			sem = o_courses.getCurrentSemester();
+			sem = sem.year.school_year+sem.value;
+			o_courses.loadFullCourseList(sem, false);
+			o_courses.setSemester(sem);
+			draw_tab(get_name_of_focused_tab());
+		});
 	},
 
 	drawRemoveClasses: function() {

@@ -72,8 +72,12 @@ function saveData($s_semester, $s_year, $a_data_to_save, $a_keys, $s_primary_key
 	// loads them each as an "primary_key"=>array("key"=>value, ...)
 	$a_searchby = ($a_searchby === NULL) ? array() : $a_searchby;
 	$a_searchby = array_merge(array("semester"=>$s_semester, "year"=>$s_year), $a_searchby);
+	if ($s_table == "classes") {
+			$a_searchby = array_merge(array("user_ids_with_access"=>""), $a_searchby);
+	}
 	$s_where_clause = array_to_where_clause($a_searchby);
 	$db_data_loaded = db_query("SELECT {$s_keylist} FROM `{$maindb}`.`{$s_table}` WHERE {$s_where_clause} ORDER BY `{$s_primary_key}`", $a_searchby);
+	$s_where_clause = ($s_where_clause == "") ? "" : "AND {$s_where_clause}";
 	$db_data = array();
 	foreach($db_data_loaded as $db_row) {
 			$db_data[$db_row[$s_primary_key]] = $db_row;
