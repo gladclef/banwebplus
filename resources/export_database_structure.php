@@ -141,8 +141,13 @@ function updateTables($a_old_tables, $a_new_tables) {
 			
 			// check for columns that need to be updated
 			// or columns that don't need to be updated
+			$s_prev_colname = "";
 			foreach($a_table["columns"] as $col_key=>$a_column) {
 					$s_colname = $a_column["name"];
+					if ($s_prev_colname != "") {
+						$a_table["columns"][$col_key]["after_clause"] = "AFTER ".mysql_real_escape_string($s_prev_colname);
+					}
+					$s_prev_colname = $s_colname;
 					if (isset($a_curr_cols[$s_colname])) {
 							if ($a_curr_cols[$s_colname]["desc"] != $a_column["desc"]) {
 									db_query("ALTER TABLE `{$maindb}`.`[table]` MODIFY COLUMN `[colname]` [desc]", array("table"=>$s_tablename, "colname"=>$s_colname, "desc"=>$a_column["desc"]), 1);
@@ -174,10 +179,10 @@ function updateTables($a_old_tables, $a_new_tables) {
 			}
 			
 			// check for columns that need to be created
-			$s_after = "";
 			foreach($a_table["columns"] as $col_key=>$a_column) {
 					$s_colname = $a_column["name"];
-					db_query("ALTER TABLE `{$maindb}`.`[table]` ADD COLUMN [colname] [desc] {$s_after}", array("table"=>$s_tablename, "colname"=>$s_colname, "desc"=>$a_column["desc"], "after"=>$s_after), 1);
+					$s_after = $a_column["after_clause"];
+					db_query("ALTER TABLE `{$maindb}`.`[table]` ADD COLUMN [colname] [desc] {$s_after}", array("table"=>$s_tablename, "colname"=>$s_colname, "desc"=>$a_column["desc"]), 1);
 					echo "\n";
 			}
 
