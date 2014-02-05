@@ -91,12 +91,37 @@ table.main_page_content {
 }
 
 .recent_bugs {
-	border: 2px solid gray;
-	border-top: none;
-	border-bottom: none;
-	border-radius: 20px;
+	border: 1px dashed gray;
+	border-top: 2px solid gray;
 	text-align: left;
-	display: inline-table;
+	display: block;
 	padding: 10px;
-	margin: 2em 0 0 0;
+	margin: 1em 0 0 0;
+	width: auto;
+}
+
+.recent_bugs.depth_0{
+	background-color: #fdd;
+}
+
+.recent_bugs.depth_1{
+	background-color: #dbb;
+}
+
+.recent_bugs.depth_2{
+	background-color: #b88;
+}
+
+.recent_bugs.depth_3{
+	background-color: #955;
+	color: white;
+}
+
+.recent_bugs.depth_4{
+	background-color: #733;
+	color: white;
+}
+
+.recent_bugs.collapsed{
+	border:2px solid black;
 }
