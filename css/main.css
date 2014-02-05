@@ -125,3 +125,6 @@ table.main_page_content {
 .recent_bugs.collapsed{
 	border:2px solid black;
 }
+.recent_bugs.noresponses{
+	border-color:#999;
+}

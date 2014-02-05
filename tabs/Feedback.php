@@ -116,8 +116,9 @@ class bugtracker_object_type extends forum_object_type {
 		$s_query = "<span id='post_{$id}_{$this->forum_instance}'>".str_replace(array("\n","\r","\r\n"), "<br />", $a_post['query'])."</span>";
 
 		// get the collapsable wrapper
-		$s_wrapper_style = (count($a_post["responses"]) > 0) ? "cursor:pointer;' onclick='o_forum.collapse_wrapper(this);'" : "";
-		$s_wrapper_collapsed = (count($a_post["responses"]) > 0 && $i_post_depth == 0) ? "collapsed" : "";
+		$s_wrapper_style = "cursor:pointer;' onclick='o_forum.collapse_wrapper(this);'";
+		$s_wrapper_collapsed = ($i_post_depth == 0) ? "collapsed" : "";
+		$s_wrapper_noresponses = (count($a_post["responses"]) == 0) ? "noresponses" : "";
 		$s_wrapper_mid_display = ($s_wrapper_collapsed == "") ? "inline-block;" : "none";
 		$s_wrapper = "<div style='width:100%; margin:0; padding:0; border:none; display:inline-block; {$s_wrapper_style}' class='forum_wrapper_query {$s_wrapper_collapsed}'>";
 		$s_wrapper_mid = "</div><div style='margin:0; padding:0; border:none; display:{$s_wrapper_mid_display};' class='forum_wrapper_rest'>";
@@ -163,7 +164,7 @@ class bugtracker_object_type extends forum_object_type {
 		$s_time_color = ($i_post_depth < 2) ? "gray" : "lightgray";
 		$s_timedisplay = "<span style='color:{$s_time_color}'>Submitted ".date("F j, Y", strtotime($a_post['datetime']))." at ".date("g:ia", strtotime($a_post['datetime']))."</span>";
 		$s_retval .= "
-    <div class='{$s_stylename} depth_{$i_min_post_depth} {$s_wrapper_collapsed}'>
+    <div class='{$s_stylename} depth_{$i_min_post_depth} {$s_wrapper_collapsed} {$s_wrapper_noresponses}'>
         {$s_wrapper}<span style='font-weight:bold'>{$s_querier_name}</span>: {$s_query}{$s_wrapper_mid}<br />{$s_edit_query}{$s_respond_query}{$s_delete_query}<br />{$s_timedisplay}<br />{$s_responses}{$s_wrapper_end}
     </div>";
 		return $s_retval;
