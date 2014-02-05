@@ -12,7 +12,17 @@ class forum_object_type {
 		$this->user = $global_user;
 		$this->forum_instance = (int)$i_forum_instance;
 		$this->a_postnames = array("singular"=>"post", "plural"=>"posts", "stylename"=>"forum_posts");
+		$this->s_createaccess = "development.createposts";
+		$this->s_deleteaccess = "development.deleteposts";
 		$i_forum_instance++;
+	}
+
+	/**
+	 * Sets the accesses necessary to create or delete posts
+	 **/
+	public function setAccesses($s_createaccess, $s_deleteaccess) {
+		$this->s_createaccess = $s_createaccess;
+		$this->s_deleteaccess = $s_deleteaccess;
 	}
 
 	/**
@@ -74,7 +84,7 @@ class forum_object_type {
 <table class='table_title'><tr><td>
     <div class='centered'>Recent {$s_postname_plural}</div>
 </td></tr></table>";
-		if ($this->user->has_access("createposts")) {
+		if ($this->user->has_access($this->s_createaccess)) {
 				$s_header .= "
 <div class='centered'>
     <form id='create_post_form_{$this->forum_instance}'>
@@ -109,11 +119,13 @@ class forum_object_type {
 				$s_response = "";
 				$s_edit_response = "";
 				if (count($a_post['responses']) > 0) {
-						$response_string = $a_post['responses'][0][1];
-						$response_id = $a_post['responses'][0][2];
-						$s_response = "<span id='post_{$response_id}_{$this->forum_instance}'>".str_replace(array("\n","\r","\r\n"), "<br />", $response_string)."</span>";
-						if ($username == $a_post['querier_name']) {
-								$s_edit_response = " <input id='post_{$response_id}_edit_button_{$this->forum_instance}' type='button' onclick='o_forum.edit_query(this,{$response_id},{$this->forum_instance},\"{$this->s_tablename}\");' value='Edit'></input>";
+						foreach($a_post["responses"] as $a_response) {
+								$response_string = $a_response["query"];
+								$response_id = $a_response["id"];
+								$s_response = "<span id='post_{$response_id}_{$this->forum_instance}'>".str_replace(array("\n","\r","\r\n"), "<br />", $response_string)."</span>";
+								if ($username == $a_response['querier_name']) {
+										$s_edit_response = " <input id='post_{$response_id}_edit_button_{$this->forum_instance}' type='button' onclick='o_forum.edit_query(this,{$response_id},{$this->forum_instance},\"{$this->s_tablename}\");' value='Edit'></input>";
+								}
 						}
 				}
 				$s_timedisplay = "<span style='color:gray'>Submitted ".date("F j, Y", strtotime($a_post['datetime']))." at ".date("g:ia", strtotime($a_post['datetime']))."</span>";
@@ -121,7 +133,7 @@ class forum_object_type {
     <div class='{$s_stylename}'>
         <span style='font-weight:bold'>Q</span>: {$s_query}{$s_edit_query}<br /><br /><span style='font-weight:bold;'>A</span>: {$s_response}{$s_edit_response}<br />{$s_timedisplay}
     </div>";
-				if ($this->user->has_access("deleteposts") || $a_post["querier_name"] == $this->user->get_name()) {
+				if ($this->user->has_access($this->s_deleteaccess) || $a_post["querier_name"] == $this->user->get_name()) {
 						$s_retval .= "
     <div class='centered'>
         <form id='delete_post_{$id}_form_{$this->forum_instance}'>
@@ -140,9 +152,10 @@ class forum_object_type {
 
 	/**
 	 * Loads forum posts from the database
-	 * @return   array     An array of posts, in the form array(post id=>array("query"=>string, "responses"=>array(array(username,response,id),...), "datetime"=>integer, "querier_name"=>username), ...)
+	 * @$original_id integer The id of the original post (indicates that this should be looking for responses)
+	 * @return       array   An array of posts, in the form array(post id=>array("query"=>string, "id"=>post id, "responses"=>array(array of posts), "datetime"=>integer, "querier_name"=>username), ...)
 	 */
-	public function loadRecentPosts() {
+	public function loadRecentPosts($original_id = -1) {
 		
 		global $maindb;
 
@@ -151,7 +164,8 @@ class forum_object_type {
 		$i_limit = $this->a_range["num_feeds"];
 		
 		// load posts from the database
-		$a_forum_posts = db_query("SELECT * FROM `{$maindb}`.`[table]` WHERE `datetime`>'[starttime]' AND `is_response`='0' AND `deleted`='0' ORDER BY `datetime` DESC LIMIT [limit]", array("table"=>$this->s_tablename, "starttime"=>$t_since, "limit"=>$i_limit));
+		$s_response_check = ($original_id === -1) ? "`is_response`='0'" : "`is_response`='1' AND `original_post_id`='".((int)$original_id)."'";
+		$a_forum_posts = db_query("SELECT * FROM `{$maindb}`.`[table]` WHERE `datetime`>'[starttime]' AND {$s_response_check} AND `deleted`='0' ORDER BY `datetime` DESC LIMIT [limit]", array("table"=>$this->s_tablename, "starttime"=>$t_since, "limit"=>$i_limit));
 		if (!is_array($a_forum_posts) || count($a_forum_posts) == 0) {
 				return array();
 		}
@@ -167,21 +181,10 @@ class forum_object_type {
 
 		// load responses from the database
 		$a_feed_ids = array();
-		foreach($a_forum_posts as $a_feed) {
-				$a_feed_ids[] = mysql_real_escape_string($a_feed['id']);
+		foreach($a_forum_posts as $k=>$a_feed) {
+				$a_forum_posts[$k]["responses"] = $this->loadRecentPosts($a_feed['id']);
 		}
-		$s_post_ids = "('".implode("','", $a_feed_ids)."')";
-		$a_responses = db_query("SELECT * FROM `{$maindb}`.`[table]` WHERE `is_response`='1' AND `original_post_id` IN {$s_post_ids}", array("table"=>$this->s_tablename));
-		for($j = 0; $j < count($a_responses); $j++) {
-				if (!isset($a_forum_posts[$a_responses[$j]['original_post_id']])) {
-						continue;
-				}
-				$s_username = self::getUsernameForId($a_responses[$j]['userid']);
-				$s_query = $a_responses[$j]['query'];
-				$i_id = $a_responses[$j]['id'];
-				$a_forum_posts[$a_responses[$j]['original_post_id']]['responses'][] = array($s_username, $s_query, $i_id);
-		}
-		
+
 		return $a_forum_posts;
 	}
 
@@ -214,13 +217,14 @@ class forum_object_type {
 
 	/**
 	 * creates a new post and response
-	 * @return strong one of "alert[*note*]message" on error or "reload page[*note*]" on success
+	 * @$b_no_response boolean if TRUE, don't automatically generate a response to the post
+	 * @return         string  one of "alert[*note*]message" on error or "reload page[*note*]" on success
 	 */
-	public function handelCreatePostAJAX() {
+	public function handelCreatePostAJAX($b_no_response = FALSE) {
 		global $maindb;
 		
 		// check if the user has permission
-		if (!$this->user->has_access("createposts")) {
+		if (!$this->user->has_access($this->s_createaccess)) {
 				return "alert[*note*]Incorrect permissions";
 		}
 
@@ -231,9 +235,39 @@ class forum_object_type {
 		if ($query === FALSE) {
 				return "alert[*note*]Failed to insert into database";
 		}
-		$a_insert_response = array("userid"=>$this->user->get_id(), "datetime"=>date("Y-m-d H:i:s"), "is_response"=>1, "original_post_id"=>mysql_insert_id());
+
+		// create the response
+		if (!$b_no_response) {
+				$a_insert_response = array("userid"=>$this->user->get_id(), "datetime"=>date("Y-m-d H:i:s"), "is_response"=>1, "original_post_id"=>mysql_insert_id());
+				$s_insert_response = array_to_insert_clause($a_insert_response);
+				$query = db_query("INSERT INTO `{$maindb}`.`[table]` {$s_insert_response}", array_merge($a_insert_response,array("table"=>$this->s_tablename)));
+		}
+
+		return "reload page[*note*]";
+	}
+
+	public function handelRespondPostAJAX($post_id) {
+		global $maindb;
+		
+		// check if the user has permission
+		if (!$this->user->has_access($this->s_createaccess)) {
+				return "alert[*note*]Incorrect permissions";
+		}
+
+		// check that the post exists that we're trying to create a response to
+		$a_posts = db_query("SELECT `id` FROM `{$maindb}`.`[table]` WHERE `id`='[id]' LIMIT 1", array("table"=>$this->s_tablename, "id"=>$post_id));
+		if (!is_array($a_posts) || count($a_posts) == 0) {
+				return "alert[*note*]Original post not found, possible error in database";
+		}
+
+		// create the response
+		$a_insert_response = array("userid"=>$this->user->get_id(), "datetime"=>date("Y-m-d H:i:s"), "is_response"=>1, "original_post_id"=>$post_id);
 		$s_insert_response = array_to_insert_clause($a_insert_response);
 		$query = db_query("INSERT INTO `{$maindb}`.`[table]` {$s_insert_response}", array_merge($a_insert_response,array("table"=>$this->s_tablename)));
+		if ($query === FALSE) {
+				return "alert[*note*]Failed to insert into database";
+		}
+
 		return "reload page[*note*]";
 	}
 
@@ -246,7 +280,7 @@ class forum_object_type {
 		global $maindb;
 		
 		// check that the user has permission
-		if (!$this->user->has_access("createposts.deleteposts")) {
+		if (!$this->user->has_access($this->s_deleteaccess)) {
 				return "alert[*note*]Incorrect permission";
 		}
 		

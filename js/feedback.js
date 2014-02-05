@@ -75,6 +75,29 @@ typeForum = function() {
 		// the user really wants to delete the post
 		send_ajax_call_from_form("/resources/ajax_calls.php", "delete_post_"+i_post_id+"_form_"+i_forum_id);
 	};
+
+	this.create_response = function(i_post_id, i_forum_id) {
+		send_ajax_call_from_form("/resources/ajax_calls.php", "respond_post_"+i_post_id+"_form_"+i_forum_id);
+	}
+
+	this.collapse_wrapper = function(element) {
+		var jstart = $(element);
+		var jend = jstart.siblings(".forum_wrapper_rest");
+		var jparent = jstart.parent();
+		
+		if (jstart.hasClass("collapsed")) {
+			jend.stop(true,true);
+			jend.show(200);
+			jend.css("display", "inline-block");
+			jstart.removeClass("collapsed");
+			jparent.removeClass("collapsed");
+		} else {
+			jend.stop(true,true);
+			jend.hide(200);
+			jstart.addClass("collapsed");
+			jparent.addClass("collapsed");
+		}
+	}
 };
 
 o_forum = new typeForum();

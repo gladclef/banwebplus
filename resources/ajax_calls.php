@@ -214,12 +214,13 @@ class ajax {
 
 	function create_post() {
 		$s_tablename = get_post_var("tablename");
+		$b_no_response = (get_post_var("noresponse") === "1") ? TRUE : FALSE;
 		if ($s_tablename == "feedback") {
 				global $o_feedback;
-				return $o_feedback->handelCreatePostAJAX();
+				return $o_feedback->handelCreatePostAJAX($b_no_response);
 		} else if ($s_tablename == "buglog") {
 				global $o_bugtracker;
-				return $o_bugtracker->handelCreatePostAJAX();
+				return $o_bugtracker->handelCreatePostAJAX($b_no_response);
 		}
 	}
 
@@ -233,6 +234,19 @@ class ajax {
 		} else if ($s_tablename == "buglog") {
 				global $o_bugtracker;
 				return $o_bugtracker->handelDeletePostAJAX($s_post_id);
+		}
+	}
+
+	function respond_post() {
+		global $o_feedback;
+		$s_post_id = get_post_var("post_id");
+		$s_tablename = get_post_var("tablename");
+		if ($s_tablename == "feedback") {
+				global $o_feedback;
+				return $o_feedback->handelRespondPostAJAX($s_post_id);
+		} else if ($s_tablename == "buglog") {
+				global $o_bugtracker;
+				return $o_bugtracker->handelRespondPostAJAX($s_post_id);
 		}
 	}
 }
