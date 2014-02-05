@@ -101,23 +101,21 @@ table.main_page_content {
 }
 
 .recent_bugs.depth_0{
+}
+.recent_bugs.depth_1{
 	background-color: #fdd;
 }
-
-.recent_bugs.depth_1{
+.recent_bugs.depth_2{
 	background-color: #dbb;
 }
-
-.recent_bugs.depth_2{
+.recent_bugs.depth_3{
 	background-color: #b88;
 }
-
-.recent_bugs.depth_3{
+.recent_bugs.depth_4{
 	background-color: #955;
 	color: white;
 }
-
-.recent_bugs.depth_4{
+.recent_bugs.depth_5{
 	background-color: #733;
 	color: white;
 }

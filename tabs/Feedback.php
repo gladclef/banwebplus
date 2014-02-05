@@ -112,9 +112,6 @@ class bugtracker_object_type extends forum_object_type {
 		$s_username = $this->user->get_name();
 		$s_stylename = $this->a_postnames["stylename"];
 
-		// get the query string
-		$s_query = "<span id='post_{$id}_{$this->forum_instance}'>".str_replace(array("\n","\r","\r\n"), "<br />", $a_post['query'])."</span>";
-
 		// get the collapsable wrapper
 		$s_wrapper_style = "cursor:pointer;' onclick='o_forum.collapse_wrapper(this);'";
 		$s_wrapper_collapsed = ($i_post_depth == 0) ? "collapsed" : "";
@@ -124,6 +121,13 @@ class bugtracker_object_type extends forum_object_type {
 		$s_wrapper_mid = "</div><div style='margin:0; padding:0; border:none; display:{$s_wrapper_mid_display};' class='forum_wrapper_rest'>";
 		$s_wrapper_end = "</div>";
 		
+		// get the owner string
+		$s_owner = $this->getUsernameForId($a_post["owner_userid"]);
+		$s_owner = "Owner: <span style='font-weight:bold;'>{$s_owner}</span>";
+
+		// get the query string
+		$s_query = "{$s_owner}<br /><span id='post_{$id}_{$this->forum_instance}'>".str_replace(array("\n","\r","\r\n"), "<br />", $a_post['query'])."</span> <span style='opacity:0.5;'>~ {$s_querier_name}</span>";
+
 		// get the edit string
 		if ($s_username == $s_querier_name) {
 				$s_edit_query = " <input id='post_{$id}_edit_button_{$this->forum_instance}' type='button' onclick='o_forum.edit_query(this,{$id},{$this->forum_instance},\"{$this->s_tablename}\");' value='Edit'></input>";
@@ -160,12 +164,12 @@ class bugtracker_object_type extends forum_object_type {
 		}
 		
 		// create an output
-		$i_min_post_depth = min($i_post_depth, 4);
-		$s_time_color = ($i_post_depth < 2) ? "gray" : "lightgray";
+		$i_min_post_depth = min($i_post_depth, 5);
+		$s_time_color = ($i_post_depth < 3) ? "gray" : "lightgray";
 		$s_timedisplay = "<span style='color:{$s_time_color}'>Submitted ".date("F j, Y", strtotime($a_post['datetime']))." at ".date("g:ia", strtotime($a_post['datetime']))."</span>";
 		$s_retval .= "
     <div class='{$s_stylename} depth_{$i_min_post_depth} {$s_wrapper_collapsed} {$s_wrapper_noresponses}'>
-        {$s_wrapper}<span style='font-weight:bold'>{$s_querier_name}</span>: {$s_query}{$s_wrapper_mid}<br />{$s_edit_query}{$s_respond_query}{$s_delete_query}<br />{$s_timedisplay}<br />{$s_responses}{$s_wrapper_end}
+        {$s_wrapper}{$s_query}{$s_wrapper_mid}<br />{$s_edit_query}{$s_respond_query}{$s_delete_query}<br />{$s_timedisplay}<br />{$s_responses}{$s_wrapper_end}
     </div>";
 		return $s_retval;
 	}
