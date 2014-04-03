@@ -9,3 +9,4 @@ sem_*.pyc
 /scraping/
 /scraping_bk/
 *.ini
+database_desc.txt
