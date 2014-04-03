@@ -100,4 +100,25 @@ typeForum = function() {
 	}
 };
 
+typeBugtracker = function() {
+	this.showChange = function(element, event, changewhat) {
+		var jelement = $(element);
+		var jchange_form = jelement.siblings(".change"+changewhat);
+		jchange_form.show();
+		jchange_form.css("display","inline-block");
+		jelement.hide()
+		if (event.preventDefault) {
+			event.preventDefault();
+		} else {
+			event.cancelBubble = true;
+		}
+	};
+
+	this.change = function(element, changewhat) {
+		var jform = get_parent_by_tag("form", $(element));
+		send_ajax_call_from_form("/resources/ajax_calls.php", jform.prop("id"));
+	}
+}
+
 o_forum = new typeForum();
+o_bugtracker = new typeBugtracker();

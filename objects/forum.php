@@ -194,7 +194,7 @@ class forum_object_type {
 	 * @$s_new_query_string string the new query string to insert into the database
 	 * @return              string one of "alert[*note*]message[*command*]reset old value[*note*]" on error or "" on success
 	 */
-	public function handelEditPostAJAX($s_post_id, $s_new_query_string) {
+	public function handleEditPostAJAX($s_post_id, $s_new_query_string) {
 		global $maindb;
 
 		// try and find the note
@@ -220,7 +220,7 @@ class forum_object_type {
 	 * @$b_no_response boolean if TRUE, don't automatically generate a response to the post
 	 * @return         string  one of "alert[*note*]message" on error or "reload page[*note*]" on success
 	 */
-	public function handelCreatePostAJAX($b_no_response = FALSE) {
+	public function handleCreatePostAJAX($b_no_response = FALSE) {
 		global $maindb;
 		
 		// check if the user has permission
@@ -229,7 +229,7 @@ class forum_object_type {
 		}
 
 		// create the new post
-		$a_insert_post = array("userid"=>$this->user->get_id(), "datetime"=>date("Y-m-d H:i:s"));
+		$a_insert_post = array("userid"=>$this->user->get_id(), "owner_userid"=>$this->user->get_id(), "datetime"=>date("Y-m-d H:i:s"));
 		$s_insert_post = array_to_insert_clause($a_insert_post);
 		$query = db_query("INSERT INTO `{$maindb}`.`[table]` {$s_insert_post}", array_merge($a_insert_post,array("table"=>$this->s_tablename)));
 		if ($query === FALSE) {
@@ -238,7 +238,7 @@ class forum_object_type {
 
 		// create the response
 		if (!$b_no_response) {
-				$a_insert_response = array("userid"=>$this->user->get_id(), "datetime"=>date("Y-m-d H:i:s"), "is_response"=>1, "original_post_id"=>mysql_insert_id());
+				$a_insert_response = array("userid"=>$this->user->get_id(), "owner_userid"=>$this->user->get_id(), "datetime"=>date("Y-m-d H:i:s"), "is_response"=>1, "original_post_id"=>mysql_insert_id());
 				$s_insert_response = array_to_insert_clause($a_insert_response);
 				$query = db_query("INSERT INTO `{$maindb}`.`[table]` {$s_insert_response}", array_merge($a_insert_response,array("table"=>$this->s_tablename)));
 		}
@@ -246,7 +246,7 @@ class forum_object_type {
 		return "reload page[*note*]";
 	}
 
-	public function handelRespondPostAJAX($post_id) {
+	public function handleRespondPostAJAX($post_id) {
 		global $maindb;
 		
 		// check if the user has permission
@@ -261,7 +261,7 @@ class forum_object_type {
 		}
 
 		// create the response
-		$a_insert_response = array("userid"=>$this->user->get_id(), "datetime"=>date("Y-m-d H:i:s"), "is_response"=>1, "original_post_id"=>$post_id);
+		$a_insert_response = array("userid"=>$this->user->get_id(), "owner_userid"=>$this->user->get_id(), "datetime"=>date("Y-m-d H:i:s"), "is_response"=>1, "original_post_id"=>$post_id);
 		$s_insert_response = array_to_insert_clause($a_insert_response);
 		$query = db_query("INSERT INTO `{$maindb}`.`[table]` {$s_insert_response}", array_merge($a_insert_response,array("table"=>$this->s_tablename)));
 		if ($query === FALSE) {
@@ -276,7 +276,7 @@ class forum_object_type {
 	 * Marks the post as "deleted=1"
 	 * @$post_id integer the id of the post
 	 */
-	public function handelDeletePostAJAX($post_id) {
+	public function handleDeletePostAJAX($post_id) {
 		global $maindb;
 		
 		// check that the user has permission

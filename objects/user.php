@@ -274,9 +274,10 @@ class user {
 		}
 		
 		// load the user
-		$a_users = db_query("SELECT `{$maindb}`.`username`,`pass` FROM `students` WHERE `id`='[id]'", array("id"=>$i_user_id));
+		$a_users = db_query("SELECT `username`,`pass` FROM `{$maindb}`.`students` WHERE `id`='[id]'", array("id"=>$i_user_id));
 		if (is_array($a_users) && count($a_users) > 0) {
 				$o_user = new user($a_users[0]['username'], NULL, $a_users[0]['pass']);
+				// note: creating a new user registers the user with global_user
 		}
 		return $o_user;
 	}

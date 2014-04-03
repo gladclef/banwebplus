@@ -101,27 +101,45 @@ table.main_page_content {
 }
 
 .recent_bugs.depth_0{
+}
+.recent_bugs.depth_1{
 	background-color: #fdd;
 }
-
-.recent_bugs.depth_1{
+.recent_bugs.depth_2{
 	background-color: #dbb;
 }
-
-.recent_bugs.depth_2{
+.recent_bugs.depth_3{
 	background-color: #b88;
 }
-
-.recent_bugs.depth_3{
+.recent_bugs.depth_4{
 	background-color: #955;
 	color: white;
 }
-
-.recent_bugs.depth_4{
+.recent_bugs.depth_5{
 	background-color: #733;
 	color: white;
 }
 
 .recent_bugs.collapsed{
 	border:2px solid black;
+}
+.recent_bugs.noresponses{
+	border-color:#999;
+}
+
+.recent_bugs.status_new{
+	background-color:#faa;
+}
+.recent_bugs.status_needs_confirmation{
+	background-color:#ccc;
+}
+.recent_bugs.status_in_progress{
+	background-color:#ffa;
+}
+.recent_bugs.status_wont_fix{
+	background-color:#555;
+	color:white;
+}
+.recent_bugs.status_fixed{
+	background-color:#afa;
 }
