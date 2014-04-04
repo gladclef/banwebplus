@@ -41,6 +41,7 @@ class bugtracker_object_type extends forum_object_type {
 		$this->setPostNames("bug", "bugs", "recent_bugs");
 		$this->setAccesses("development.createbugs", "development.deletebugs");
 		$this->setRange(0, 10);
+		$this->a_statuses = array("New", "Needs Confirmation", "In Progress", "Wont Fix", "Fixed");
 	}
 	
 	/**
@@ -130,7 +131,7 @@ class bugtracker_object_type extends forum_object_type {
 		$s_wrapper_end = "</div>";
 		
 		// get the owner string
-		$s_owner = $this->getUsernameForId($a_post["owner_userid"]);
+		$s_owner = ($a_post["owner_userid"] == "-1") ? "none" : $this->getUsernameForId($a_post["owner_userid"]);
 		$s_owner = "Owner: <span style='font-weight:bold;' id='bug_owner_{$id}'>{$s_owner}</span>";
 		if ($this->user->has_access($this->s_createaccess)) {
 				$s_owner .= "
@@ -140,7 +141,9 @@ class bugtracker_object_type extends forum_object_type {
         <input type='hidden' name='post_id' value='{$id}'></input>
         <input type='hidden' name='command' value='change_bug_owner'></input>
         <select name='userid'>";
-				foreach(db_query("SELECT `id`,`username` FROM `{$maindb}`.`students` WHERE `deleted`='0'") as $a_student) {
+				$a_students = db_query("SELECT `id`,`username` FROM `{$maindb}`.`students` WHERE `deleted`='0'");
+				$a_students = array_merge($a_students, array("id"=>-1, "username"=>"none"));
+				foreach($a_students as $a_student) {
 						$s_owner .= "
             <option value='".$a_student["id"]."'>".$a_student["username"]."</option>";
 				}
@@ -162,8 +165,12 @@ class bugtracker_object_type extends forum_object_type {
         <input type='hidden' name='tablename' value='{$this->s_tablename}'></input>
         <input type='hidden' name='post_id' value='{$id}'></input>
         <input type='hidden' name='command' value='change_bug_status'></input>
-        <select name='status'>
-            <option>New</option><option>Needs Confirmation</option><option>In Progress</option><option>Wont Fix</option><option>Fixed</option>
+        <select name='status'>";
+						foreach($this->a_statuses as $s_status) {
+								$s_status_string .= "
+            <option>{$s_status}</option>";
+						}
+						$s_status_string .= "
         </select>
         <input type='button' value='Apply' onclick='o_bugtracker.change(this, \"Status\");'></input>
     </form>";
