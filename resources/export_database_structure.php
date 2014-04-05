@@ -34,8 +34,13 @@ function saveTables() {
 	$a_new_tables = array("Tables"=>getTables());
 	$a_tables = array_merge($a_tables, $a_new_tables);
 	$s_tables = serialize($a_tables);
-	file_put_contents($filename, $s_tables);
-	echo "<pre>saved to file ".realpath($filename).":\n\nmodtime:\n".date("Y-m-d H:i:s",filemtime($filename))." (current time ".date("Y-m-d H:i:s").")\n\ncontents:\n".file_get_contents($filename)."</pre>";
+	$success = file_put_contents($filename, $s_tables);
+	if ($success === FALSE) {
+			echo "<span style='color:red;'>ERROR:</span> failed to save file";
+	} else {
+			echo "<pre>saved to file ".realpath($filename).":\n\nmodtime:\n".date("Y-m-d H:i:s",filemtime($filename))." (current time ".date("Y-m-d H:i:s").")</pre>";
+	}
+	echo "<pre>\n\ncontents:\n".file_get_contents($filename)."</pre>";
 }
 
 function loadTables() {
@@ -52,8 +57,13 @@ function saveCommon_Data() {
 	$filename = dirname(__FILE__)."/../database_desc.txt";
 	$a_tables = unserialize(file_get_contents($filename));
 	$a_tables = array_merge($a_tables, array("Common_Data"=>$a_common_data));
-	file_put_contents($filename, serialize($a_tables));
-	echo "<pre>saved to file ".realpath($filename).":\n\nmodtime:\n".date("Y-m-d H:i:s",filemtime($filename))." (current time ".date("Y-m-d H:i:s").")\n\ncontents:\n".file_get_contents($filename)."</pre>";	
+	$success = file_put_contents($filename, serialize($a_tables));
+	if ($success === FALSE) {
+			echo "<span style='color:red;'>ERROR:</span> failed to save file";
+	} else {
+			echo "<pre>saved to file ".realpath($filename).":\n\nmodtime:\n".date("Y-m-d H:i:s",filemtime($filename))." (current time ".date("Y-m-d H:i:s").")</pre>";
+	}
+	echo "<pre>\n\ncontents:\n".file_get_contents($filename)."</pre>";	
 }
 
 function loadCommon_Data() {
@@ -142,8 +152,13 @@ function updateTables($a_old_tables, $a_new_tables) {
 			
 			// check for columns that need to be updated
 			// or columns that don't need to be updated
+			$s_prev_colname = "";
 			foreach($a_table["columns"] as $col_key=>$a_column) {
 					$s_colname = $a_column["name"];
+					if ($s_prev_colname != "") {
+						$a_table["columns"][$col_key]["after_clause"] = "AFTER ".mysql_real_escape_string($s_prev_colname);
+					}
+					$s_prev_colname = $s_colname;
 					if (isset($a_curr_cols[$s_colname])) {
 							if ($a_curr_cols[$s_colname]["desc"] != $a_column["desc"]) {
 									db_query("ALTER TABLE `{$maindb}`.`[table]` MODIFY COLUMN `[colname]` [desc]", array("table"=>$s_tablename, "colname"=>$s_colname, "desc"=>$a_column["desc"]), 1);
@@ -155,9 +170,13 @@ function updateTables($a_old_tables, $a_new_tables) {
 			}
 
 			// check for columns that need to be deleted
-			foreach($a_curr_cols as $a_curr_column) {
+			foreach($a_curr_cols as $col_key=>$a_curr_column) {
 					$b_found = FALSE;
 					$s_colname = $a_curr_column["name"];
+					if ($s_colname == "") {
+						unset($a_curr_cols[$col_key]);
+						continue;
+					}
 					foreach($a_table["columns"] as $col_key=>$a_column) {
 							if ($s_colname == $a_column["name"]) {
 									$b_found = TRUE;
@@ -171,10 +190,10 @@ function updateTables($a_old_tables, $a_new_tables) {
 			}
 			
 			// check for columns that need to be created
-			$s_after = "";
 			foreach($a_table["columns"] as $col_key=>$a_column) {
 					$s_colname = $a_column["name"];
-					db_query("ALTER TABLE `{$maindb}`.`[table]` ADD COLUMN [colname] [desc] {$s_after}", array("table"=>$s_tablename, "colname"=>$s_colname, "desc"=>$a_column["desc"], "after"=>$s_after), 1);
+					$s_after = $a_column["after_clause"];
+					db_query("ALTER TABLE `{$maindb}`.`[table]` ADD COLUMN [colname] [desc] {$s_after}", array("table"=>$s_tablename, "colname"=>$s_colname, "desc"=>$a_column["desc"]), 1);
 					echo "\n";
 			}
 

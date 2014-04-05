@@ -3,6 +3,7 @@ import copy
 import os
 import banweb_to_php
 from bs4 import BeautifulSoup
+import argparse
 
 def getRetardedSelectSyntaxFromBanweb(selectTag):
 	retval = []
@@ -13,8 +14,8 @@ def getRetardedSelectSyntaxFromBanweb(selectTag):
 		retval.append([sid, sval])
 	return retval
 
-def writeSelectToFile(selectArray, filename, title):
-	f = open(filename, "w")
+def writeSelectToFile(selectArray, filename, path, title):
+	f = open(path+filename, "w")
 	f.write(title+" = [['")
 	optionStrings = []
 	for optionParts in selectArray:
@@ -62,6 +63,7 @@ class classList:
 				text = td.contents[0]
 				classStats[self.headers[i]] = text
 			self.classes.append(classStats)
+			print_verbose("adding class: "+str(classStats))
 			return True
 		return False
 	def setHeaders(self, bs4tr):
@@ -136,85 +138,133 @@ class term:
 	def setHeaders(self, subject, bs4tr):
 		return self.classLists[self._subjIndex(subject)].setHeaders(bs4tr)
 
-url = "http://banweb7.nmt.edu/pls/PROD/hwzkcrof.p_uncgslctcrsoff"
-
-page = urllib2.urlopen(url)
-
-soup = BeautifulSoup(page)
-
-nodes = soup.findAll("select")
-
-termsList = [] # each term -> [yyyyss, "season year"]
-subjects = [] # each subject -> ["abriviation", "full name"]
-
-for node in nodes:
-	nodeAttribs = dict(node.attrs)
-	if nodeAttribs[u"name"] == u"p_term":
-		termsList = getRetardedSelectSyntaxFromBanweb(node)[:]
-	elif nodeAttribs[u"name"] == u"p_subj":
-		subjects = getRetardedSelectSyntaxFromBanweb(node)[:]
-
-import banweb_terms
-for t in banweb_terms.terms:
-	if not t in termsList:
-		termsList.append(t)
-termsList.sort()
-print termsList
-
-writeSelectToFile(termsList, "banweb_terms.py", "terms")
-writeSelectToFile(subjects, "banweb_subjects.py", "subjects")
-
-terms = []
-
-def getTerm(semester):
+def getTerm(semester, subjects, parser):
 	t = term(semester[0])
 	for subject in subjects:
 		subjectName = subject[0]
+		if (type(parser.subject) == type("")):
+			if (parser.subject != subjectName):
+				continue;
 		url = "http://banweb7.nmt.edu/pls/PROD/hwzkcrof.P_UncgSrchCrsOff?p_term="+t.getSemester()+"&p_subj="+subjectName.replace(" ", "%20")
 		print url
 		page = urllib2.urlopen(url)
 		soup = BeautifulSoup(page)
 		trs = soup.findAll("tr")
 		trs = trs[1:] #discard the retarded row that banweb is retarded about
+		print_verbose("adding subject "+subjectName)
 		t.addSubject(subject)
 		if (len(trs) == 0):
+			print_verbose("no table rows...no classes subject")
 			continue
 		headersRow = trs[0]
+		print_verbose("adding headers "+str(headersRow))
 		t.setHeaders(subject, headersRow)
 		classesRows = trs[1:]
 		for tr in classesRows:
 			t.addClass(subject, tr)
 	return t
 
-latestYear = 0
-latestSemester = 0
-latestYearSemester = "201320"
+def main(parser):
+	url = "http://banweb7.nmt.edu/pls/PROD/hwzkcrof.p_uncgslctcrsoff"
 
-for t in termsList:
-	year = int(t[0][0:4])
-	semester = int(t[0][4:6])
-	if (t[0] > latestYearSemester):
-		latestYear = year
-		latestSemester = semester
-		latestYearSemester = t[0]
+	page = urllib2.urlopen(url)
 	
-for t in termsList:
-	semester = t[0]
-	filename = "sem_"+semester+".py"
-	if (os.path.exists(filename) and semester != latestYear.__str__()+latestSemester.__str__()):
-		continue
-	terms.append(copy.copy(getTerm(t)))
+	soup = BeautifulSoup(page)
 
-for t in terms:
-	name = t.getPrintedSemester()
-	subjects = t.getSubjects()
-	classes = []
-	for subj in subjects:
-		classes.append(t.getClasses(subj))
-	f = open("sem_"+t.getSemester()+".py", "w")
-	f.write("name = \""+name+"\"\n")
-	f.write("subjects = "+subjects.__str__()+"\n")
-	f.write("classes = "+classes.__str__())
-	f.close()
+	path = ""
+	if (type(parser.path) == type("")):
+		path = parser.path
 
-banweb_to_php.main()
+	# load all terms and subjects from banweb
+	nodes = soup.findAll("select")
+	termsList = [] # each term -> [yyyyss, "season year"]
+	subjects = [] # each subject -> ["abriviation", "full name"]
+	for node in nodes:
+		nodeAttribs = dict(node.attrs)
+		if nodeAttribs[u"name"] == u"p_term":
+			termsList = getRetardedSelectSyntaxFromBanweb(node)[:]
+		elif nodeAttribs[u"name"] == u"p_subj":
+			subjects = getRetardedSelectSyntaxFromBanweb(node)[:]
+
+	# account for terms that have been listed before but
+	# have since been removed from banweb
+	import banweb_terms
+	for t in banweb_terms.terms:
+		if not t in termsList:
+			termsList.append(t)
+	termsList.sort()
+
+	# save the new listing of terms and subjects
+	writeSelectToFile(termsList, "banweb_terms.py", path, "terms")
+	writeSelectToFile(subjects, "banweb_subjects.py", path, "subjects")
+
+	# only process the terms that the user wants to
+	if (type(parser.semester) == type("")):
+		newtermsList = []
+		for t in termsList:
+			if (t[0] == parser.semester):
+				newtermsList.append(t)
+		termsList = newtermsList
+	print termsList
+
+	terms = []
+
+	# load the latest three semester available on banweb
+	numLatestYears = 3
+	latestYear = 0
+	latestSemester = 0
+	latestYearSemester = "201320"
+	latestYearSemesters = [""]*numLatestYears
+	latestYearSemesters[0] = latestYearSemester
+
+	for t in termsList:
+		year = int(t[0][0:4])
+		semester = int(t[0][4:6])
+		if (t[0] > latestYearSemester):
+			latestYear = year
+			latestSemester = semester
+			latestYearSemester = t[0]
+			for i in range(numLatestYears-1):
+				latestYearSemesters[numLatestYears-i-1] = latestYearSemesters[numLatestYears-i-2]
+			latestYearSemesters[0] = latestYearSemester
+	
+	for t in termsList:
+		semester = t[0]
+		filename = "sem_"+semester+".py"
+		if (os.path.exists(path+filename) and semester not in latestYearSemesters):
+			continue
+		terms.append(copy.copy(getTerm(t, subjects, parser)))
+
+	for t in terms:
+		name = t.getPrintedSemester()
+		subjects = t.getSubjects()
+		classes = []
+		for subj in subjects:
+			classes.append(t.getClasses(subj))
+		filename = "sem_"+t.getSemester()+".py"
+		print_verbose("writing to file "+path+filename)
+		try:
+			f = open(path+filename, "w")
+			f.write("name = \""+name+"\"\n")
+			f.write("subjects = "+subjects.__str__()+"\n")
+			f.write("classes = "+classes.__str__())
+			f.close()
+		except IOError as (errno,strerror):
+			print "I/O error({0}): {1}".format(errno, strerror)
+
+	banweb_to_php.main(parser)
+
+verbose = False
+def print_verbose(arg):
+	if verbose:
+		print arg
+
+if __name__ == "__main__":
+	parser = argparse.ArgumentParser(description="Loads current class data from banweb.nmt.edu and saves it to local files for quick access (caching) and readable formats.")
+	parser.add_argument("--semester", type=str, help="choose the semester to load (eg '201430')")
+	parser.add_argument("--subject", type=str, help="choose the subject to load (eg 'CSE')")
+	parser.add_argument("--path", type=str, help="choose the location to save semester files to (must end in a slash, eg '/home/usr/stuff/')")
+	parser.add_argument("-v", action="store_true", dest="verbose", help="Print out verbose text about what is happening")
+	p = parser.parse_args()
+	verbose = p.verbose
+	main(p)

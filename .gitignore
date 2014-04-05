@@ -8,3 +8,6 @@ sem_*.py
 sem_*.pyc
 *.ini
 database_desc.txt
+/scraping/
+/scraping_bk/
+

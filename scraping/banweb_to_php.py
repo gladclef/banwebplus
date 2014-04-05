@@ -1,5 +1,6 @@
 import re
 import banweb_terms
+import argparse
 
 # given a course from a sem_[0-9]+.py file, it will verify that the course is valid
 def courseIsValid(course):
@@ -28,9 +29,9 @@ def s(strToReplace):
     return strToReplace
 
 # translates the given python file into something that php can understand
-def translate_file(filename):
+def translate_file(filename, path):
     m = __import__(filename)
-    fout = file(filename+".php", "w")
+    fout = file(path+filename+".php", "w")
     fout.write("<?php\n")
     fout.write("$semesterData = array(\n")
     
@@ -62,14 +63,18 @@ def translate_file(filename):
     fout.write("?>\n")
     fout.close()
 
-def main():
+def main(parser):
     filenames = []
+    path = ""
     
     for term in banweb_terms.terms:
         semester = term[0]
         filenames.append("sem_"+semester)
+
+    if (type(parser.path) == type("")):
+        path = parser.path
     
-    fout = file("banweb_terms.php", "w")
+    fout = file(path+"banweb_terms.php", "w")
     fout.write("<?php\n")
     fout.write("$terms = array(")
     for term in banweb_terms.terms:
@@ -86,7 +91,10 @@ def main():
     fout.write("\n?>\n")
     
     for filename in filenames:
-        translate_file(filename)
+        translate_file(filename, path)
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--path", type=str, help="choose the location to save semester files to (must end in a slash, eg '/home/usr/stuff/')")
+    p = parser.parse_args()
+    main(p)
