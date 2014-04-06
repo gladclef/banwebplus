@@ -44,19 +44,33 @@ function loadTerm($term) {
 	$semesterData["term"] = $term[0];
 	$semesterData["year"] = (int)$a_semester[1];
 	$semesterData["semester"] = strtolower(substr($a_semester[0], 0, 3));
+	if ($semesterData["semester"] != "spr") {
+			$semesterData["year"] = $semesterData["year"]-1;
+			if ($semesterData["semester"] == "sum") {
+					$semesterData["name"] = "Summer ".$semesterData["year"];
+			} else {
+					$semesterData["name"] = "Fall ".$semesterData["year"];
+			}
+	}
 	return $semesterData;
 }
 
-function saveData($s_semester, $s_year, $a_data_to_save, $a_keys, $s_primary_key, $s_table) {
+function saveData($s_semester, $s_year, $a_data_to_save, $a_keys, $s_primary_key, $s_table, $exclude_comparison_columns = NULL) {
 	
 	global $maindb;
 
 	// compiles the keys
 	$s_keylist = "`".implode("`,`",$a_keys)."`";
+	$a_exclude_comparison_columns = array();
+	if ($exclude_comparison_columns !== NULL && count($exclude_comparison_columns) > 0) {
+			foreach($exclude_comparison_columns as $k=>$v) {
+					$a_exclude_comparison_columns[$v] = 0;
+			}
+	}
 	
 	// load existing data from the database
 	// loads them each as an "primary_key"=>array("key"=>value, ...)
-	$db_data_loaded = db_query("SELECT {$s_keylist} FROM `{$maindb}`.`{$s_table}` WHERE `year`='[year]' AND `semester`='[semester]' ORDER BY `{$s_primary_key}`", array("semester"=>$semester, "year"=>$year));
+	$db_data_loaded = db_query("SELECT {$s_keylist} FROM `{$maindb}`.`{$s_table}` WHERE `year`='[year]' AND `semester`='[semester]' ORDER BY `{$s_primary_key}`", array("semester"=>$s_semester, "year"=>$s_year));
 	$db_data = array();
 	foreach($db_data_loaded as $db_row) {
 			$db_data[$db_row[$s_primary_key]] = $db_row;
@@ -68,30 +82,46 @@ function saveData($s_semester, $s_year, $a_data_to_save, $a_keys, $s_primary_key
 	$data_to_remove = array();
 	$data_to_change = array();
 	foreach ($a_data_to_save as $k=>$a_row) {
+			$primary_value = $a_row[$s_primary_key];
+			
+			// decided if it should be changed or inserted
 			$row_exists = FALSE;
-			if (isset($db_data[$k])) {
-					$s_db_row = implode("", $db_data[$k]);
-					$s_tosave_row = implode("", $a_row);
-					if ($s_db_row == $s_tosave_row) {
-							$row_exists = TRUE;
-							unset($db_data[$k]);
+			if (isset($db_data[$primary_value])) {
+					$row_exists = TRUE;
+					
+					// build the comparison for updating
+					if (count($a_exclude_comparison_columns) == 0) {
+							$s_db_row = implode(",", $db_data[$primary_value]);
+							$s_tosave_row = implode(",", $a_row);
 					} else {
-							$row_exists = TRUE;
-							$data_to_change[$k] = $a_row;
+							$a_row1 = array_diff_key($db_data[$primary_value], $a_exclude_comparison_columns);
+							$a_row2 = array_diff_key($a_row, $a_exclude_comparison_columns);
+							$s_db_row = implode(",", $a_row1);
+							$s_tosave_row = implode(",", $a_row2);
+					}
+					
+					// compare for updates
+					if ($s_db_row != $s_tosave_row) {
+							$data_to_change[$primary_value] = $a_row;
 					}
 			}
 			if (!$row_exists) {
-					$data_to_add[$k] = $a_row;
+					
+					// should be added
+					$data_to_add[$primary_value] = $a_row;
+			} else {
+					unset($db_data[$primary_value]);
 			}
-			unset($a_data_to_save[$k]);
+			unset($a_data_to_save[$primary_value]);
 	}
 	foreach($db_data as $primary_value=>$a_db_row) {
+			
+			// delete everything else
 			$data_to_remove[$primary_value] = $primary_value;
 			unset($db_data[$primary_value]);
 	}
 
 	echo "update: ".count($data_to_change)."\ndelete: ".count($data_to_remove)."\ninsert: ".count($data_to_add)."\n";
-	return;
 	
 	// change, then remove, then add
 	foreach($data_to_change as $a_row) {
@@ -106,7 +136,7 @@ function saveData($s_semester, $s_year, $a_data_to_save, $a_keys, $s_primary_key
 					echo mysql_error()."\n";
 	}
 	foreach($data_to_add as $a_row) {
-			$a_row = array_merge($a_row, array("year"=>$year, "semester"=>$semester));
+			$a_row = array_merge($a_row, array("year"=>$s_year, "semester"=>$s_semester));
 			$s_insert_clause = array_to_insert_clause($a_row);
 			$success = db_query("INSERT INTO `{$maindb}`.`{$s_table}` {$s_insert_clause}", $a_row);
 			if ($success === FALSE)
@@ -120,65 +150,18 @@ function saveData($s_semester, $s_year, $a_data_to_save, $a_keys, $s_primary_key
  */
 function saveSubjects($term) {
 	
-	global $maindb;
-	
 	// get the semester data
 	$semester = $term["semester"];
 	$year = $term["year"];
 
-	return saveData($semester, $year, $term["subjects"], array("abbr","title"), "abbr", "subjects");
-	
-	// load existing subjects from the database
-	// loads them each as an "abbr"=>array("abbr"=>string, "id"=>int, "title"=>string)
-	$db_subjs_loaded = db_query("SELECT `id`,`abbr`,`title` FROM `{$maindb}`.`subjects` WHERE `year`='[year]' AND `semester`='[semester]' ORDER BY `abbr`", array("semester"=>$semester, "year"=>$year));
-	$db_subjs = array();
-	foreach($db_subjs_loaded as $db_subj) {
-			$db_subjs[$db_subj["abbr"]] = $db_subj;
+	// build the array to save
+	$data_to_save = array();
+	foreach ($term["subjects"] as $abbr=>$title) {
+			$data_to_save[$abbr] = array("abbr"=>$abbr, "title"=>$title);
 	}
-	
-	// determine which subject have not already been saved,
-	// and which should be removed
-	$subjects_to_add = array();
-	$subjects_to_remove = array();
-	$subjects_to_change = array();
-	foreach ($term["subjects"] as $abbreviation=>$title) {
-			$row_exists = FALSE;
-			if (isset($db_subjs[$abbreviation])) {
-					if ($db_subjs[$abbreviation]["title"] == $title) {
-							$row_exists = TRUE;
-							unset($db_subjs[$abbreviation]);
-					} else {
-							$subjects_to_change[$abbreviation] = array("id"=>$db_subjs[$abbreviation]["id"], "title"=>$title);
-					}
-			}
-			if (!$row_exists) {
-					$subjects_to_add[$abbreviation] = $title;
-			}
-			unset($term["subjects"][$abbreviation]);
-	}
-	foreach($db_subjs as $k=>$db_subj) {
-			$subjects_to_remove[$db_subj["abbr"]] = $db_subj["id"];
-			unset($db_subjs[$k]);
-	}
+	$fields = array("abbr","title");
 
-	echo "update: ".count($subjects_to_change)."\ndelete: ".count($subjects_to_remove)."\ninsert: ".count($subjects_to_add)."\n";
-	
-	// change, then remove, then add
-	foreach($subjects_to_change as $v) {
-			$success = db_query("UPDATE `{$maindb}`.`subjects` SET `title`='[title]' WHERE `id`='[id]'", array("id"=>$v['id'], "title"=>$v["title"]));
-			if ($success === FALSE)
-					echo mysql_error()."\n";
-	}
-	foreach($subjects_to_remove as $id) {
-			$success = db_query("DELETE FROM `{$maindb}`.`subjects` WHERE `id`='[id]'", array("id"=>$id));
-			if ($success === FALSE)
-					echo mysql_error()."\n";
-	}
-	foreach($subjects_to_add as $abbr=>$title) {
-			$success = db_query("INSERT INTO `{$maindb}`.`subjects` (`year`,`semester`,`abbr`,`title`) VALUES ('[year]','[semester]','[abbr]','[title]')", array("year"=>$year, "semester"=>$semester, "abbr"=>$abbr, "title"=>$title));
-			if ($success === FALSE)
-					echo mysql_error()."\n";
-	}
+	return saveData($semester, $year, $data_to_save, $fields, "abbr", "subjects");
 }
 
 /**
@@ -186,13 +169,83 @@ function saveSubjects($term) {
  * @$term: the semester data, including "semester", "year", and "classes"
  */
 function saveClasses($term) {
+	
+	// get some common data
+	$semester = $term["semester"];
+	$year = $term["year"];
+	$s_sem = strtolower(substr($semester,0,3));
+	if ($s_sem == "spr") {
+			$start_date = "{$year}-01-01 00:00:00";
+			$end_date = "{$year}-05-31 23:59:59";
+	} else if ($s_sem == "sum") {
+			$start_date = "{$year}-06-01 00:00:00";
+			$end_date = "{$year}-07-31 23:59:59";
+	} else {
+			$start_date = "{$year}-08-01 00:00:00";
+			$end_date = "{$year}-12-31 23:59:59";
+	}
+	$modtime = date("Y-m-d H:i:s");
+
+	// build the class data
+	$last_class_crn = "";
+	$classes_to_save = array();
+	foreach($term["classes"] as $a_class) {
+			$a_days = str_split(str_replace(" ", "", $a_class["Days"]));
+			$a_days_times_locations = array();
+			foreach($a_days as $s_day) {
+					$a_days_times_locations[] = array($s_day, $a_class["Time"], $a_class["Location"]);
+			}
+			$days_times_locations = json_encode($a_days_times_locations);
+			if (trim($a_class["CRN"]) == "") {
+					$parent_class = (int)$last_class_crn;
+			} else {
+					$last_class_crn = $a_class["CRN"];
+					$parent_class = 0;
+			}
+			$a_class = array("crn"=>$a_class["CRN"],
+							 "year"=>$year, "semester"=>$s_sem,
+							 "subject"=>$a_class["subject"],
+							 "campus"=>$a_class["*Campus"],
+							 "days"=>$a_class["Days"],
+							 "days_times_locations"=>$days_times_locations,
+							 "start_date"=>$start_date,
+							 "end_date"=>$end_date,
+							 "location"=>$a_class["Location"],
+							 "hours"=>$a_class["Hrs"],
+							 "title"=>$a_class["Title"],
+							 "instructor"=>$a_class["Instructor"],
+							 "seats"=>$a_class["Seats"],
+							 "limit"=>$a_class["Limit"],
+							 "enroll"=>$a_class["Enroll"],
+							 "parent_class"=>$parent_class,
+							 "last_mod_time"=>$modtime);
+			$classes_to_save[] = $a_class;
+	}
+
+	// build the array of fields to pass through
+	$fields = array();
+	foreach($classes_to_save[0] as $k=>$v) {
+			$fields[] = $k;
+	}
+	
+	return saveData($semester, $year, $classes_to_save, $fields, "crn", "classes", array("last_mod_time"));
 }
 
 if (!open_db()) {
 		echo "failed to connect to database, aborting";
 		return FALSE;
 }
+
 $term = loadTerm(getNextTerm());
-saveSubjects($term);
+while ($term !== NULL) {
+		echo "===============================================================================\n";
+		echo "===============================================================================\n";
+		echo "...".$term["name"]."\n";
+		echo "...subjects\n";
+		saveSubjects($term);
+		echo "...classes\n";
+		saveClasses($term);
+		$term = loadTerm(getNextTerm());
+}
 
 ?>
