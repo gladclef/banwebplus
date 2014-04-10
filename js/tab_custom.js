@@ -1,7 +1,8 @@
 window.tabCustomClasses = {
 	init: function() {
 		this.drawAddClasses();
-		this.drawRemoveClasses();
+		this.drawModifyClasses();
+		this.drawShareClasses();
 	},
 	
 	drawAddClasses: function() {
@@ -87,15 +88,168 @@ window.tabCustomClasses = {
 				}
 				return;
 			}
-			tabCustomClasses.drawAddClasses();
-			sem = o_courses.getCurrentSemester();
-			sem = sem.year.school_year+sem.value;
-			o_courses.loadFullCourseList(sem, false);
-			o_courses.setSemester(sem);
-			draw_tab(get_name_of_focused_tab());
+			reload_classes();
 		});
 	},
 
-	drawRemoveClasses: function() {
+	// draws the form to modify custom classes
+	drawModifyClasses: function() {
+
+		// get the container and classes
+		var jcontainer = $("#custom_modify_class");
+		var classes = o_courses.getClassesBySubject("CUSTOM");
+		kill_children(jcontainer);
+		jcontainer.html("");
+		
+		// filter out only classes with write access
+		classes = classes.filter(function(course) {
+			return (course.accesses.indexOf("w") > -1);
+		});
+
+		// check that there are any custom classes
+		if (classes.length == 0) {
+			jcontainer.append("There are no custom classes you have permission to edit. Try creating one, above, or having a friend share their class with you.");
+			return;
+		}
+
+		// draw each class in the table
+		var table = "<table class='centered custom_classes'><thead><tr>";
+		var cheaders = ["*Campus", "Days", "Time", "Location", "Hrs", "Title", "Instructor", "Limit"];
+		$.each(cheaders, function(k,header) {
+			table += "<th>"+header+"</th>";
+		});
+		table += "<th></th></tr></thead><tbody>";
+		$.each(classes, function(k,course) {
+			table += "<tr>";
+			crn = course[get_crn_index_from_headers(headers)];
+			$.each(cheaders, function(k,header) {
+				hindex = get_index_of_header(header, headers);
+				value = course[hindex];
+				table += "<td><span>"+value+" <img src='/images/pencil.png' style='height:12px; width:12px; padding:0; cursor:pointer; border:none;' onclick='tabCustomClasses.editCourseValue(\""+crn+"\","+hindex+",this);'></img></span></td>";
+			});
+			table += "<td style='background-color:white;'><img src='/images/trash.png' style='height:16px; width:16px; padding:0; cursor:pointer; border:none;' onclick='tabCustomClasses.removeCourseAccess(\""+crn+"\",this);'></img></td>";
+			table += "</tr>";
+		});
+		table += "</tbody></table>";
+		
+		// add the content to the page
+		jcontainer.append(table);
+	},
+
+	// draws the form to share custom classes
+	drawShareClasses: function() {
+
+		// get the container and classes
+		var jcontainer = $("#custom_share_class");
+		var classes = o_courses.getClassesBySubject("CUSTOM");
+		kill_children(jcontainer);
+		jcontainer.html("");
+		
+		// filter out only classes with share access
+		classes = classes.filter(function(course) {
+			return (course.accesses.indexOf("x") > -1);
+		});
+
+		// check that there are any custom classes
+		if (classes.length == 0) {
+			jcontainer.append("There are no custom classes you have permission to share. Try creating one, above, or having a friend share their class with you.");
+			return;
+		}
+
+		// draw each class in the table
+		/*var table = "<table class='centered custom_classes'><thead><tr>";
+		var cheaders = ["*Campus", "Days", "Time", "Location", "Hrs", "Title", "Instructor", "Limit"];
+		$.each(cheaders, function(k,header) {
+			table += "<th>"+header+"</th>";
+		});
+		table += "<th></th></tr></thead><tbody>";
+		$.each(classes, function(k,course) {
+			table += "<tr>";
+			crn = course[get_crn_index_from_headers(headers)];
+			$.each(cheaders, function(k,header) {
+				hindex = get_index_of_header(header, headers);
+				value = course[hindex];
+				table += "<td><span>"+value+" <img src='/images/pencil.png' style='height:12px; width:12px; padding:0; cursor:pointer; border:none;' onclick='tabCustomClasses.editCourseValue(\""+crn+"\","+hindex+",this);'></img></span></td>";
+			});
+			table += "<td style='background-color:white;'><img src='/images/trash.png' style='height:16px; width:16px; padding:0; cursor:pointer; border:none;' onclick='tabCustomClasses.removeCourseAccess(\""+crn+"\",this);'></img></td>";
+			table += "</tr>";
+		});
+		table += "</tbody></table>";*/
+		
+		// add the content to the page
+		jcontainer.append(table);
+	},
+
+	// tries to remove access to the class by this user
+	removeCourseAccess: function(crn, element) {
+		
+		// get some common values
+		var jtd = get_parent_by_tag("td", $(element));
+		var course = o_courses.getClassByCRN(crn);
+		var sem = o_courses.getCurrentSemester();
+		var semester = sem.value;
+		var year = sem.year.school_year;
+		var title = course.course[get_index_of_header("Title", headers)];
+		
+		// try to submit
+		if (confirm("Are you sure you want to remove the class \""+title+"?\"")) {
+			var vars = {command:"remove_custom_course_access", semester:semester, year:year, crn:crn};
+			send_ajax_call("/resources/ajax_calls.php", vars, function(success) {
+				if (success == "success") {
+					reload_classes();
+				} else {
+					alert(success);
+				}
+			});
+		}
+	},
+
+	// provide a form to change one of the values in a course
+	editCourseValue: function(crn, hindex, element) {
+		
+		// get some common values
+		var jtd = get_parent_by_tag("td", $(element));
+		var jspan = jtd.children("span");
+		var course = o_courses.getClassByCRN(crn);
+		var value = course.course[hindex];
+		var sem = o_courses.getCurrentSemester();
+		var semester = sem.value;
+		var year = sem.year.school_year;
+
+		// hide the old form
+		jspan.hide();
+		
+		// create the new form
+		jform = $("<form><input type='textbox' value='"+value+"' name='value' onkeydown='form_enter_press(this,event);'></input><input type='button' value='Submit' onclick='get_parent_by_tag(\"form\", $(this)).submit();'></input></form>");
+		var restore = function(val) {
+			if (val != value) {
+				reload_classes();
+			} else {
+				jform.remove();
+				jspan.show();
+			}
+		}
+		jtd.append(jform);
+		var jval = jform.find("input[name=value]");
+		jval.focus();
+		
+		// submit the new value
+		jform.submit(function(e) {
+			e.stopPropagation();
+			var val = jval.val();
+			if (val == value) {
+				restore(val);
+				return false;
+			}
+			var vars = {command:"edit_custom_course", attribute:headers[hindex], value:val, semester:semester, year:year, crn:crn};
+			send_ajax_call("/resources/ajax_calls.php", vars, function(success) {
+				if (success == "success") {
+					restore(val);
+				} else {
+					alert(success);
+				}
+			});
+			return false;
+		});
 	}
 }

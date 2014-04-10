@@ -176,3 +176,20 @@ a.account_link:hover {
 #user_list_content_container tr.disabled.mouse_hover {
 	color:black;
 }
+
+table.custom_classes {
+	border:1px solid black;
+	border-radius:5px;
+}
+
+table.custom_classes thead tr {
+	background-color:gray;
+}
+
+table.custom_classes tbody tr {
+	background-color:#eee;
+}
+
+table.custom_classes tbody tr:nth-child(odd) {
+	background-color:#ddd;
+}

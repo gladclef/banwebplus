@@ -16,19 +16,10 @@ function load_semester_classes_from_database($s_year, $s_semester, $s_output_typ
 
 	// translate school time to real time
 	$s_semester = (string)$s_semester;
-	if ($s_semester == "30") {
-			$s_load_year = (int)$s_year;
-			$s_load_semester = "spr";
-			$s_name = "Spring {$s_year}";
-	} else if ($s_semester == "10") {
-			$s_load_year = ((int)$s_year) - 1;
-			$s_load_semester = "sum";
-			$s_name = "Summer {$s_year}";
-	} else if ($s_semester == "20") {
-			$s_load_year = ((int)$s_year) - 1;
-			$s_load_semester = "fal";
-			$s_name = "Fall {$s_year}";
-	}
+	$a_semester = school_time_to_real_time($s_semester, $s_year);
+	$s_load_year = $a_semester["year"];
+	$s_load_semester = $a_semester["semester"];
+	$s_name = $a_semester["name"];
 
 	// load the subjects
 	$a_subjects_db = db_query("SELECT `abbr`,`title` FROM `{$maindb}`.`subjects` WHERE `semester`='[semester]' AND `year`='[year]' ORDER BY `title`", array("semester"=>$s_load_semester, "year"=>$s_load_year));
@@ -40,8 +31,8 @@ function load_semester_classes_from_database($s_year, $s_semester, $s_output_typ
 	}
 	
 	// load the classes
-	$user_id_selector = "`user_ids_with_access`='' OR `user_ids_with_access` LIKE '%{$id}|'";
-	$a_classes_db = db_query("SELECT `subject`,`enroll` AS `Enroll`,`title` AS `Title`,`days` AS `Days`,`hours` AS `Hrs`,`limit` AS `Limit`,`location` AS `Location`,`time` AS `Time`,`parent_class`,`crn` AS `CRN`,`course` AS `Course`,`campus` AS `*Campus`,`seats` AS `Seats`,`instructor` AS `Instructor` FROM `{$maindb}`.`classes` WHERE `semester`='[semester]' AND `year`='[year]' AND ($user_id_selector) ORDER BY `subject`,`course`", array("semester"=>$s_load_semester, "year"=>$s_load_year));
+	$access_to_custom_class = "`subject`!='CUSTOM' OR `user_ids_with_access` LIKE '%|{$id},%'";
+	$a_classes_db = db_query("SELECT `subject`,`enroll` AS `Enroll`,`title` AS `Title`,`days` AS `Days`,`hours` AS `Hrs`,`limit` AS `Limit`,`location` AS `Location`,`time` AS `Time`,`parent_class`,`crn` AS `CRN`,`course` AS `Course`,`campus` AS `*Campus`,`seats` AS `Seats`,`instructor` AS `Instructor`,`user_ids_with_access` AS `accesses` FROM `{$maindb}`.`classes` WHERE `semester`='[semester]' AND `year`='[year]' AND ({$access_to_custom_class}) ORDER BY `subject`,`course`", array("semester"=>$s_load_semester, "year"=>$s_load_year));
 	if ($a_classes_db === FALSE || count($a_classes_db) == 0) {
 			return "Failed to load the classes for the semester, given semester ({$s_year}, {$s_semester}) possibly out of range.";
 	}
@@ -53,6 +44,12 @@ function load_semester_classes_from_database($s_year, $s_semester, $s_output_typ
 					unset($a_classes_db[$k]);
 			} else {
 					$a_classes_db[$k]["CRN"] = (string)$a_class["CRN"];
+			}
+			if ($a_class["accesses"] != "") {
+					$s_access = $a_class["accesses"];
+					$s_access = substr($s_access, 0, strpos($s_access, "|{$id},"));
+					$s_access = substr($s_access, max(0, (int)strrpos($s_access, ",")));
+					$a_classes_db[$k]["accesses"] = $s_access;
 			}
 	}
 	foreach($a_classes_db as $a_class) {
@@ -115,6 +112,16 @@ function save_custom_class_to_db($a_values, $i_user_id, $sem, $year) {
 	if (count($a_custom_classes) > 0) {
 			$i_crn = (int)$a_custom_classes[0]["crn"];
 			$i_crn++;
+			
+			// check that it doesn't conflict with other types of classes
+			$query_string = "SELECT `crn` FROM `{$maindb}`.`classes WHERE `semester`='[sem]' AND `year`='[year]' AND `crn`='[crn]'";
+			$query_vars = array("sem"=>$semester_string, "year"=>$realyear, "crn"=>$i_crn);
+			$a_class = db_query($query_string, $query_vars);
+			while ($a_class !== FALSE && count($a_class) > 0) {
+					$i_crn++;
+					$query_vars["crn"] = $i_crn;
+					$a_class = db_query($query_string, $query_vars);
+			}
 	}
 
 	// find some specific information
@@ -148,7 +155,7 @@ function save_custom_class_to_db($a_values, $i_user_id, $sem, $year) {
 		"enroll"=>0,
 		"parent_class"=>"",
 		"subclass_identifier"=>"",
-		"user_ids_with_access"=>"{$i_user_id}|",
+		"user_ids_with_access"=>"rwx|{$i_user_id},",
 		"last_mod_time"=>date("Y-m-d H:i:s"),
 	);
 	
@@ -159,6 +166,131 @@ function save_custom_class_to_db($a_values, $i_user_id, $sem, $year) {
 			return "success";
 	}
 	return "failure";
+}
+
+/**
+ * checks if the user has a specific kind of access to the given course
+ * @$o_user: a user object
+ * @$s_access: any combination of "w", "r", and "x" ("x" is for sharing)
+ * @return: TRUE or FALSE
+ */
+function user_has_custom_access($o_user, $s_access, $crn, $year, $semester) {
+	global $maindb;
+	$id = $o_user->get_id();
+
+	// get the row
+	$a_query_vars = array("year"=>$year, "crn"=>$crn, "semester"=>$semester, "subject"=>"CUSTOM");
+	$s_where_clause = array_to_where_clause($a_query_vars);
+	$a_query = db_query("SELECT `user_ids_with_access` AS `accesses` FROM `{$maindb}`.`classes` WHERE {$s_where_clause} LIMIT 1", $a_query_vars);
+	if ($a_query === FALSE || count($a_query) == 0) {
+			return FALSE;
+	}
+	$caccess = $a_query[0]["accesses"];
+	if (strpos($caccess, "|{$id},") === FALSE) {
+			return FALSE;
+	}
+	$caccess = substr($caccess, 0, max(0,(int)strpos($caccess,"|{$id},")));
+	$caccess = substr($caccess, (int)strrpos($caccess, ","));
+
+	// check the accesses
+	$a_accesses = str_split($s_access);
+	for($i = 0; $i < count($a_accesses); $i++) {
+			if (strpos($caccess, $a_accesses[$i]) === FALSE) {
+					return FALSE;
+			}
+	}
+	return TRUE;
+}
+
+function edit_custom_course($sem, $year, $crn, $attribute, $value) {
+	
+	global $global_user;
+	global $maindb;
+
+	// get the real semester/year
+	$semester = get_real_semester($sem, $year);
+	$year = get_real_year($sem, $year);
+	$crn = (int)$crn;
+	
+	// check that the user has the proper accesses
+	if (!user_has_custom_access($global_user, "w", $crn, $year, $semester)) {
+			return "Can't update: you don't have permission to update this custom class.";
+	}
+
+	// normalize the attribute
+	$attribute = strtolower($attribute);
+	switch($attribute) {
+	case "*campus":
+			$attribute = "campus";
+			break;
+	}
+
+	// build the query
+	$a_where_vars = array("semester"=>$semester, "year"=>$year, "crn"=>$crn);
+	$s_where_clause = array_to_where_clause($a_where_vars);
+	
+	// check that the attribute is valid
+	$a_query = db_query("SELECT `[attr]` FROM `{$maindb}`.`classes` WHERE {$s_where_clause}", array_merge(array("attr"=>$attribute), $a_where_vars));
+	if ($a_query === FALSE || count($a_query) == 0) {
+			return "Can't update: bad attribute name \"{$attribute}.\"";
+	}
+	// and get a safe name for the attribute
+	$a_attr = $a_query[0];
+	foreach($a_attr as $k=>$v) {
+			$s_attr = $k;
+	}
+
+	// update the class
+	$a_update_vars = array($s_attr=>$value);
+	$s_update_clause = array_to_update_clause($a_update_vars);
+	$a_query = db_query("UPDATE `{$maindb}`.`classes` SET {$s_update_clause} WHERE {$s_where_clause}", array_merge($a_update_vars, $a_where_vars));
+	if ($a_query === FALSE) {
+			return "Failed to update database.";
+	}
+	if (mysql_affected_rows() == 0) {
+			return "success";
+	}
+	return "success";
+}
+
+function remove_custom_course_access($sem, $year, $crn) {
+	
+	global $global_user;
+	global $maindb;
+
+	// get the real semester/year
+	$id = $global_user->get_id();
+	$semester = get_real_semester($sem, $year);
+	$year = get_real_year($sem, $year);
+	$crn = (int)$crn;
+
+	// get the accesses of the course
+	$a_where_vars = array("subject"=>"CUSTOM", "semester"=>$semester, "year"=>$year, "crn"=>$crn);
+	$s_where_clause = array_to_where_clause($a_where_vars);
+	$a_query = db_query("SELECT `user_ids_with_access` AS `accesses` FROM `{$maindb}`.`classes` WHERE {$s_where_clause}", $a_where_vars);
+	if ($a_query === FALSE || count($a_query) == 0) {
+			return "Error: can't find that class.";
+	}
+	$s_accesses = $a_query[0]["accesses"];
+	$i_pos = strpos($s_accesses, "|{$id},");
+	if ($i_pos === FALSE) {
+			return "success";
+	}
+
+	// parse out this user
+	$s_user = substr($s_accesses, 0, $i_pos+strlen("|{$id}"));
+	$s_user = substr($s_user, (int)strrpos($s_user, ","));
+	$s_user = ltrim($s_user,",").",";
+	$s_accesses = str_replace($s_user, "", $s_accesses);
+	
+	// update the accesses
+	$a_update_vars = array("user_ids_with_access"=>$s_accesses);
+	$s_update_clause = array_to_update_clause($a_update_vars);
+	$a_query = db_query("UPDATE `{$maindb}`.`classes` SET {$s_update_clause} WHERE {$s_where_clause}", array_merge($a_update_vars, $a_where_vars));
+	if ($a_query === FALSE) {
+			return "Failed to update database.";
+	}
+	return "success";
 }
 
 ?>

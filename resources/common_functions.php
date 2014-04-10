@@ -130,4 +130,31 @@ function manage_output($s_output) {
 	return $s_output;
 }
 
+function school_time_to_real_time($s_semester, $s_year) {
+	if ($s_semester == "30") {
+			$s_load_year = (int)$s_year;
+			$s_load_semester = "spr";
+			$s_name = "Spring {$s_year}";
+	} else if ($s_semester == "10") {
+			$s_load_year = ((int)$s_year) - 1;
+			$s_load_semester = "sum";
+			$s_name = "Summer {$s_year}";
+	} else if ($s_semester == "20") {
+			$s_load_year = ((int)$s_year) - 1;
+			$s_load_semester = "fal";
+			$s_name = "Fall {$s_year}";
+	}
+	return array("year"=>$s_load_year, "semester"=>$s_load_semester, "name"=>$s_name);
+}
+
+function get_real_year($s_semester, $s_year) {
+	$a_semester = school_time_to_real_time($s_semester, $s_year);
+	return $a_semester["year"];
+}
+
+function get_real_semester($s_semester, $s_year) {
+	$a_semester = school_time_to_real_time($s_semester, $s_year);
+	return $a_semester["semester"];
+}
+
 ?>

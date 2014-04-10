@@ -180,7 +180,12 @@ typeCoursesList = function() {
 			}
 		});
 		return a_retval;
-	}
+	};
+
+	// gets all class crns in a subject
+	this.getClassesBySubject = function(subj_abbr) {
+		return current_course_list[semester][subj_abbr];
+	};
 	
 	// gets the time of the course
 	this.getTimeOfCourse = function(crn) {
@@ -507,6 +512,7 @@ typeCoursesList = function() {
 					course[11] = a_courses[i]['Seats'];
 					course[12] = a_courses[i]['Limit'];
 					course[13] = a_courses[i]['Enroll'];
+					course['accesses'] = a_courses[i]['accesses'];
 					full_course_list[sem][s_subject].push(course);
 				}
 				loadFullCourseListPart2(sem, async);

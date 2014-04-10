@@ -161,6 +161,8 @@ function form_enter_press(element, e) {
 		if (jbutton.length > 0) {
 			jbutton.click();
 		}
+		e.stopPropagation();
+		return false;
 	}
 }
 
@@ -170,4 +172,13 @@ function pad_left(str, padstr, length) {
 		ps += padstr;
 	}
 	return ps.substring(0, length - str.length) + str;
+}
+
+function reload_classes() {
+	tabCustomClasses.drawAddClasses();
+	sem = o_courses.getCurrentSemester();
+	sem = sem.year.school_year+sem.value;
+	o_courses.loadFullCourseList(sem, false);
+	o_courses.setSemester(sem);
+	draw_tab(get_name_of_focused_tab());
 }

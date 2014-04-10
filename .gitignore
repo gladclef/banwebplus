@@ -10,4 +10,4 @@ sem_*.pyc
 database_desc.txt
 /scraping/
 /scraping_bk/
-
+*.png

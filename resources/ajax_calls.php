@@ -313,6 +313,22 @@ class ajax {
 		$a_values = json_decode($s_values);
 		return save_custom_class_to_db($a_values, $global_user->get_id(), $sem, $year);
 	}
+
+	function edit_custom_course() {
+		$sem = get_post_var("semester");
+		$year = get_post_var("year");
+		$crn = get_post_var("crn");
+		$attribute = get_post_var("attribute");
+		$value = get_post_var("value");
+		return edit_custom_course($sem, $year, $crn, $attribute, $value);
+	}
+
+	function remove_custom_course_access() {
+		$sem = get_post_var("semester");
+		$year = get_post_var("year");
+		$crn = get_post_var("crn");
+		return remove_custom_course_access($sem, $year, $crn);
+	}
 }
 
 $s_command = get_post_var("command");
