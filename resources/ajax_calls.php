@@ -308,8 +308,10 @@ class ajax {
 	function add_custom_class() {
 		global $global_user;
 		$s_values = get_post_var("values");
+		$sem = get_post_var("semester");
+		$year = get_post_var("year");
 		$a_values = json_decode($s_values);
-		return save_custom_class_to_db($a_values, $global_user->get_id());
+		return save_custom_class_to_db($a_values, $global_user->get_id(), $sem, $year);
 	}
 }
 

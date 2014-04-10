@@ -2,6 +2,7 @@
 
 require_once(dirname(__FILE__)."/globals.php");
 require_once(dirname(__FILE__)."/db_query.php");
+require_once(dirname(__FILE__)."/conversions.php");
 
 function load_semester_classes_from_database($s_year, $s_semester, $s_output_type = "json") {
 	
@@ -75,7 +76,9 @@ function load_semester_classes_from_database($s_year, $s_semester, $s_output_typ
 	}
 }
 
-function save_custom_class_to_db($a_values, $i_user_id) {
+function save_custom_class_to_db($a_values, $i_user_id, $sem, $year) {
+	
+	global $maindb;
 	
 	// index the array
 	foreach($a_values as $k=>$v) {
@@ -84,6 +87,9 @@ function save_custom_class_to_db($a_values, $i_user_id) {
 	}
 
 	// standardize the inputs
+	$semester_string = number_to_season($sem);
+	$semester_string = strtolower(substr($semester_string,0,3));
+	$realyear = school_to_real_year($year, $sem);
 	$a_matches = array();
 	$a_values["Days"] = strtoupper($a_values["Days"]);
 	$a_values["Days"] = preg_replace("/[^UMTWRFS]+/", "", $a_values["Days"]);
@@ -103,58 +109,56 @@ function save_custom_class_to_db($a_values, $i_user_id) {
 			}
 	}
 
+	// get the next crn for custom classes
+	$i_crn = 1;
+	$a_custom_classes = db_query("SELECT `crn` FROM `{$maindb}`.`classes` WHERE `semester`='[sem]' AND `year`='[year]' AND `subject`='CUSTOM' ORDER BY `crn` DESC LIMIT 1", array("sem"=>$semester_string, "year"=>$realyear));
+	if (count($a_custom_classes) > 0) {
+			$i_crn = (int)$a_custom_classes[0]["crn"];
+			$i_crn++;
+	}
+
 	// find some specific information
+	$a_days = str_split($a_values["Days"]);
+	$a_days_times_locations = array();
+	foreach($a_days as $s_day) {
+			$a_days_times_locations[] = array($s_day, $a_values["Time"], $a_values["Location"]);
+	}
+	$s_days_times_locations = json_encode($a_days_times_locations);
+	$a_dates = getStartEndDays($semester_string, $realyear);
 	
-/*	$a_class = array(
-		"crn" = 
-		"year" = 
-		"semester" = 
-		"subject" = 
-		"course" = 
-		"campus" = 
-		"days" = 
-		"days_times_locations" = 
-		"start_date" = 
-		"end_date" = 
-		"time" = 
-		"location" = 
-		"hours" = 
-		"title" = 
-		"instructor" = 
-		"seats" = 
-		"limit" = 
-		"enroll" = 
-		"parent_class" = 
-		"subclass_identifier" = 
-		"user_ids_with_access" = 
-		"last_mod_time" = 
-	);*/
+	// build the class
+	$a_class = array(
+		"crn"=>$i_crn,
+		"year"=>$realyear,
+		"semester"=>$semester_string,
+		"subject"=>"CUSTOM",
+		"course"=>"CUSTOM {$i_crn}",
+		"campus"=>$a_values["*Campus"],
+		"days"=>$a_values["Days"],
+		"days_times_locations"=>$s_days_times_locations,
+		"start_date"=>$a_dates["start"],
+		"end_date"=>$a_dates["end"],
+		"time"=>$a_values["Time"],
+		"location"=>$a_values["Location"],
+		"hours"=>$a_values["Hrs"],
+		"title"=>$a_values["Title"],
+		"instructor"=>$a_values["Instructor"],
+		"seats"=>0,
+		"limit"=>$a_values["Limit"],
+		"enroll"=>0,
+		"parent_class"=>"",
+		"subclass_identifier"=>"",
+		"user_ids_with_access"=>"{$i_user_id}|",
+		"last_mod_time"=>date("Y-m-d H:i:s"),
+	);
+	
+	// insert into the database
+	$s_insert_clause = array_to_insert_clause($a_class);
+	$query = db_query("INSERT INTO `{$maindb}`.`classes` {$s_insert_clause}", $a_class);
+	if ($query !== FALSE) {
+			return "success";
+	}
 	return "failure";
-		
-/**
-| crn                  | int(10) unsigned | NO   | MUL | NULL    |       |
-| year                 | int(10) unsigned | NO   | MUL | NULL    |       |
-| semester             | char(3)          | NO   | MUL | NULL    |       |
-| subject              | varchar(255)     | NO   |     | NULL    |       |
-| course               | varchar(255)     | NO   |     | NULL    |       |
-| campus               | varchar(255)     | NO   |     | NULL    |       |
-| days                 | varchar(255)     | NO   |     | NULL    |       |
-| days_times_locations | varchar(255)     | NO   |     | NULL    |       |
-| start_date           | datetime         | NO   |     | NULL    |       |
-| end_date             | datetime         | NO   |     | NULL    |       |
-| time                 | varchar(255)     | NO   |     | NULL    |       |
-| location             | varchar(255)     | NO   |     | NULL    |       |
-| hours                | int(10) unsigned | NO   |     | NULL    |       |
-| title                | varchar(255)     | NO   |     | NULL    |       |
-| instructor           | varchar(255)     | NO   |     | NULL    |       |
-| seats                | int(11)          | NO   |     | NULL    |       |
-| limit                | int(11)          | NO   |     | NULL    |       |
-| enroll               | int(11)          | NO   |     | NULL    |       |
-| parent_class         | int(10) unsigned | NO   |     | NULL    |       |
-| subclass_identifier  | int(10) unsigned | NO   |     | NULL    |       |
-| user_ids_with_access | varchar(2000)    | NO   |     | NULL    |       |
-| last_mod_time        | datetime         | NO   |     | NULL    |       |
-*/
 }
 
 ?>

@@ -9,7 +9,7 @@ window.tabCustomClasses = {
 		var getDefaultDescription = function(propertyName) {
 			var randVal = o_listsTab.populateValuePlaceholder($("<input value='"+propertyName+"'>"), $("<input value='contains'>"), "", true, []);
 			var retval = randVal;
-			var defaults = { '*Campus':'M', Days:'W', Time:'1600-1800', Location:'Field', Hrs:'2', Title:'Soccor Practice', Instructor:'Soccor Coach', Seats:'20', Limit:'20', Enroll:'20' }
+			var defaults = { '*Campus':'M', Days:'W', Time:'1600-1800', Location:'Field', Hrs:'2', Title:'Soccer Practice', Instructor:'Soccer Coach', Seats:'20', Limit:'20', Enroll:'20' }
 			if (defaults[propertyName]) {
 				retval = defaults[propertyName];
 			}
@@ -64,6 +64,9 @@ window.tabCustomClasses = {
 		// some common values
 		var jform = $("#createCustomClassForm");
 		var a_course = jform.serializeArray();
+		var sem = o_courses.getCurrentSemester();
+		var semester = sem.value;
+		var year = sem.year.school_year;
 		var values = JSON.stringify(a_course);
 		
 		// check that the class hass all its parts
@@ -75,7 +78,7 @@ window.tabCustomClasses = {
 		}
 		
 		// contact the server to try and add the class
-		send_ajax_call("/resources/ajax_calls.php", {command:"add_custom_class", values:values}, function(success) {
+		send_ajax_call("/resources/ajax_calls.php", {command:"add_custom_class", values:values, semester:semester, year:year}, function(success) {
 			if (success != "success") {
 				if (success == "failure") {
 					draw_error(jform, "Failed to add class", false);

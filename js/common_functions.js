@@ -163,3 +163,11 @@ function form_enter_press(element, e) {
 		}
 	}
 }
+
+function pad_left(str, padstr, length) {
+	ps = padstr;
+	while (ps.length < length) {
+		ps += padstr;
+	}
+	return ps.substring(0, length - str.length) + str;
+}

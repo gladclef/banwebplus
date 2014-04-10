@@ -2,6 +2,7 @@
 
 require_once(dirname(__FILE__)."/../resources/globals.php");
 require_once(dirname(__FILE__)."/../resources/db_query.php");
+require_once(dirname(__FILE__)."/../resources/conversions.php");
 
 /**
  * Gets the next term to load from the php files
@@ -189,16 +190,9 @@ function saveClasses($term) {
 	$semester = $term["semester"];
 	$year = $term["year"];
 	$s_sem = strtolower(substr($semester,0,3));
-	if ($s_sem == "spr") {
-			$start_date = "{$year}-01-01 00:00:00";
-			$end_date = "{$year}-05-31 23:59:59";
-	} else if ($s_sem == "sum") {
-			$start_date = "{$year}-06-01 00:00:00";
-			$end_date = "{$year}-07-31 23:59:59";
-	} else {
-			$start_date = "{$year}-08-01 00:00:00";
-			$end_date = "{$year}-12-31 23:59:59";
-	}
+	$a_dates = getStartEndDays($s_sem, $year);
+	$start_date = $a_dates["start"];
+	$end_date = $a_dates["end"];
 	$modtime = date("Y-m-d H:i:s");
 
 	// build the class data
