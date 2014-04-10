@@ -100,4 +100,34 @@ function draw_page_foot() {
 	$a_page[] = "</html>";
 	return implode("\n", $a_page);
 }
+
+function manage_output($s_output) {
+	
+	// insert the latest datetime stamp into each javascript link
+	$parts_explode = "<script";
+	$a_parts = explode($parts_explode, $s_output);
+	for ($i = 0; $i < count($a_parts); $i++) {
+			$mid_explode = "</script";
+			$a_mid = explode($mid_explode, $a_parts[$i]);
+			$mid_index = 0;
+			$s_mid = $a_mid[$mid_index];
+			$js_pos = stripos($s_mid, ".js");
+			$moddatetime = "";
+			if ($js_pos !== FALSE) {
+					$js_string = substr($s_mid, 0, $js_pos+3);
+					$js_rest = substr($s_mid, $js_pos+3);
+					$single_pos = (int)strrpos($js_string, "'");
+					$double_pos = (int)strrpos($js_string, '"');
+					$js_substr = substr($js_string, max($single_pos, $double_pos)+1);
+					$modtime = filemtime(dirname(__FILE__)."/../{$js_substr}");
+					$moddatetime = urlencode(date("Y-m-d H:i:s"));
+					$a_mid[$mid_index] = "{$js_string}?{$moddatetime}{$js_rest}";
+			}
+			$a_parts[$i] = implode($mid_explode, $a_mid);
+	}
+	$s_output = implode($parts_explode, $a_parts);
+
+	return $s_output;
+}
+
 ?>

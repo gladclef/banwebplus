@@ -37,6 +37,6 @@ function draw_create_page() {
 	return implode("\n", $a_retval);
 }
 
-echo draw_create_page();
+echo manage_output(draw_create_page());
 
 ?>

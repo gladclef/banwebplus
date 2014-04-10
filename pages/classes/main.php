@@ -59,7 +59,7 @@ if ($global_user) {
 				$s_drawval[] = draw_tabs();
 				$s_drawval[] = "</dev>";
 				$s_drawval[] = draw_page_foot();
-				echo implode("\n", $s_drawval);
+				echo manage_output(implode("\n", $s_drawval));
 		}
 } else {
 		logout_session();

@@ -85,6 +85,6 @@ function draw_forgot_password_page() {
 	return implode("\n", $a_page);
 }
 
-echo draw_forgot_password_page();
+echo manage_output(draw_forgot_password_page());
 
 ?>
