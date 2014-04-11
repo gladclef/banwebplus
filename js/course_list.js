@@ -97,7 +97,44 @@ typeCoursesList = function() {
 			return a_retval;
 		}
 		return a_classes[semester][s_subject];
-	}
+	};
+
+	this.getCurrentInstructors = function(subject_exception_list) {
+		
+		// get all the courses and filter by subject_exception_list
+		courses = this.getCurrentClasses();
+		courses = courses.filter(function(a) {
+			if (a[3].match(subject_exception_list)) {
+				return false;
+			}
+			return true;
+		});
+		console.log(courses.length);
+		
+		// get just the instructor names
+		courses = courses.map(function(a) {
+			return a[10];
+		});
+		courses.sort();
+		
+		// get unique instructors
+		instructors = [];
+		courses.forEach(function(a) {
+			a = a.trim();
+
+			// don't include instructors with only one name
+			if (a.split(" ").length < 2) {
+				return;
+			}
+			
+			if (instructors.indexOf(a) < 0 && a !== "") {
+				instructors.push(a);
+			}
+			
+		});
+
+		return instructors;
+	};
 	
 	this.getEmptySubjects = function() {
 		var a_subjects = this.getAvailableSubjects();
