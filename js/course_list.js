@@ -109,7 +109,6 @@ typeCoursesList = function() {
 			}
 			return true;
 		});
-		console.log(courses.length);
 		
 		// get just the instructor names
 		courses = courses.map(function(a) {
