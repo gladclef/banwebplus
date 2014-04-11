@@ -125,6 +125,8 @@ o_userManager = {
 	 * Populates the users in the users management area
 	 */
 	populateUsers: function() {
+		
+		// get the users from the server
 		var users_array = this.getUsers(true);
 		if (!users_array.success) {
 			$("#user_list_content_container").html("");
@@ -133,6 +135,8 @@ o_userManager = {
 		}
 		var users = users_array.users;
 
+		// get the names of the columns for the users table
+		// find the index of the username column
 		var a_col_names = [];
 		var username_index = 0;
 		var i = 0;
@@ -146,25 +150,40 @@ o_userManager = {
 			i++;
 		});
 		
-		// get the rows to add to the table
-		// get the names of the disabled students
+		// generate the rows to add them to the table
+		// gather the names of the disabled students
+		// count the active/disabled users
+		var active_count = 0;
+		var disabled_count = 0;
 		var a_rows = [];
 		var disabled = [];
 		$.each(users, function(key,user) {
 			var a_row = [];
+			var is_active = true;
 			$.each(user, function(k,v) {
 				if (k != "disabled") {
 					a_row.push(v);
 				} else if (parse_int(v) == 1) {
 					disabled.push(user.username);
+					is_active = false;
 				}
 			});
+			if (is_active) {
+				active_count++;
+			} else {
+				disabled_count++;
+			}
 			a_rows.push(a_row);
 		});
 		this.disabledUsers = disabled;
+
+		// create the markup for the active/disabled counts
+		var jcount = $("<div class='centered' style='font-size:20px; font-weight:normal;'>Number of Active Users: "+active_count+"<br />Number of Disabled Users: "+disabled_count+"</div>");
 		
+		// draw the table to the screen
 		var table = create_table(a_col_names, a_rows, null, "o_userManager.selectUser");
 		$("#user_list_content_container").html("");
+		$("#user_list_content_container").append(jcount);
 		$("#user_list_content_container").append(table);
 
 		// mark disabled rows
