@@ -247,8 +247,13 @@ function saveClasses($term) {
 
 	// build the array of fields to pass through
 	$fields = array();
-	foreach($classes_to_save[0] as $k=>$v) {
-			$fields[] = $k;
+	if (isset($classes_to_save[0]) && count($classes_to_save[0]) > 0) {
+			foreach($classes_to_save[0] as $k=>$v) {
+					$fields[] = $k;
+			}
+	} else {
+			echo "no classes";
+			return "no classes";
 	}
 	
 	saveData($semester, $year, $subclasses_to_save, $fields, "subclass_identifier", "classes", array("last_mod_time"), array("crn"=>"0"));

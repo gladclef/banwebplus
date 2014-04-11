@@ -62,8 +62,25 @@ class ajax {
 		return json_encode($global_user->get_user_classes($s_year, $s_semester));
 	}
 
+	// only lists semester that have classes in the database
+	// @return: json_encoded array of classes {"yyyypp", "season year"}
+	//     where "yyyy" is the school year, "pp" is one of {10,20,30}, and
+	//     "season year" is the real season and real year
 	function list_available_semesters() {
+		
+		// get the list of available semesters according to banweb
 		require(dirname(__FILE__).'/../scraping/banweb_terms.php');
+		
+		// remove any semesters that don't have classes
+		foreach($terms as $k=>$a_term) {
+				$s_semester = substr($a_term[0], 4, 2);
+				$s_year = substr($a_term[0], 0, 4);
+				error_log(count_semester_classes_in_database($s_year, $s_semester));
+				if (count_semester_classes_in_database($s_year, $s_semester) === 0) {
+						unset($terms[$k]);
+				}
+		}
+		
 		return json_encode($terms);
 	}
 

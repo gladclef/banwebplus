@@ -4,7 +4,13 @@ require_once(dirname(__FILE__)."/globals.php");
 require_once(dirname(__FILE__)."/db_query.php");
 require_once(dirname(__FILE__)."/conversions.php");
 
-function load_semester_classes_from_database($s_year, $s_semester, $s_output_type = "json") {
+function count_semester_classes_in_database($s_year, $s_semester) {
+
+	// test load
+	return load_semester_classes_from_database($s_year, $s_semester, "json", TRUE);
+}
+
+function load_semester_classes_from_database($s_year, $s_semester, $s_output_type = "json", $b_just_count = FALSE) {
 	
 	// get some common variables
 	global $maindb;
@@ -22,20 +28,34 @@ function load_semester_classes_from_database($s_year, $s_semester, $s_output_typ
 	$s_name = $a_semester["name"];
 
 	// load the subjects
-	$a_subjects_db = db_query("SELECT `abbr`,`title` FROM `{$maindb}`.`subjects` WHERE `semester`='[semester]' AND `year`='[year]' ORDER BY `title`", array("semester"=>$s_load_semester, "year"=>$s_load_year));
-	if ($a_subjects_db === FALSE || count($a_subjects_db) == 0) {
-			return "Failed to load the subjects for the semester, given semester ({$s_year}, {$s_semester}) possibly out of range.";
-	}
-	for($i = 0; $i < count($a_subjects_db); $i++) {
-			$a_subjects[$a_subjects_db[$i]["abbr"]] = $a_subjects_db[$i]["title"];
+	if (!$b_just_count) {
+			$a_subjects_db = db_query("SELECT `abbr`,`title` FROM `{$maindb}`.`subjects` WHERE `semester`='[semester]' AND `year`='[year]' ORDER BY `title`", array("semester"=>$s_load_semester, "year"=>$s_load_year));
+			if ($a_subjects_db === FALSE || count($a_subjects_db) == 0) {
+					return "Failed to load the subjects for the semester, given semester ({$s_year}, {$s_semester}) possibly out of range.";
+			}
+			for($i = 0; $i < count($a_subjects_db); $i++) {
+					$a_subjects[$a_subjects_db[$i]["abbr"]] = $a_subjects_db[$i]["title"];
+			}
 	}
 	
-	// load the classes
+	// build the query to load the classes
 	$access_to_custom_class = "`subject`!='CUSTOM' OR `user_ids_with_access` LIKE '%|{$id},%'";
-	$a_classes_db = db_query("SELECT `subject`,`enroll` AS `Enroll`,`title` AS `Title`,`days` AS `Days`,`hours` AS `Hrs`,`limit` AS `Limit`,`location` AS `Location`,`time` AS `Time`,`parent_class`,`crn` AS `CRN`,`course` AS `Course`,`campus` AS `*Campus`,`seats` AS `Seats`,`instructor` AS `Instructor`,`user_ids_with_access` AS `accesses` FROM `{$maindb}`.`classes` WHERE `semester`='[semester]' AND `year`='[year]' AND ({$access_to_custom_class}) ORDER BY `subject`,`course`", array("semester"=>$s_load_semester, "year"=>$s_load_year));
+	$s_select_clause = "`subject`,`enroll` AS `Enroll`,`title` AS `Title`,`days` AS `Days`,`hours` AS `Hrs`,`limit` AS `Limit`,`location` AS `Location`,`time` AS `Time`,`parent_class`,`crn` AS `CRN`,`course` AS `Course`,`campus` AS `*Campus`,`seats` AS `Seats`,`instructor` AS `Instructor`,`user_ids_with_access` AS `accesses`";
+	if ($b_just_count) {
+			$s_select_clause = "COUNT(*) AS `count`";
+	}
+
+	// load the classes
+	$a_classes_db = db_query("SELECT {$s_select_clause} FROM `{$maindb}`.`classes` WHERE `semester`='[semester]' AND `year`='[year]' AND ({$access_to_custom_class}) ORDER BY `subject`,`course`", array("semester"=>$s_load_semester, "year"=>$s_load_year), 2);
 	if ($a_classes_db === FALSE || count($a_classes_db) == 0) {
 			return "Failed to load the classes for the semester, given semester ({$s_year}, {$s_semester}) possibly out of range.";
 	}
+
+	// is this just a test count?
+	if ($b_just_count) {
+			return (int)$a_classes_db[0]["count"];
+	}
+	
 	$a_subclasses = array();
 	foreach($a_classes_db as $k=>$a_class) {
 			if ($a_class["CRN"] == 0) {
