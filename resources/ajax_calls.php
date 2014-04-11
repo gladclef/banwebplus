@@ -75,7 +75,6 @@ class ajax {
 		foreach($terms as $k=>$a_term) {
 				$s_semester = substr($a_term[0], 4, 2);
 				$s_year = substr($a_term[0], 0, 4);
-				error_log(count_semester_classes_in_database($s_year, $s_semester));
 				if (count_semester_classes_in_database($s_year, $s_semester) === 0) {
 						unset($terms[$k]);
 				}

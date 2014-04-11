@@ -46,7 +46,7 @@ function load_semester_classes_from_database($s_year, $s_semester, $s_output_typ
 	}
 
 	// load the classes
-	$a_classes_db = db_query("SELECT {$s_select_clause} FROM `{$maindb}`.`classes` WHERE `semester`='[semester]' AND `year`='[year]' AND ({$access_to_custom_class}) ORDER BY `subject`,`course`", array("semester"=>$s_load_semester, "year"=>$s_load_year), 2);
+	$a_classes_db = db_query("SELECT {$s_select_clause} FROM `{$maindb}`.`classes` WHERE `semester`='[semester]' AND `year`='[year]' AND ({$access_to_custom_class}) ORDER BY `subject`,`course`", array("semester"=>$s_load_semester, "year"=>$s_load_year));
 	if ($a_classes_db === FALSE || count($a_classes_db) == 0) {
 			return "Failed to load the classes for the semester, given semester ({$s_year}, {$s_semester}) possibly out of range.";
 	}
