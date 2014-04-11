@@ -49,7 +49,7 @@ function load_semester_classes_from_database($s_year, $s_semester, $s_output_typ
 					$s_access = $a_class["accesses"];
 					$s_access = substr($s_access, 0, strpos($s_access, "|{$id},"));
 					$s_access = substr($s_access, max(0, (int)strrpos($s_access, ",")));
-					$a_classes_db[$k]["accesses"] = $s_access;
+					$a_classes_db[$k]["accesses"] = ltrim($s_access, ",");
 			}
 	}
 	foreach($a_classes_db as $a_class) {
@@ -288,6 +288,87 @@ function remove_custom_course_access($sem, $year, $crn) {
 	$s_update_clause = array_to_update_clause($a_update_vars);
 	$a_query = db_query("UPDATE `{$maindb}`.`classes` SET {$s_update_clause} WHERE {$s_where_clause}", array_merge($a_update_vars, $a_where_vars));
 	if ($a_query === FALSE) {
+			return "Failed to update database.";
+	}
+	return "success";
+}
+
+function get_user_accesses($crn, $semester, $year) {
+	global $maindb;
+
+	$crn = (int)$crn;
+	$a_where_vars = array("subject"=>"CUSTOM", "crn"=>$crn, "semester"=>$semester, "year"=>$year);
+	$s_where_clause = array_to_where_clause($a_where_vars);
+	$a_query = db_query("SELECT `user_ids_with_access` AS `accesses` FROM `{$maindb}`.`classes` WHERE {$s_where_clause}", $a_where_vars);
+	if ($a_query === FALSE || count($a_query) == 0) {
+			return NULL;
+	}
+
+	$a_user_accesses = explode(",", rtrim($a_query[0]["accesses"], ","));
+	$a_new_user_accesses = array();
+	for($i = 0; $i < count($a_user_accesses); $i++) {
+			$s_access = $a_user_accesses[$i];
+			$s_id = substr($s_access, strrpos($s_access, "|")+1);
+			$a_new_user_accesses[(int)$s_id] = $s_access;
+	}
+	unset($a_user_accesses);
+	return $a_new_user_accesses;
+}
+
+function share_custom_class($sem, $year, $crn, $accesses, $username) {
+	
+	// get some common values
+	global $global_user;
+	global $maindb;
+	$semester = get_real_semester($sem, $year);
+	$year = get_real_year($sem, $year);
+	$accesses = "r{$accesses}";
+	
+	// check for permissions
+	if (!user_has_custom_access($global_user, $accesses, $crn, $year, $semester)) {
+			return "Error: you don't have permission to share this class like that.";
+	}
+	
+	// check that the class and user exist
+	$a_query = db_query("SELECT `id` FROM `{$maindb}`.`students` WHERE `username`='[username]' AND `disabled`='0'", array("username"=>$username));
+	if ($a_query === FALSE || count($a_query) == 0) {
+			return "Error: can't find that banwebplus username to share with.";
+	}
+	$i_user_id = (int)$a_query[0]['id'];
+	$a_user_accesses = get_user_accesses($crn, $semester, $year);
+	if ($a_user_accesses == NULL) {
+			return "Error: can't find that class to share.";
+	}
+
+	// compute the new user accesses
+	$s_access_to_assign = $accesses;
+	// if the assignee already has access and the access is being modified
+	if (isset($a_user_accesses[$i_user_id])) {
+			// the current user doesn't have write access
+			if (strpos($a_user_accesses[(int)$global_user->get_id()], "w") === FALSE) {
+					// the assignee does have write access
+					if (strpos($a_user_accesses[$i_user_id],"w") !== FALSE) {
+							// trying to grant share access
+							if (strpos($accesses, "x") !== FALSE) {
+									$s_access_to_assign = "rwx";
+							} else {
+									$s_access_to_assign = "rw";
+							}
+					}
+			}
+	}
+	$s_access_to_assign = "{$s_access_to_assign}|{$i_user_id}";
+	$a_user_accesses[$i_user_id] = $s_access_to_assign;
+	$s_all_accesses = implode(",", $a_user_accesses);
+	$s_all_accesses .= ",";
+
+	// share the class
+	$a_where_vars = array("subject"=>"CUSTOM", "crn"=>$crn, "semester"=>$semester, "year"=>$year);
+	$s_where_clause = array_to_where_clause($a_where_vars);
+	$a_update_vars = array("user_ids_with_access"=>$s_all_accesses);
+	$s_update_clause = array_to_update_clause($a_update_vars);
+	$a_query = db_query("UPDATE `{$maindb}`.`classes` SET {$s_update_clause} WHERE {$s_where_clause}", array_merge($a_update_vars, $a_where_vars));
+	if ($a_query == FALSE) {
 			return "Failed to update database.";
 	}
 	return "success";

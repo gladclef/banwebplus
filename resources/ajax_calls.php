@@ -329,6 +329,16 @@ class ajax {
 		$crn = get_post_var("crn");
 		return remove_custom_course_access($sem, $year, $crn);
 	}
+
+	function share_custom_class() {
+		$sem = get_post_var("semester");
+		$year = get_post_var("year");
+		$crn = get_post_var("crn");
+		$w = (get_post_var("w", "") == "") ? "" : "w";
+		$x = (get_post_var("x", "") == "") ? "" : "x";
+		$username = get_post_var("username");
+		return share_custom_class($sem, $year, $crn, "{$w}{$x}", $username);
+	}
 }
 
 $s_command = get_post_var("command");
