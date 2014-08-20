@@ -53,13 +53,18 @@ class user {
 		return $s_retval;
 	}
 
+	/**
+	 * update the "user_settings" table with changes to $a_settings
+	 * @$s_type The "type" column of the "user_settings" table, typically "server"
+	 * @$a_settings The settings to be updated, as an array(columnName=>values, ...)
+	 */
 	public function update_settings($s_type, $a_settings) {
 		global $maindb;
 		if ($this->check_is_guest())
 				return 'error|settings can\'t be saved as a guest';
 
 		$query_string = 'SELECT `id` FROM `[database]`.`user_settings` WHERE '.array_to_where_clause($a_settings).' AND `user_id`=\'[user_id]\' AND `type`=\'[type]\'';
-		$query_vars = array("database"=>$maindb, "user_id"=>$this->id, "type"=>$s_type);
+		$query_vars = array("database"=>$maindb, "user_id"=>$this->id, "type"=>$s_type, "table"=>"user_settings");
 		$a_exists = db_query($query_string, $query_vars);
 		if(count($a_exists) > 0)
 				return "print success[*note*]Settings already saved";
@@ -187,14 +192,12 @@ class user {
 
 	// set the ids of those users who can see this user's schedule
 	public function set_schedule_shared_users($a_user_ids) {
-		global $maindb;
 		$s_share_schedule_with = "|".implode("||", $a_user_ids)."|";
 		if (count($a_user_ids) == 0) {
 				$s_share_schedule_with = "";
 		}
-		$a_queryvars = array("table"=>"user_settings", "database"=>$maindb, "share_schedule_with"=>$s_share_schedule_with, "user_id"=>$this->get_id());
-		$s_querystring = "UPDATE `[database]`.`[table]` SET `share_schedule_with`='[share_schedule_with]' WHERE `user_id`='[user_id]'";
-		db_query($s_querystring, $a_queryvars);
+		$a_settings = array("share_schedule_with"=>$s_share_schedule_with);
+		$this->update_settings("server", $a_settings);
 	}
 
 	/*********************************************************************
