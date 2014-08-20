@@ -1,4 +1,13 @@
 typeSchedulerTab = function() {
+	
+	// a list of all users this user's schedule is shared with,
+	// as a map of username->boolean
+	this.sharedUsers = {};
+	// a list of all users that have shared their schedules with this user,
+	// including their schedule, as an array of objects:
+	// [{username:string, schedule:[crn1, crn2, ...]}, ...]
+	this.otherUserSchedules = {};
+	
 	this.draw = function() {
 		
 		// remove the old table
@@ -33,7 +42,72 @@ typeSchedulerTab = function() {
 		jrecent_cont.append(create_table(headers, recent_classes, classes_table_classes, "add_remove_class"));
 		set_selected_classes(jcurrent_cont);
 		conflicting_object.draw_all_conflicts();
+
+		// draw the share schedule option
+		this.drawShareSchedule();
 	}
+
+	this.drawShareSchedule = function() {
+		
+		// find the container
+		var o_this = this;
+		var jshareContainer = $("#schedule_tab_share_schedule");
+		var junshareContainer = $("#schedule_tab_unshare_schedule");
+		
+		// build the contents for sharing
+		var shareHtml = '';
+		shareHtml += 'Share your calender with another banwebplus user!<br /> Just enter their username here:<br />';
+		shareHtml += '<input type="hidden" name="command" value="share_user_schedule" />';
+		shareHtml += '<input type="textbox" placeholder="username" name="username" onkeypress="if (event.keyCode == 13) { $(this).parent().find(\'input[type=button]\').click(); }" />';
+		shareHtml += '<input type="button" value="Share" onclick="o_schedule.shareScheduleWithUser();" /><br />';
+		shareHtml += '<label class="errors">&nbsp;</label>';
+
+		// build the contents for unsharing
+		var unshareHtml = '';
+		unshareHtml += 'Remove users from sharing your calendar:<br />';
+		var columns = ['Username', 'Remove'];
+		var rows = [];
+		var numSharedUsers = 0;
+		$.each(o_this.sharedUsers, function(username, shared) {
+			if (shared) {
+				rows.push([username, "<img src='/images/trash.png' style='height:16px; width:16px; padding:0; cursor:pointer; border:none;' onclick='o_schedule.unshareScheduleWithUser(\""+username+"\");'>"]);
+				numSharedUsers++;
+			}
+		});
+		unshareHtml += create_table(columns, rows, null, null);
+		if (numSharedUsers == 0) {
+			unshareHtml = '';
+		}
+		
+		// insert the contents
+		if (jshareContainer.length > 0) {
+			jshareContainer.html('');
+			jshareContainer.append(shareHtml);
+		}
+		if (junshareContainer.length > 0) {
+			junshareContainer.html('');
+			junshareContainer.append(unshareHtml);
+		}
+	};
+
+	this.loadSharedUsers = function() {
+		var o_this = this;
+		var year = o_courses.getCurrentYear().school_year;
+		var semester = o_courses.getCurrentSemester().value;
+		var successFunc = function(data) {
+			data = JSON.parse(data);
+			o_this.sharedUsers = data.sharedUsers;
+			o_this.otherUserSchedules = data.otherUserSchedules;
+		};
+		$.ajax({
+			async: true,
+			cache: false,
+			url: "/resources/ajax_calls.php",
+			data: {command:'load_shared_user_schedules', year:year, semester:semester},
+			type: "POST",
+			success: successFunc
+		});
+	};
 	
 	this.addByCRN = function(jbutton) {
 		var jdiv = get_parent_by_tag('div', jbutton);
@@ -93,6 +167,51 @@ typeSchedulerTab = function() {
 
 		return true;
 	}
+
+	this.shareScheduleWithUser = function() {
+		
+		// send the ajax call
+		var a_commands = send_ajax_call_from_form("/resources/ajax_calls.php", "schedule_tab_share_schedule");
+
+		// go through each command, looking for ones specific to this case
+		for (var i = 0; i < a_commands.length; i++) {
+			var command = a_commands[i][0];
+			var note = a_commands[i][1];
+			if (command == "share with user") {
+				username = note;
+				this.sharedUsers[username] = true;
+				this.drawShareSchedule();
+				var jform = $("#schedule_tab_share_schedule");
+				var jerrors_label = $(jform.find("label.errors"));
+				set_html_and_fade_in(jerrors_label, '', '<span style="color:gray;font-weight:normal;">Shared schedule with '+username+'</span>');
+			}
+		}
+	};
+
+	this.unshareScheduleWithUser = function(username) {
+		
+		// go through each command, looking for ones specific to this case
+		var o_this = this;
+		var successFunc = function(data) {
+			if (data === "success") {
+				o_this.sharedUsers[username] = false;
+				o_this.drawShareSchedule();
+				var jform = $("#schedule_tab_unshare_schedule");
+				var jerrors_label = $(jform.find("label.errors"));
+				set_html_and_fade_in(jerrors_label, '', '<span style="color:gray;font-weight:normal;">removed user '+username+'</span>');
+			}
+		}
+
+		// send the ajax call
+		$.ajax({
+			cache: false,
+			async: true,
+			url: "/resources/ajax_calls.php",
+			type: "POST",
+			data: {command:"unshare_user_schedule", username:username},
+			success: successFunc
+		});
+	};
 }
 
 function draw_add_by_crn() {

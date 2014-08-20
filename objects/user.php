@@ -165,6 +165,38 @@ class user {
 		return FALSE;
 	}
 
+	// get the ids of those users who can see this user's schedule
+	// returns array[id1, id2, id2, ...]
+	public function get_schedule_shared_users() {
+		global $maindb;
+		$a_queryvars = array("table"=>"user_settings", "database"=>$maindb, "user_id"=>$this->get_id());
+		$s_querystring = "SELECT `share_schedule_with` FROM `[database]`.`[table]` WHERE `user_id`='[user_id]'";
+		$a_rows = db_query($s_querystring, $a_queryvars);
+		$a_retval = array();
+		if (count($a_rows) > 0 ) {
+				$ids = $a_rows[0]["share_schedule_with"];
+				if ($ids !== null && $ids !== "NULL" && $ids !== "") {
+						$a_retval = explode("||", trim($ids, "|"));
+						for ($i = 0; $i < count($a_retval); $i++) {
+								$a_retval[$i] = intval($a_retval[$i]);
+						}
+				}
+		}
+		return $a_retval;
+	}
+
+	// set the ids of those users who can see this user's schedule
+	public function set_schedule_shared_users($a_user_ids) {
+		global $maindb;
+		$s_share_schedule_with = "|".implode("||", $a_user_ids)."|";
+		if (count($a_user_ids) == 0) {
+				$s_share_schedule_with = "";
+		}
+		$a_queryvars = array("table"=>"user_settings", "database"=>$maindb, "share_schedule_with"=>$s_share_schedule_with, "user_id"=>$this->get_id());
+		$s_querystring = "UPDATE `[database]`.`[table]` SET `share_schedule_with`='[share_schedule_with]' WHERE `user_id`='[user_id]'";
+		db_query($s_querystring, $a_queryvars);
+	}
+
 	/*********************************************************************
 	 *                   P R I V A T E   F U N C T I O N S               *
 	 *********************************************************************/
@@ -298,6 +330,22 @@ class user {
 	 *           S T A T I C   F U N C T I O N S           *
 	 ******************************************************/
 	
+	/**
+	 * gets the id of a user by looking up the user by their username
+	 * @returns the id, or -1 on failure
+	 */
+	public static function get_id_by_username($username) {
+		global $maindb;
+		$a_queryvars = array("database"=>$maindb, "table"=>"students", "username"=>$username, "disabled"=>"0");
+		$s_querystring = "SELECT `id` FROM `[database]`.`[table]` WHERE `username`='[username]' AND `disabled`='[disabled]'";
+		$a_rows = db_query($s_querystring, $a_queryvars);
+		if (count($a_rows) == 0) {
+				return -1;
+		}
+		$id = intval($a_rows[0]['id']);
+		return $id;
+	}
+
 	/**
 	 * retrieves a user by their id
 	 * @$i_user_id         integer the id to search for

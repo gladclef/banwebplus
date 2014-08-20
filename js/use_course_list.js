@@ -17,6 +17,7 @@ $(
 		setTimeout('scroll_to_center();', 200);
 		o_storage.drawStorageTest();
 		$("#subject_selector").focus();
+		o_schedule.loadSharedUsers();
 	}
 );
 
