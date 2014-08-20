@@ -3,6 +3,13 @@
 require_once(dirname(__FILE__)."/globals.php");
 require_once(dirname(__FILE__)."/db_query.php");
 
+foreach($argv as $arg){
+	$e = explode("=", $arg);
+	if (count($e) == 2) {
+		$_GET[$e[0]] = $e[1];
+	}
+}
+
 if (isset($_GET["action"])) {
 		executeAction($_GET["action"]);
 } else {
