@@ -1,7 +1,14 @@
 typeConflictingCourses = function(o_courses) {
 	var current_conflicting_classes = [];
 
-	this.getConflictingClasses = function() {
+	/**
+	 * Get the list of crns that are conflicting.
+	 * @temp_crn_list An optional list of crns to calculate instead of the current user classes
+	 */
+	this.getConflictingClasses = function(temp_crn_list) {
+		if (temp_crn_list !== undefined) {
+			return this.calculate_conflicting_classes(temp_crn_list);
+		}
 		return current_conflicting_classes;
 	}
 	
@@ -223,19 +230,36 @@ typeConflictingCourses = function(o_courses) {
 		return a_retval;
 	}
 
-	// searches through all classes and finds the ones that conflict with user selected classes
-	this.calculate_conflicting_classes = function() {
-		this.init_conflicting_array();
+	/**
+	 * searches through all classes and finds the ones that conflict with user selected classes
+	 * @temp_crn_list An optional array of crns to check for conflictions with
+	 */
+	this.calculate_conflicting_classes = function(temp_crn_list) {
 		var a_user_classes = o_courses.getUserClasses();
+		if (temp_crn_list !== undefined) {
+			a_user_classes = temp_crn_list;
+		} else {
+			this.init_conflicting_array();
+		}
+		var conflicting_classes = {};
 		for (var i = 0; i < a_user_classes.length; i++) {
 			var s_class_crn = a_user_classes[i].trim();
 			var a_conflicts = this.get_conflicting_classes_of_class(s_class_crn);
 			for (var j = 0; j < a_conflicts.length; j++) {
 				var i_conflicting = a_conflicts[j];
-				current_conflicting_classes[i_conflicting].push(s_class_crn);
+				if (conflicting_classes[i_conflicting] === undefined) {
+					conflicting_classes[i_conflicting] = [];
+				}
+				conflicting_classes[i_conflicting].push(s_class_crn);
 			}
 		}
-		this.afterConflictionsCalculated();
+		if (temp_crn_list === undefined) {
+			$.each(conflicting_classes, function(k, v) {
+				current_conflicting_classes[k] = v;
+			});
+			this.afterConflictionsCalculated();
+		}
+		return conflicting_classes;
 	}
 	
 	this.afterConflictionsCalculated = function() {

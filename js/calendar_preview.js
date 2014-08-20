@@ -212,6 +212,7 @@ typeCalendarPreview = function() {
 		// actually draw the calendar
 		if (this.needsCalendarWeekDrawn) {
 			kill_children(this.jcalendar_preview);
+			this.jcalendar_preview.append(this.drawScheduleChoice);
 			this.jdays = [];
 			var days = this.days;
 			for (var dayIndex = 0; dayIndex < days.length; dayIndex++) {
@@ -243,6 +244,20 @@ typeCalendarPreview = function() {
 		this.needsCalendarWeekUpdate = false;
 	}
 
+	this.drawScheduleChoice = function() {
+		if (o_schedule === undefined || o_schedule.otherUserSchedules.length == 0) {
+			return "";
+		}
+		var retval = "View schedule for <select onchange='o_calendar_preview_events.changeUserSchedule(this);'>";
+		retval += "<option>"+get_username()+"</option>";
+		$.each(o_schedule.otherUserSchedules, function(k, user) {
+			var username = user.username;
+			retval += "<option>"+username+"</option>";
+		});
+		retval += "</select><br />";
+		return retval;
+	}
+
 	// converts a "hhmm" time to hours.parthours
 	this.eventtimeToHours = function(time) {
 		return Math.floor(time / 100) + ((time % 100) / 60);
@@ -250,9 +265,23 @@ typeCalendarPreview = function() {
 }
 
 typeCalendarPreviewEvents = function() {
-	this.getEvents = function() {
+	/**
+	 * Gets all of the events to be drawn on the calendar, including
+	 * getting the classes and computing their conflictions, positions,
+	 * and data to be drawn.
+	 * @specialUserClasses An optional array of crns to draw instead of the
+	 *     the current user's classes
+	 */
+	this.getEvents = function(specialUserClasses) {
+
+		// determine which classes to use
 		var classes = o_courses.getUserClasses();
 		var conflicts = conflicting_object.getConflictingClasses();
+		if (specialUserClasses !== undefined && specialUserClasses !== null) {
+			classes = specialUserClasses;
+			conflicts = conflicting_object.getConflictingClasses(specialUserClasses);
+		}
+
 		var titleIndex = get_index_of_header("Course", headers);
 		var daysIndex = get_index_of_header("Days", headers);
 		var retval = [];
@@ -302,6 +331,35 @@ typeCalendarPreviewEvents = function() {
 		}
 		$.each(classes, parseCourse);
 		return retval;
+	}
+
+	this.changeUserSchedule = function(selectbox) {
+		
+		// find the user
+		var jselect = $(selectbox);
+		var username = jselect.val();
+		var users = o_schedule.otherUserSchedules;
+		var user = null;
+		$.each(users, function(k, v) {
+			if (v.username == username) {
+				user = v;
+			}
+		});
+		
+		// display this user's schedule
+		if (username == get_username()) {
+			o_calendar_preview.drawCalendar(this.getEvents());
+		} else {
+			var schedule = [];
+			$.each(user.schedule, function(k, crn) {
+				if (o_courses.getClassByCRN(crn) == {}) {
+					thereExistHiddenClasses = true;
+				} else {
+					schedule.push(crn);
+				}
+			});
+			o_calendar_preview.drawCalendar(this.getEvents(schedule));
+		}
 	}
 }
 

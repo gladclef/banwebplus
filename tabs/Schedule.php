@@ -26,15 +26,13 @@ function share_schedule() {
 	global $global_user;
 	$share_schedule = "";
 	
-	if ($global_user->has_access("development")) {
-			$share_schedule .= '
+	$share_schedule .= '
 <table class=\'table_title\'><tr><td>
     <div class=\'centered\'>Share Schedule</div>
 </td></tr></table><br />
 <div id=\'schedule_tab_share_schedule\' class=\'centered\'></div>
 <div id=\'schedule_tab_unshare_schedule\' class=\'centered\'>&nbsp;</div>
 <br /><br />';
-	}
 
 	return $share_schedule;
 }
