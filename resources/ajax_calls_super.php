@@ -31,20 +31,25 @@ $s_command = get_post_var("command");
 $s_super_password = get_post_var("super_password");
 
 if ($s_command != '' && $s_super_password != '') {
-		$o_user = new user($global_user->get_name(), $s_super_password, "");
-		if (!$o_user->exists_in_db()) {
-				echo "print error[*note*]Invalid credentials";
-				return;
-		}
-		
-		$o_ajax_super = new ajax_super();
-		if (method_exists($o_ajax_super, $s_command)) {
-				echo $o_ajax_super->$s_command('','','','');
-		} else {
-				echo 'failed|bad command';
-		}
+	if ($global_user->check_is_guest()) {
+		echo "failed|Guest can't use super calls";
+		return;
+	}
+
+	$o_user = new user($global_user->get_name(), $s_super_password, "");
+	if (!$o_user->exists_in_db()) {
+		echo "print error[*note*]Invalid credentials";
+		return;
+	}
+	
+	$o_ajax_super = new ajax_super();
+	if (method_exists($o_ajax_super, $s_command)) {
+		echo $o_ajax_super->$s_command('','','','');
+	} else {
+		echo 'failed|bad command';
+	}
 } else {
-		echo 'failed|no command';
+	echo 'failed|no command';
 }
 
 ?>

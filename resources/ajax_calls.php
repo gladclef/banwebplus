@@ -17,9 +17,6 @@ class ajax {
 		$s_year = get_post_var('year', $s_year);
 		$s_semester = get_post_var('semester', $s_semester);
 		$s_timestamp = get_post_var('timestamp', $s_timestamp);
-		
-		if ($global_user->check_is_guest())
-				return 'failed|guest can\'t save classes';
 	
 		$a_queryvars = array("classes"=>$s_classes, "tablename"=>"semester_classes", "year"=>$s_year, "semester"=>$s_semester, "timestamp"=>$s_timestamp, "id"=>"", "maindb"=>$maindb, "user_id"=>$global_user->get_id());
 		// check if the year/semester already exists
@@ -90,9 +87,6 @@ class ajax {
 		$s_semester = get_post_var('semester');
 		global $global_user;
 
-		if ($global_user->check_is_guest())
-				return 'failed|guest can\'t save classes';
-
 		$user_classes = $global_user->get_user_classes($s_year, $s_semester);
 		$user_whitelist = $global_user->get_user_whitelist($s_year, $s_semester);
 		$user_blacklist = $global_user->get_user_blacklist($s_year, $s_semester);
@@ -138,8 +132,6 @@ class ajax {
 
 		if (!in_array($setting_type, array('server')))
 				return 'failed|invalid setting type';
-		if ($global_user->check_is_guest())
-				return 'failed|guest can\'t change settings';
 
 		$a_settings = array();
 		foreach($a_postvars as $k=>$v)
@@ -281,7 +273,7 @@ class ajax {
 		$s_username = get_post_var('username');
 		$s_new_password = get_post_var('new_password');
 		$success = $this->verify_password();
-		if ($success == "success" && $s_username != "guest") {
+		if ($success == "success") {
 				$success = ($global_user->update_password($s_new_password)) ? "success" : "failure";
 				if ($success) {
 						$global_user = new user($s_username, $s_new_password, "");
@@ -305,8 +297,7 @@ class ajax {
 	function disable_account() {
 		global $global_user;
 		$b_verified = $this->verify_password() == "success";
-		$is_guest = $global_user->get_name() == "guest";
-		if ($b_verified && !$is_guest && $global_user->disable_account()) {
+		if ($b_verified && $global_user->disable_account()) {
 				return "success";
 		}
 		return "failure";
@@ -315,8 +306,7 @@ class ajax {
 	function delete_account() {
 		global $global_user;
 		$b_verified = $this->verify_password() == "success";
-		$is_guest = $global_user->get_name() == "guest";
-		if ($b_verified && !$is_guest && $global_user->delete_account()) {
+		if ($b_verified && $global_user->delete_account()) {
 				return "success";
 		}
 		return "failure";
@@ -364,14 +354,47 @@ class ajax {
 $s_command = get_post_var("command");
 
 if ($s_command != '') {
-		$o_ajax = new ajax();
-		if (method_exists($o_ajax, $s_command)) {
+	$o_ajax = new ajax();
+	if (method_exists($o_ajax, $s_command)) {
+
+		// check that the guest isn't saving any settings
+		if ($global_user->check_is_guest()) {
+			
+			// build the list of commands and what to say to the guest
+			$gc = 'failed|Guest can\'t ';
+			$pgc = 'print failure[*notes*]Guest can\'t ';
+			$sgc = 'failure';
+			$no_nos = [];
+			$no_nos_base = array(
+				array('save_classes', 'load_user_classes', $gc.'save classes'),
+				array('update_settings', $gc.'change settings'),
+				array('edit_post', 'delete_post', 'change_bug_status', 'change_bug_owner', $pgc.'edit post'),
+				array('save_user_data', $gc.'edit account'),
+				array('change_password', 'disable_account', 'delete_account', $sgc),
+				array('add_custom_class', 'edit_custom_course', 'share_custom_class', 'remove_custom_course_access', $sgc),
+				array('share_user_schedule', 'unshare_user_schedule', $pgc.'share schedule')
+			);
+			foreach ($no_nos_base as $s_phrase=>$a_commands) {
+				foreach ($a_commands as $k=>$s_command) {
+					$no_nos[$s_command] = $s_phrase;
+				}
+			}
+
+			if (isset($no_nos[$s_command])) {
+				echo $no_nos[$s_command];
+			} else {
 				echo $o_ajax->$s_command('','','','');
-		} else {
-				echo 'failed|bad command';
+			}
 		}
+
+		else {
+			echo $o_ajax->$s_command('','','','');
+		}
+	} else {
+		echo 'failed|bad command';
+	}
 } else {
-		echo 'failed|no command';
+	echo 'failed|no command';
 }
 
 ?>
