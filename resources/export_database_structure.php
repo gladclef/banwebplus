@@ -3,10 +3,12 @@
 require_once(dirname(__FILE__)."/globals.php");
 require_once(dirname(__FILE__)."/db_query.php");
 
-foreach($argv as $arg){
-	$e = explode("=", $arg);
-	if (count($e) == 2) {
-		$_GET[$e[0]] = $e[1];
+if (isset($argv)) {
+	foreach($argv as $arg){
+		$e = explode("=", $arg);
+		if (count($e) == 2) {
+			$_GET[$e[0]] = $e[1];
+		}
 	}
 }
 
@@ -18,13 +20,15 @@ if (isset($_GET["action"])) {
 
 function executeAction($s_action) {
 	if ($s_action == "save") {
-			saveTables();
+		saveTables();
 	} else if ($s_action == "load") {
-			loadTables();
+		loadTables();
 	} else if ($s_action == "save_common_data") {
-			saveCommon_Data();
+		saveCommon_Data();
 	} else if ($s_action == "load_common_data") {
-			loadCommon_Data();
+		loadCommon_Data();
+	} else if ($s_action == "initialize_user_data") {
+		initializeUserData();
 	}
 }
 
@@ -32,7 +36,8 @@ function drawOptions() {
 	echo "<form action='' method='GET'><input type='hidden' name='action' value='save'></input><input type='submit' value='Save Tables'></input> saves the current table configuration to a file (db->file)</form>
 <form action='' method='GET'><input type='hidden' name='action' value='load'></input><input type='submit' value='Update Tables'></input> takes the table configuration in a file and applies it to the database (file->db)</form>
 <form action='' method='GET'><input type='hidden' name='action' value='save_common_data'></input><input type='submit' value='Save Common_Data'></input> saves the accesses, buglog, and feedback to a file (db->file)</form>
-<form action='' method='GET'><input type='hidden' name='action' value='load_common_data'></input><input type='submit' value='Update Common_Data'></input> takes the accesses, buglog, and feedback from a file and applies it to the database (file->db)</form>";
+<form action='' method='GET'><input type='hidden' name='action' value='load_common_data'></input><input type='submit' value='Update Common_Data'></input> takes the accesses, buglog, and feedback from a file and applies it to the database (file->db)</form>
+<form action='' method='GET'><input type='hidden' name='action' value='initialize_user_data'></input><input type='submit' value='Initialize User Data'></input> initializes primary user and guest user data</form>";
 }
 
 function saveTables() {
@@ -264,6 +269,69 @@ function getTableDescription($s_tablename) {
 	}
 	$a_create = array_merge($a_create, $a_vals);
 	return $a_create;
+}
+
+function initializeUserData() {
+	global $maindb;
+
+	// check if users already exist
+	$a_users_count = db_query("SELECT COUNT(`id`) AS 'count' FROM `[maindb]`.`students`",
+		array("maindb"=>$maindb));
+	$i_users_count = intval($a_users_count[0]["count"]);
+	if ($i_users_count > 0) {
+		echo "users already exist";
+		return;
+	}
+
+	// form for requesting data
+	$s_request_form = "<form action='' method='POST'>
+		Primary account username: <input type='text' name='username' placeholder='username' /><br />
+		Primary account password: <input type='password' name='password' /> verify: <input type='password' name='password2' /><br />
+		Primary account email: <input type='text' name='email' placeholder='email' />
+		<input type='submit' />
+	</form>";
+
+	// do we have user name and password data?
+	if (!isset($_POST["username"]) ||
+		!isset($_POST["password"]) ||
+		!isset($_POST["password2"]) ||
+		!isset($_POST["email"])) {
+		echo $s_request_form;
+		return;
+	}
+
+	// verify that the data is valid
+	if ($_POST["password"] != $_POST["password2"]) {
+		echo "<div style='color:red;'>Passwords do not match</div><br /><br />";
+		echo $s_request_form;
+		return;
+	}
+	if (!ctype_alnum($_POST["username"])) {
+		echo "<div style='color:red;'>Primary username must include only alphanumeric characters</div><br /><br />";
+		echo $s_request_form;
+		return;
+	}
+
+	// get all level-1 accesses
+	$a_accesses = db_query("SELECT GROUP_CONCAT(`name` SEPARATOR '|') AS 'accesses' FROM `accesses` WHERE `level`='1'");
+	$s_accesses = $a_accesses[0]["accesses"];
+
+	// create the users
+	db_query("INSERT INTO `[maindb]`.`students` (`username`,`pass`,`accesses`,`email`) VALUES ('[username]',AES_ENCRYPT('[username]','[password]'),'[accesses]','[email]')",
+		array("maindb"=>$maindb,
+			"username"=>$_POST["username"],
+			"password"=>$_POST["password"],
+			"accesses"=>$s_accesses,
+			"email"=>$_POST["email"]));
+	db_query("INSERT INTO `[maindb]`.`students` (`username`,`pass`,`accesses`,`email`) VALUES ('guest',AES_ENCRYPT('guest','guest'),'','')",
+		array("maindb"=>$maindb));
+	$a_guest_id = db_query("SELECT `id` FROM `[maindb]`.`students` WHERE `username`='guest'",
+		array("maindb"=>$maindb));
+	$s_guest_id = $a_guest_id[0]["id"];
+	db_query("INSERT INTO `[maindb]`.`generated_settings` (`user_id`,`private_icalendar_key`) VALUES ('[guestid]','guest')",
+		array("maindb"=>$maindb,
+			"guestid"=>$s_guest_id));
+	echo "created users {$_POST['username']} and guest.";
 }
 
 ?>

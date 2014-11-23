@@ -38,7 +38,6 @@ function db_query($s_query, $a_values=NULL, $b_print_query = FALSE) {
 }
 
 function open_db() {
-	global $on_bens_computer;
 	global $db_is_already_connected;
 
 	if ($db_is_already_connected === TRUE) {
