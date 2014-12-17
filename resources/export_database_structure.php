@@ -101,31 +101,42 @@ function updateCommon_Data($a_curr_common_data, $a_common_data) {
 	global $maindb;
 	echo "<pre>";
 	foreach($a_common_data as $a_table) {
-			$s_tablename = mysql_real_escape_string($a_table["name"]);
-			$s_index = mysql_real_escape_string($a_table["index"]);
-			foreach($a_table["rows"] as $a_row) {
-					$b_found = FALSE;
-					foreach($a_curr_common_data as $a_curr_table) {
-							if ($a_curr_table["name"] != $s_tablename) {
-									continue;
-							}
-							foreach($a_curr_table["rows"] as $a_curr_acc) {
-									if ($a_curr_acc[$s_index] == $a_row[$s_index]) {
-											if (print_r($a_row,TRUE) != print_r($a_curr_acc,TRUE)) {
-													db_query("UPDATE `{$maindb}`.`{$s_tablename}` SET ".array_to_update_clause($a_row)." WHERE `{$s_index}`='[{$s_index}]'", $a_row, 1);
-													echo "\n";
-											}
-											$b_found = TRUE;
-											break;
-									}
-							}
-							break;
-					}
-					if (!$b_found) {
-							db_query("INSERT INTO `{$maindb}`.`{$s_tablename}` ".array_to_insert_clause($a_row), $a_row, 1);
+		$s_tablename = mysql_real_escape_string($a_table["name"]);
+		$s_index = mysql_real_escape_string($a_table["index"]);
+		
+		echo "importing table {$s_tablename}\n";
+		$i_rows_to_import = 0;
+		$i_total_rows = 0;
+
+		foreach($a_table["rows"] as $a_row) {
+			$b_found = FALSE;
+			foreach($a_curr_common_data as $a_curr_table) {
+				if ($a_curr_table["name"] != $s_tablename) {
+					continue;
+				}
+				foreach($a_curr_table["rows"] as $a_curr_acc) {
+					if ($a_curr_acc[$s_index] == $a_row[$s_index]) {
+						if (print_r($a_row,TRUE) != print_r($a_curr_acc,TRUE)) {
+							db_query("UPDATE `{$maindb}`.`{$s_tablename}` SET ".array_to_update_clause($a_row)." WHERE `{$s_index}`='[{$s_index}]'", $a_row, 1);
 							echo "\n";
+						}
+						$b_found = TRUE;
+						break;
 					}
+				}
+				break;
 			}
+
+			$i_total_rows++;
+			if (!$b_found) {
+				$i_rows_to_import++;
+				db_query("INSERT INTO `{$maindb}`.`{$s_tablename}` ".array_to_insert_clause($a_row), $a_row, 1);
+				echo "\n";
+			}
+		}
+
+		echo "imported {$i_rows_to_import}/{$i_total_rows} rows\n";
+		echo "\n";
 	}
 	echo "</pre>";
 }
