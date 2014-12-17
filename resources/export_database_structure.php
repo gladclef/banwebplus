@@ -92,7 +92,8 @@ function getCommon_date() {
 	return array(
 		array("name"=>"accesses", "index"=>"name", "rows"=>db_query("SELECT * FROM `{$maindb}`.`accesses`")),
 		array("name"=>"buglog", "index"=>"id", "rows"=>db_query("SELECT * FROM `{$maindb}`.`buglog`")),
-		array("name"=>"feedback", "index"=>"id", "rows"=>db_query("SELECT * FROM `{$maindb}`.`feedback`"))
+		array("name"=>"feedback", "index"=>"id", "rows"=>db_query("SELECT * FROM `{$maindb}`.`feedback`")),
+		array("name"=>"tabs", "index"=>"id", "rows"=>db_query("SELECT * FROM `{$maindb}`.`tabs`"))
 	);
 }
 

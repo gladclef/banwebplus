@@ -221,7 +221,7 @@ def main(parser):
 	numLatestSemesters = 3
 	latestYear = 0
 	latestSemester = 0
-	latestYearSemester = "201320"
+	latestYearSemester = "201410"
 	latestYearSemesters = [""]*numLatestSemesters
 	latestYearSemesters[0] = latestYearSemester
 

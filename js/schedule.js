@@ -227,3 +227,4 @@ function draw_add_by_crn() {
 }
 
 o_schedule = new typeSchedulerTab();
+window.o_schedule = o_schedule;

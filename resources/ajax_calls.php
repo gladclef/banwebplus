@@ -122,7 +122,8 @@ class ajax {
 	function load_semester_classes($s_year, $s_semester) {
 		$s_year = get_post_var('year', $s_year);
 		$s_semester = get_post_var('semester', $s_semester);
-		return load_semester_classes_from_database($s_year, $s_semester);
+		$retval = load_semester_classes_from_database($s_year, $s_semester);
+		return $retval;
 	}
 
 	function update_settings($setting_type) {
