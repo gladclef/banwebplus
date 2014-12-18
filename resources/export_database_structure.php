@@ -283,13 +283,14 @@ function getTables() {
 
 function getTableDescription($s_tablename) {
 	global $maindb;
-	$a_create = db_query("SHOW CREATE TABLE `[maindb]`.`[table]`", array("maindb"=>$maindb, "table"=>$s_tablename));
+	$a_create = db_query("SHOW CREATE TABLE `[maindb]`.`[table]`",
+		array("maindb"=>$maindb, "table"=>$s_tablename));
 	$a_create = $a_create[0];
 	$a_desc = explode("\n", $a_create["Create Table"]);
 	$a_vals = array("columns"=>array(), "keys"=>array());
 	foreach($a_desc as $k=>$s_desc) {
 			$s_line = trim($s_desc);
-			if (strpos($s_line, "CREATE TABLE ") === 0 || strpos($s_line, ") ENGINE=MyISAM ") === 0) {
+			if (strpos($s_line, "CREATE TABLE ") === 0 || strpos($s_line, ") ENGINE=") === 0) {
 					unset($a_desc[$k]);
 					continue;
 			}
@@ -346,7 +347,8 @@ function initializeUserData() {
 	}
 
 	// get all level-1 accesses
-	$a_accesses = db_query("SELECT GROUP_CONCAT(`name` SEPARATOR '|') AS 'accesses' FROM `accesses` WHERE `level`='1'");
+	$a_accesses = db_query("SELECT GROUP_CONCAT(`name` SEPARATOR '|') AS 'accesses' FROM `[maindb]`.`accesses` WHERE `level`='1'",
+		array("maindb"=>$maindb));
 	$s_accesses = $a_accesses[0]["accesses"];
 
 	// create the users
