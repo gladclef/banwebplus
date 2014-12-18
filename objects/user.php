@@ -62,23 +62,27 @@ class user {
 		global $maindb;
 		global $mysqli;
 		if ($this->check_is_guest())
-				return 'error|settings can\'t be saved as a guest';
+			return json_encode(array(
+				new command("error", "settings can\'t be saved as a guest")));
 
 		$query_string = 'SELECT `id` FROM `[database]`.`user_settings` WHERE '.array_to_where_clause($a_settings).' AND `user_id`=\'[user_id]\' AND `type`=\'[type]\'';
 		$query_vars = array("database"=>$maindb, "user_id"=>$this->id, "type"=>$s_type, "table"=>"user_settings");
 		$a_exists = db_query($query_string, $query_vars);
 		if(count($a_exists) > 0)
-				return "print success[*note*]Settings already saved";
+			return json_encode(array(
+				new command("print success", "Settings already saved")));
 		
 		create_row_if_not_existing($query_vars);
 		$a_current = db_query("SELECT * FROM `[database]`.`[table]` WHERE `user_id`='[user_id]' AND `type`='server'", $query_vars);
 		$query_string = 'UPDATE `[database]`.`[table]` SET '.array_to_update_clause($a_settings).' WHERE `user_id`=\'[user_id]\' AND `type`=\'[type]\'';
 		db_query($query_string, array_merge($a_settings, $query_vars));
 		if ($mysqli->affected_rows == 0) {
-				return "print error[*note*]Failed to save settings";
+			return json_encode(array(
+				new command("print error", "Failed to save settings")));
 		} else {
 				$this->updateSpecialSettings($a_settings, $a_current[0]);
-				return "print success[*note*]Settings saved successfully. Next time you log in these settings will take effect.";
+			return json_encode(array(
+				new command("print success", "Settings saved successfully. Next time you log in these settings will take effect.")));
 		}
 	}
 
@@ -320,9 +324,9 @@ class user {
 		global $maindb;
 		$userid = $this->id;
 
+		$this->a_server_settings = array('session_timeout'=>'15');
 		if ($this->name == "guest") {
-				$this->a_server_settings = array('session_timeout'=>'15');
-				return;
+			return;
 		}
 
 		// load server settings

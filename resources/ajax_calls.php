@@ -32,23 +32,28 @@ class ajax {
 		// check if the date is greater than the current date
 		// don't save if it is
 		if ($b_exists) {
-				$a_saved_query = db_query("SELECT `id` FROM `[maindb]`.`[tablename]` WHERE `year`='[year]' AND `semester`='[semester]' AND `time_submitted`>'[timestamp]' AND `user_id`='[user_id]'", $a_queryvars);
-				if (count($a_saved_query) > 0)
-						return "success|already saved later query";
+			$a_saved_query = db_query("SELECT `id` FROM `[maindb]`.`[tablename]` WHERE `year`='[year]' AND `semester`='[semester]' AND `time_submitted`>'[timestamp]' AND `user_id`='[user_id]'", $a_queryvars);
+			if (count($a_saved_query) > 0)
+				return json_encode(array(
+					new command("success", "already saved later query")));
 		}
 		// update/insert
 		if ($b_exists) {
-				db_query("UPDATE `[maindb]`.`[tablename]` SET `json`='[classes]',`time_submitted`='[timestamp]' WHERE `id`='[id]'", $a_queryvars);
-				if ($mysqli->affected_rows > 0)
-						return "success|updated classes";
-				else
-						return "failed|update failed";
+			db_query("UPDATE `[maindb]`.`[tablename]` SET `json`='[classes]',`time_submitted`='[timestamp]' WHERE `id`='[id]'", $a_queryvars);
+			if ($mysqli->affected_rows > 0)
+				return json_encode(array(
+					new command("success", "updated classes")));
+			else
+				return json_encode(array(
+					new command("failure", "update failed")));
 		} else {
-				db_query("INSERT INTO `[maindb]`.`[tablename]` (`json`,`time_submitted`,`year`,`semester`,`user_id`) VALUES ('[classes]','[timestamp]','[year]','[semester]','[user_id]')", $a_queryvars);
-				if ($mysqli->affected_rows > 0)
-						return "success|inserted classes";
-				else
-						return "failed|insert failed";
+			db_query("INSERT INTO `[maindb]`.`[tablename]` (`json`,`time_submitted`,`year`,`semester`,`user_id`) VALUES ('[classes]','[timestamp]','[year]','[semester]','[user_id]')", $a_queryvars);
+			if ($mysqli->affected_rows > 0)
+				return json_encode(array(
+					new command("success", "inserted classes")));
+			else
+				return json_encode(array(
+					new command("failure", "insert failed")));
 		}
 	}
 
@@ -58,7 +63,8 @@ class ajax {
 		$s_year = get_post_var('year', $s_year);
 		$s_semester = get_post_var('semester', $s_semester);
 
-		return json_encode($global_user->get_user_classes($s_year, $s_semester));
+		return json_encode(array(
+			new command("success", $global_user->get_user_classes($s_year, $s_semester))));
 	}
 
 	// only lists semester that have classes in the database
@@ -79,7 +85,8 @@ class ajax {
 				}
 		}
 		
-		return json_encode($terms);
+		return json_encode(array(
+			new command("success", $terms)));
 	}
 
 	// returns array('user_classes'=>stuff, 'user_whitelist'=>stuff, 'user_blacklist'=>stuff) as JSON
@@ -95,7 +102,9 @@ class ajax {
 		if ($user_whitelist == '') $user_whitelist = array();
 		if ($user_blacklist == '') $user_blacklist = array();
 		$a_user_data = array('user_classes'=>$user_classes, 'user_whitelist'=>$user_whitelist, 'user_blacklist'=>$user_blacklist);
-		return json_encode($a_user_data);
+		
+		return json_encode(array(
+			new command("success", $a_user_data)));
 	}
 	
 	function save_user_data() {
@@ -108,16 +117,19 @@ class ajax {
 		global $global_user;
 		
 		if ($s_datatype == 'whitelist')
-				$i_affected_rows = $global_user->save_user_whitelist($s_year, $s_semester, $s_json_saveval, $s_timestamp);
+			$i_affected_rows = $global_user->save_user_whitelist($s_year, $s_semester, $s_json_saveval, $s_timestamp);
 		else if ($s_datatype == 'blacklist')
-				$i_affected_rows = $global_user->save_user_blacklist($s_year, $s_semester, $s_json_saveval, $s_timestamp);
+			$i_affected_rows = $global_user->save_user_blacklist($s_year, $s_semester, $s_json_saveval, $s_timestamp);
 		else
-				return 'failure|bad datatype';
+			return json_encode(array(
+				new command("failure", "bad datatype")));
 		
 		if ($i_affected_rows > 0)
-				return 'success|'.$i_affected_rows;
+			return json_encode(array(
+				new command("success", $i_affected_rows)));
 		else
-				return 'failure|'.$i_affected_rows;
+			return json_encode(array(
+				new command("failure", $i_affected_rows)));
 	}
 
 	function load_semester_classes($s_year, $s_semester) {
@@ -133,7 +145,8 @@ class ajax {
 		$a_postvars = $_POST;
 
 		if (!in_array($setting_type, array('server')))
-				return 'failed|invalid setting type';
+			return json_encode(array(
+				new command("failure", "invalid setting type")));
 
 		$a_settings = array();
 		foreach($a_postvars as $k=>$v)
@@ -155,16 +168,23 @@ class ajax {
 
 		// get some values
 		$a_semester_list = json_decode($this->list_available_semesters());
+		$a_semester_list = $a_semester_list[0]->action;
 		$s_latest_semester = $a_semester_list[count($a_semester_list)-1][0];
 		
 		// check that a value was passed
 		$s_semester = get_post_var('default_semester', $default_semester);
 		if ($b_load) {
 			$s_setting = $global_user->get_server_setting('default_semester');
-			$a_setting = explode("|", $s_setting);
+			if ($s_setting == "") {
+				$a_setting = array("", "");
+			} else {
+				$a_setting = explode("|", $s_setting);
+				$s_retval = $a_setting[1];
+			}
 			if ((string)$a_setting[0] != $s_latest_semester)
-				return $s_latest_semester;
-			return $a_setting[1];
+				$s_retval = $s_latest_semester;
+			return json_encode(array(
+				new command("success", $s_retval)));
 		}
 		if ($default_semester === NULL)
 			$default_semester = "{$s_latest_semester}|{$s_latest_semester}";
@@ -172,7 +192,8 @@ class ajax {
 		// set the default semester setting
 		$global_user->update_settings("server", array('default_semester'=>"{$s_latest_semester}|{$s_semester}"));
 		
-		return "set";
+		return json_encode(array(
+			new command("success", "set")));
 	}
 	function get_default_semester() {
 		return $this->default_semester(NULL, TRUE);
@@ -188,8 +209,10 @@ class ajax {
 		$s_disabled = ($b_ignore_disabled) ? "WHERE `disabled`='0'" : "";
 		$a_query_results = db_query("SELECT `username`,`email`,`disabled` FROM `[maindb]`.`students` {$s_disabled}", array("maindb"=>$maindb));
 		if (count($a_query_results) == 0 || $a_query_results === FALSE)
-				return json_encode((object)array('success'=>FALSE, 'details'=>'MySQL query failed'));
-		return json_encode((object)array('success'=>TRUE, 'details'=>$a_query_results));
+			return json_encode(array(
+				new command("failure", "MySQL query failed")));
+		return json_encode(array(
+			new command("success", $a_query_results)));
 	}
 
 	function email_developer_bugs() {
@@ -197,11 +220,14 @@ class ajax {
 		$s_subject = get_post_var("email_subject");
 		$s_body = get_post_var("email_body");
 		if ($s_subject == "")
-				return "print error[*note*]Please include a subject in your email.<br />";
+			return json_encode(array(
+				new command("print error", "Please include a subject in your email.<br />")));
 		if ($s_body == "")
-				return "print error[*note*]Please include a body in your email.<br />";
+			return json_encode(array(
+				new command("print error", "Please include a body in your email.<br />")));
 		mail("bbean@cs.nmt.edu", "Banwebplus Feedback: {$s_subject}", $s_body, "From: ".$global_user->get_email());
-		return "print success[*note*]Thank you for your feedback!<br />";
+		return json_encode(array(
+			new command("print success", "Thank you for your feedback!<br />")));
 	}
 
 	function edit_post() {
@@ -282,7 +308,7 @@ class ajax {
 						login_session($global_user);
 				}
 		}
-		return $success;
+		return json_encode(array(new command($success, "")));
 	}
 
 	function verify_password() {
@@ -290,9 +316,9 @@ class ajax {
 		$s_password = get_post_var('password');
 		$o_user = new user($s_username, $s_password, '');
 		if ($o_user->exists_in_db()) {
-				return "success";
+			return json_encode(array(new command("success", "")));
 		} else {
-				return "failure";
+			return json_encode(array(new command("failure", "")));
 		}
 	}
 
@@ -300,18 +326,18 @@ class ajax {
 		global $global_user;
 		$b_verified = $this->verify_password() == "success";
 		if ($b_verified && $global_user->disable_account()) {
-				return "success";
+			return json_encode(array(new command("success", "")));
 		}
-		return "failure";
+		return json_encode(array(new command("failure", "")));
 	}
 
 	function delete_account() {
 		global $global_user;
 		$b_verified = $this->verify_password() == "success";
 		if ($b_verified && $global_user->delete_account()) {
-				return "success";
+			return json_encode(array(new command("success", "")));
 		}
-		return "failure";
+		return json_encode(array(new command("failure", "")));
 	}
 
 	function add_custom_class() {
@@ -363,18 +389,21 @@ if ($s_command != '') {
 		if ($global_user->check_is_guest()) {
 			
 			// build the list of commands and what to say to the guest
-			$gc = 'failed|Guest can\'t ';
-			$pgc = 'print failure[*notes*]Guest can\'t ';
 			$sgc = 'failure';
 			$no_nos = [];
 			$no_nos_base = array(
-				array('save_classes', 'load_user_classes', $gc.'save classes'),
-				array('update_settings', $gc.'change settings'),
-				array('edit_post', 'delete_post', 'change_bug_status', 'change_bug_owner', $pgc.'edit post'),
-				array('save_user_data', $gc.'edit account'),
+				array('save_classes', 'load_user_classes', 
+					json_encode(array(new command("failure", "Guest can\'t save classes")))),
+				array('update_settings', 
+					json_encode(array(new command("failure", "Guest can\'t change settings")))),
+				array('edit_post', 'delete_post', 'change_bug_status', 'change_bug_owner', 
+					json_encode(array(new command("print failure", "Guests can't edit posts")))),
+				array('save_user_data', 
+					json_encode(array(new command("failure", "Guest can\'t edit account")))),
 				array('change_password', 'disable_account', 'delete_account', $sgc),
 				array('add_custom_class', 'edit_custom_course', 'share_custom_class', 'remove_custom_course_access', $sgc),
-				array('share_user_schedule', 'unshare_user_schedule', $pgc.'share schedule')
+				array('share_user_schedule', 'unshare_user_schedule', 
+					json_encode(array(new command("print failure", "Guests can't share schedules"))))
 			);
 			foreach ($no_nos_base as $s_phrase=>$a_commands) {
 				foreach ($a_commands as $k=>$s_command) {
@@ -393,10 +422,12 @@ if ($s_command != '') {
 			echo $o_ajax->$s_command('','','','');
 		}
 	} else {
-		echo 'failed|bad command';
+		echo json_encode(array(
+			new command("failure", "bad command")));
 	}
 } else {
-	echo 'failed|no command';
+	echo json_encode(array(
+		new command("failure", "no command")));
 }
 
 ?>

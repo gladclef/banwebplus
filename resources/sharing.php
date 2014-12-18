@@ -26,19 +26,23 @@ class sharing {
 		global $global_user;
 		$username = get_post_var("username");
 		if ($username === $global_user->get_name()) {
-				return "print error[*note*]Why are you trying to share a schedule with yourself?";
+			return json_encode(array(
+				new command("print error", "Why are you trying to share a schedule with yourself?")));
 		}
 		$id = user::get_id_by_username($username);
 		if ($id == -1) {
-				return "print error[*note*]The user \"{$username}\" can't be found.";
+			return json_encode(array(
+				new command("print error", "The user \"{$username}\" can't be found.")));
 		}
 		$a_ids = $global_user->get_schedule_shared_users();
 		if (!in_array($id, $a_ids)) {
 				$a_ids[] = $id;
 				$global_user->set_schedule_shared_users($a_ids);
-				return "share with user[*note*]{$username}";
+			return json_encode(array(
+				new command("share with user", "{$username}")));
 		}
-		return "print error[*note*]Already shared schedule with \"{$username}\".";
+		return json_encode(array(
+			new command("print error", "Already shared schedule with \"{$username}\".")));
 	}
 
 	function unshare_user_schedule() {
@@ -46,7 +50,8 @@ class sharing {
 		$username = get_post_var("username");
 		$id = user::get_id_by_username($username);
 		if ($id == -1) {
-				return "success";
+			return json_encode(array(
+				new command("success", "")));
 		}
 		$a_ids = $global_user->get_schedule_shared_users();
 		$index = array_search($id, $a_ids);
@@ -54,7 +59,8 @@ class sharing {
 				unset($a_ids[$index]);
 				$global_user->set_schedule_shared_users($a_ids);
 		}
-		return "success";
+		return json_encode(array(
+			new command("success", "")));
 	}
 
 	function load_shared_user_schedules() {
@@ -118,6 +124,7 @@ class sharing {
 		}
 		
 		// return the return value
-		return json_encode($retval);
+		return json_encode(array(
+			new command("success", $retval)));
 	}
 }

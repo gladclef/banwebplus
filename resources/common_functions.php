@@ -141,6 +141,21 @@ function manage_output($s_output) {
 	return $s_output;
 }
 
+function error_log_array($a_output, $i_tab_level = 0) {
+	$s_tab = str_repeat("  ", $i_tab_level);
+	foreach ($a_output as $k=>$v) {
+		if (is_object($v)) {
+			$v = (array)$v;
+		}
+		if (is_array($v)) {
+			error_log("{$s_tab}{$k}: array:   ****");
+			error_log_array($v, $i_tab_level+1);
+		} else {
+			error_log("{$s_tab}{$k}: {$v}   ****");
+		}
+	}
+}
+
 function school_time_to_real_time($s_semester, $s_year) {
 	if ($s_semester == "30") {
 			$s_load_year = (int)$s_year;

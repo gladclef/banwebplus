@@ -164,11 +164,11 @@ function ajax_logout() {
 }
 
 function retval_to_commands(retval) {
-	var commands_list = retval.split("[*command*]");
+	var commands_list = JSON.parse(retval);
 	var commands_array = [];
 	for (var i = 0; i < commands_list.length; i++) {
-		var command = commands_list[i].split("[*note*]");
-		commands_array.push(command);
+		var command = commands_list[i];
+		commands_array.push([command.command, command.action]);
 	}
 	return commands_array;
 }

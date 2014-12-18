@@ -79,7 +79,8 @@ window.tabCustomClasses = {
 		}
 		
 		// contact the server to try and add the class
-		send_ajax_call("/resources/ajax_calls.php", {command:"add_custom_class", values:values, semester:semester, year:year}, function(success) {
+		send_ajax_call("/resources/ajax_calls.php", {command:"add_custom_class", values:values, semester:semester, year:year}, function(message) {
+			var success = JSON.parse(message)[0].command;
 			if (success != "success") {
 				if (success == "failure") {
 					draw_error(jform, "Failed to add class", false);
@@ -203,7 +204,8 @@ window.tabCustomClasses = {
 			vars["semester"] = semester;
 			vars["year"] = year;
 			draw_error(jform, "Contacting server...", null);
-			send_ajax_call("/resources/ajax_calls.php", vars, function(success) {
+			send_ajax_call("/resources/ajax_calls.php", vars, function(message) {
+				var success = JSON.parse(message)[0].command;
 				if (success == "success") {
 					draw_error(jform, "Successfully shared the class with "+jusername.val()+".", true);
 				} else {
@@ -254,7 +256,8 @@ window.tabCustomClasses = {
 		// try to submit
 		if (confirm("Are you sure you want to remove the class \""+title+"?\"")) {
 			var vars = {command:"remove_custom_course_access", semester:semester, year:year, crn:crn};
-			send_ajax_call("/resources/ajax_calls.php", vars, function(success) {
+			send_ajax_call("/resources/ajax_calls.php", vars, function(message) {
+				var success = JSON.parse(message)[0].command;
 				if (success == "success") {
 					reload_classes();
 				} else {
@@ -302,7 +305,8 @@ window.tabCustomClasses = {
 				return false;
 			}
 			var vars = {command:"edit_custom_course", attribute:headers[hindex], value:val, semester:semester, year:year, crn:crn};
-			send_ajax_call("/resources/ajax_calls.php", vars, function(success) {
+			send_ajax_call("/resources/ajax_calls.php", vars, function(message) {
+				var success = JSON.parse(message)[0].command;
 				if (success == "success") {
 					restore(val);
 				} else {

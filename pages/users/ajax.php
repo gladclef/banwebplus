@@ -5,6 +5,7 @@ require_once(dirname(__FILE__).'/../../resources/db_query.php');
 require_once(dirname(__FILE__).'/../../resources/globals.php');
 require_once(dirname(__FILE__).'/user_funcs.php');
 require_once(dirname(__FILE__)."/../login/access_object.php");
+require_once(dirname(__FILE__)."/../../objects/command.php");
 
 class user_ajax {
 	public static function check_username() {
@@ -12,11 +13,14 @@ class user_ajax {
 		$s_username_status = user_funcs::username_status($s_username);
 		switch ($s_username_status) {
 		case 'blank':
-				return 'print error[*note*]The username is blank';
+			return json_encode(array(
+				new command("print error", "The username is blank")));
 		case 'taken':
-				return 'print error[*note*]That username is already taken.';
+			return json_encode(array(
+				new command("print error", "That username is already taken.")));
 		case 'available':
-				return 'print success[*note*]That username is available.';
+			return json_encode(array(
+				new command("print success", "That username is available.")));
 		}
 	}
 
@@ -28,30 +32,37 @@ class user_ajax {
 		
 		// check the input
 		if (strlen($s_username) == 0)
-				return 'print error[*note*]The username is blank.';
+			return json_encode(array(
+				new command("print error", "The username is blank.")));
 		if (strlen($s_password) == 0)
-				return 'print error[*note*]The password is blank.';
+			return json_encode(array(
+				new command("print error", "The password is blank.")));
 		if (strlen($s_email) == 0)
-				return 'print error[*note*]The email is blank.';
+			return json_encode(array(
+				new command("print error", "The email is blank.")));
 		
 		// check that the email and username are unique
 		$a_users = db_query("SELECT * FROM `[database]`.`students` WHERE `username`='[username]' OR `email`='[email]'", array("database"=>$maindb, "username"=>$s_username, "email"=>$s_email));
 		if (count($a_users) > 0)
-				return 'print error[*note*]That username or email is already taken.';
+			return json_encode(array(
+				new command("print error", "That username or email is already taken.")));
 		
 		// check that the username is valid
 		if (!preg_match("/^[a-zA-Z0-9 ]+$/", $s_username))
-				return 'print error[*note*]The username is invalid (may only contain letters, numbers, and spaces)';
+			return json_encode(array(
+				new command("print error", "The username is invalid (may only contain letters, numbers, and spaces)")));
 
 		// try creating the user
 		if (!user_funcs::create_user($s_username, $s_password, $s_email))
-				return 'print error[*note*]Error creating user';
+			return json_encode(array(
+				new command("print error", "Error creating user")));
 
 		mail($s_email, 'banwebplus account', 'You just created an account on banwebplus.com with the username "'.$s_username.'."
 Log in to your new account from www.banwebplus.com.
 
 If you ever forget your password you can reset it from the main page by clicking on the "forgot password" link.', 'From: noreply@banwebplus.com');
-		return 'print success[*note*]Success! You can now use the username '.$s_username.' to log in from the main page!';
+		return json_encode(array(
+			new command("print success", "Success! You can now use the username {$s_username} to log in from the main page!")));
 	}
 
 	/**
@@ -127,9 +138,11 @@ If you ever forget your password you can reset it from the main page by clicking
 		$s_email = trim($_POST['email']);
 		$a_retval = self::forgot_password($s_username, $s_email);
 		if ($a_retval[0]) {
-			return "print success[*note*]".$a_retval[1];
+			return json_encode(array(
+				new command("print success", $a_retval[1])));
 		} else {
-			return "print error[*note*]".$a_retval[1];
+			return json_encode(array(
+				new command("print error", $a_retval[1])));
 		}
 	}
 
@@ -139,17 +152,21 @@ If you ever forget your password you can reset it from the main page by clicking
 		$s_password = trim($_POST['password']);
 		$a_retval = user_funcs::reset_password($s_username, $s_key, $s_password);
 		if ($a_retval[0]) {
-			return "print success[*note*]".$a_retval[1];
+			return json_encode(array(
+				new command("print success", $a_retval[1])));
 		} else {
-			return "print error[*note*]".$a_retval[1];
+			return json_encode(array(
+				new command("print error", $a_retval[1])));
 		}
 	}
 }
 
 if (isset($_POST['draw_create_user_page']))
-		echo "load page[*note*]/pages/users/create.php[*post*]draw_create_user_page[*value*]1";
+		echo json_encode(array(
+			new command("load page", "/pages/users/create.php[*post*]draw_create_user_page[*value*]1")));
 else if (isset($_POST['draw_forgot_password_page']))
-		echo "load page[*note*]/pages/users/forgot_password.php[*post*]draw_forgot_password_page[*value*]1";
+		echo json_encode(array(
+			new command("load page", "/pages/users/forgot_password.php[*post*]draw_forgot_password_page[*value*]1")));
 else if (isset($_POST['username']) && !isset($_POST['command']))
 		$_POST['command'] = 'check_username';
 if (isset($_POST['command'])) {
@@ -158,7 +175,8 @@ if (isset($_POST['command'])) {
 		if (method_exists($o_ajax, $s_command)) {
 				echo user_ajax::$s_command();
 		} else {
-				echo 'bad command';
+				echo json_encode(array(
+					'bad command'));
 		}
 }
 

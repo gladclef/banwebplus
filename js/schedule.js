@@ -95,7 +95,7 @@ typeSchedulerTab = function() {
 		var year = o_courses.getCurrentYear().school_year;
 		var semester = o_courses.getCurrentSemester().value;
 		var successFunc = function(data) {
-			data = JSON.parse(data);
+			data = JSON.parse(data)[0].action;
 			o_this.sharedUsers = data.sharedUsers;
 			o_this.otherUserSchedules = data.otherUserSchedules;
 		};
@@ -193,7 +193,7 @@ typeSchedulerTab = function() {
 		// go through each command, looking for ones specific to this case
 		var o_this = this;
 		var successFunc = function(data) {
-			if (data === "success") {
+			if (JSON.parse(data)[0].command === "success") {
 				o_this.sharedUsers[username] = false;
 				o_this.drawShareSchedule();
 				var jform = $("#schedule_tab_unshare_schedule");

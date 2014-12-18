@@ -3,6 +3,7 @@
 require_once(dirname(__FILE__)."/globals.php");
 require_once(dirname(__FILE__)."/db_query.php");
 require_once(dirname(__FILE__)."/../pages/install/install.php");
+require_once(dirname(__FILE__)."/../pages/users/user_funcs.php");
 
 if (isset($argv)) {
 	foreach($argv as $arg){
@@ -320,10 +321,14 @@ function initializeUserData() {
 	}
 
 	// form for requesting data
+	$s_username = get_post_var("username", "");
+	$s_pass1 = get_post_var("password", "");
+	$s_pass2 = get_post_var("password2", "");
+	$s_email = get_post_var("email", "");
 	$s_request_form = "<form action='' method='POST'>
-		Primary account username: <input type='text' name='username' placeholder='username' /><br />
+		Primary account username: <input type='text' name='username' placeholder='username' value='{$s_username}' /><br />
 		Primary account password: <input type='password' name='password' /> verify: <input type='password' name='password2' /><br />
-		Primary account email: <input type='text' name='email' placeholder='email' />
+		Primary account email: <input type='text' name='email' placeholder='email' value='{$s_email}' />
 		<input type='submit' />
 	</form>";
 
@@ -337,13 +342,18 @@ function initializeUserData() {
 	}
 
 	// verify that the data is valid
-	if ($_POST["password"] != $_POST["password2"]) {
+	if ($s_pass1 == "" || $s_pass1 != $s_pass2) {
 		echo "<div style='color:red;'>Passwords do not match</div><br /><br />";
 		echo $s_request_form;
 		return;
 	}
-	if (!ctype_alnum($_POST["username"])) {
+	if ($s_username == "" || !ctype_alnum($s_username)) {
 		echo "<div style='color:red;'>Primary username must include only alphanumeric characters</div><br /><br />";
+		echo $s_request_form;
+		return;
+	}
+	if ($s_email == "") {
+		echo "<div style='color:red;'>Must include an email address</div><br /><br />";
 		echo $s_request_form;
 		return;
 	}
@@ -354,12 +364,12 @@ function initializeUserData() {
 	$s_accesses = $a_accesses[0]["accesses"];
 
 	// create the users
-	db_query("INSERT INTO `[maindb]`.`students` (`username`,`pass`,`accesses`,`email`) VALUES ('[username]',AES_ENCRYPT('[username]','[password]'),'[accesses]','[email]')",
-		array("maindb"=>$maindb,
-			"username"=>$_POST["username"],
-			"password"=>$_POST["password"],
-			"accesses"=>$s_accesses,
-			"email"=>$_POST["email"]));
+	$s_feedback = "";
+	if (!user_funcs::create_user($s_username, $s_pass1, $s_email, array("access"=>$s_accesses), $s_feedback)) {
+		echo "<div style='color:red;'>{$s_feedback}</div><br /><br />";
+		echo $s_request_form;
+		return;
+	}
 	db_query("INSERT INTO `[maindb]`.`students` (`username`,`pass`,`accesses`,`email`) VALUES ('guest',AES_ENCRYPT('guest','guest'),'','')",
 		array("maindb"=>$maindb));
 	$a_guest_id = db_query("SELECT `id` FROM `[maindb]`.`students` WHERE `username`='guest'",
@@ -368,7 +378,7 @@ function initializeUserData() {
 	db_query("INSERT INTO `[maindb]`.`generated_settings` (`user_id`,`private_icalendar_key`) VALUES ('[guestid]','guest')",
 		array("maindb"=>$maindb,
 			"guestid"=>$s_guest_id));
-	echo "created users {$_POST['username']} and guest.";
+	echo "created users {$s_username} and guest.";
 }
 
 ?>

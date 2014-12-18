@@ -5,27 +5,35 @@ require_once(dirname(__FILE__).'/../../resources/globals.php');
 require_once(dirname(__FILE__)."/../login/access_object.php");
 
 class user_funcs {
-	public static function create_user($s_username, $s_password, $s_email, $a_other = NULL) {
+	public static function create_user($s_username, $s_password, $s_email, $a_other = NULL, &$s_feedback = "") {
 		global $maindb;
 		global $mysqli;
 		$a_other = ($a_other == NULL) ? array() : $a_other;
 		$s_access = (isset($a_other['access'])) ? $a_other['access'] : 'feedback';
 		
 		// check that the data is good
-		if ($s_username == '' || $s_password == '' || $s_email == '')
-				return FALSE;
-		if (strpos($s_email, '@') === FALSE || strpos($s_email, '.') === FALSE || strpos($s_email, '|') !== FALSE || strpos($s_email, '<') !== FALSE || strpos($s_email, '>') !== FALSE)
-				return false;
+		if ($s_username == '' || $s_password == '' || $s_email == '') {
+			$s_feedback = "Empty username, password, or email address.";
+			return FALSE;
+		}
+		if (strpos($s_email, '@') === FALSE || strpos($s_email, '.') === FALSE || strpos($s_email, '|') !== FALSE || strpos($s_email, '<') !== FALSE || strpos($s_email, '>') !== FALSE) {
+			$s_feedback = "Invalid email address.";
+			return false;
+		}
 		$a_users = db_query("SELECT `id` FROM `[maindb]`.`students` WHERE `username`='[username]'",
 							array('maindb'=>$maindb, 'username'=>$s_username));
-		if (count($a_users) > 0)
-				return FALSE;
+		if (count($a_users) > 0) {
+			$s_feedback = "User with name \"{$s_username}\" already exists in database.";
+			return FALSE;
+		}
 		
 		// create the user
 		db_query("INSERT INTO `[maindb]`.`students` (`username`,`pass`,`email`,`accesses`) VALUES ('[username]',AES_ENCRYPT('[username]','[password]'),'[email]','[accesses]')",
 				 array('maindb'=>$maindb, 'username'=>$s_username, 'password'=>$s_password, 'email'=>$s_email, 'accesses'=>$s_access));
-		if ($mysqli->affected_rows > 0)
-				return TRUE;
+		if ($mysqli->affected_rows > 0) {
+			return TRUE;
+		}
+		$s_feedback = "Failed to add user to database.";
 		return FALSE;
 	}
 	

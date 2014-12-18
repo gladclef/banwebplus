@@ -12,11 +12,12 @@ o_userManager = {
 		if (typeof(force_load) == 'undefined')
 			force_load = false;
 		if (this.users === null || force_load) {
-			var loadVal = $.parseJSON(send_ajax_call('/resources/ajax_calls.php', { command:'get_full_users_list' }));
-			if (loadVal.success)
-				this.users = {success:true, users:loadVal.details};
+			var commands = JSON.parse(send_ajax_call('/resources/ajax_calls.php', { command:'get_full_users_list' }));
+			var command = commands[0];
+			if (command.command == "success")
+				this.users = {success:true, users:command.action};
 			else
-				return {success:false, details:loadVal.details};
+				return {success:false, details:command.action};
 		}
 		return this.users;
 	},

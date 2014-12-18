@@ -48,12 +48,13 @@ function load_semester_classes_from_database($s_year, $s_semester, $s_output_typ
 	// load the classes
 	$a_classes_db = db_query("SELECT {$s_select_clause} FROM `{$maindb}`.`classes` WHERE `semester`='[semester]' AND `year`='[year]' AND ({$access_to_custom_class}) ORDER BY `subject`,`course`", array("semester"=>$s_load_semester, "year"=>$s_load_year));
 	if ($a_classes_db === FALSE || count($a_classes_db) == 0) {
-			return "Failed to load the classes for the semester, given semester ({$s_year}, {$s_semester}) possibly out of range.";
+		return json_encode(array(
+			new command("failure", "Failed to load the classes for the semester, given semester ({$s_year}, {$s_semester}) possibly out of range.")));
 	}
 
 	// is this just a test count?
 	if ($b_just_count) {
-			return (int)$a_classes_db[0]["count"];
+		return (int)$a_classes_db[0]["count"];
 	}
 	
 	$a_subclasses = array();
@@ -86,10 +87,11 @@ function load_semester_classes_from_database($s_year, $s_semester, $s_output_typ
 	
 	$a_retval = array('name'=>$s_name, 'subjects'=>$a_subjects, 'classes'=>$a_classes);
 	if ($s_output_type == "json") {
-			$s_semester_data = json_encode($a_retval);
-			return $s_semester_data;
+		$s_semester_data = json_encode(array(
+			new command("success", $a_retval)));
+		return $s_semester_data;
 	} else if ($s_output_type == "array") {
-			return $a_retval;
+		return $a_retval;
 	}
 }
 
@@ -121,9 +123,10 @@ function save_custom_class_to_db($a_values, $i_user_id, $sem, $year) {
 	
 	// check that none of the fields are blank
 	foreach($a_values as $k=>$v) {
-			if ($v == "") {
-					return "Failure: bad value for {$k}";
-			}
+		if ($v == "") {
+			return json_encode(array(
+				new command("failure", "Failure: bad value for {$k}")));
+		}
 	}
 
 	// get the next crn for custom classes
@@ -183,9 +186,11 @@ function save_custom_class_to_db($a_values, $i_user_id, $sem, $year) {
 	$s_insert_clause = array_to_insert_clause($a_class);
 	$query = db_query("INSERT INTO `{$maindb}`.`classes` {$s_insert_clause}", $a_class);
 	if ($query !== FALSE) {
-			return "success";
+		return json_encode(array(
+			new command("success", "")));
 	}
-	return "failure";
+	return json_encode(array(
+		new command("failure", "failure")));
 }
 
 /**
@@ -235,7 +240,8 @@ function edit_custom_course($sem, $year, $crn, $attribute, $value) {
 	
 	// check that the user has the proper accesses
 	if (!user_has_custom_access($global_user, "w", $crn, $year, $semester)) {
-			return "Can't update: you don't have permission to update this custom class.";
+		return json_encode(array(
+			new command("failure", "Can't update: you don't have permission to update this custom class.")));
 	}
 
 	// normalize the attribute
@@ -253,7 +259,8 @@ function edit_custom_course($sem, $year, $crn, $attribute, $value) {
 	// check that the attribute is valid
 	$a_query = db_query("SELECT `[attr]` FROM `{$maindb}`.`classes` WHERE {$s_where_clause}", array_merge(array("attr"=>$attribute), $a_where_vars));
 	if ($a_query === FALSE || count($a_query) == 0) {
-			return "Can't update: bad attribute name \"{$attribute}.\"";
+		return json_encode(array(
+			new command("failure", "Can't update: bad attribute name \"{$attribute}.\"")));
 	}
 	// and get a safe name for the attribute
 	$a_attr = $a_query[0];
@@ -266,12 +273,15 @@ function edit_custom_course($sem, $year, $crn, $attribute, $value) {
 	$s_update_clause = array_to_update_clause($a_update_vars);
 	$a_query = db_query("UPDATE `{$maindb}`.`classes` SET {$s_update_clause} WHERE {$s_where_clause}", array_merge($a_update_vars, $a_where_vars));
 	if ($a_query === FALSE) {
-			return "Failed to update database.";
+		return json_encode(array(
+			new command("failure", "Failed to update database.")));
 	}
 	if ($mysqli->affected_rows == 0) {
-			return "success";
+		return json_encode(array(
+			new command("success", "")));
 	}
-	return "success";
+	return json_encode(array(
+		new command("success", "")));
 }
 
 function remove_custom_course_access($sem, $year, $crn) {
@@ -290,12 +300,14 @@ function remove_custom_course_access($sem, $year, $crn) {
 	$s_where_clause = array_to_where_clause($a_where_vars);
 	$a_query = db_query("SELECT `user_ids_with_access` AS `accesses` FROM `{$maindb}`.`classes` WHERE {$s_where_clause}", $a_where_vars);
 	if ($a_query === FALSE || count($a_query) == 0) {
-			return "Error: can't find that class.";
+		return json_encode(array(
+			new command("failure", "Error: can't find that class.")));
 	}
 	$s_accesses = $a_query[0]["accesses"];
 	$i_pos = strpos($s_accesses, "|{$id},");
 	if ($i_pos === FALSE) {
-			return "success";
+		return json_encode(array(
+			new command("success", "")));
 	}
 
 	// parse out this user
@@ -309,9 +321,11 @@ function remove_custom_course_access($sem, $year, $crn) {
 	$s_update_clause = array_to_update_clause($a_update_vars);
 	$a_query = db_query("UPDATE `{$maindb}`.`classes` SET {$s_update_clause} WHERE {$s_where_clause}", array_merge($a_update_vars, $a_where_vars));
 	if ($a_query === FALSE) {
-			return "Failed to update database.";
+		return json_encode(array(
+			new command("failure", "Failed to update database.")));
 	}
-	return "success";
+	return json_encode(array(
+		new command("success", "")));
 }
 
 function get_user_accesses($crn, $semester, $year) {
@@ -322,7 +336,7 @@ function get_user_accesses($crn, $semester, $year) {
 	$s_where_clause = array_to_where_clause($a_where_vars);
 	$a_query = db_query("SELECT `user_ids_with_access` AS `accesses` FROM `{$maindb}`.`classes` WHERE {$s_where_clause}", $a_where_vars);
 	if ($a_query === FALSE || count($a_query) == 0) {
-			return NULL;
+		return NULL;
 	}
 
 	$a_user_accesses = explode(",", rtrim($a_query[0]["accesses"], ","));
@@ -347,18 +361,21 @@ function share_custom_class($sem, $year, $crn, $accesses, $username) {
 	
 	// check for permissions
 	if (!user_has_custom_access($global_user, $accesses, $crn, $year, $semester)) {
-			return "Error: you don't have permission to share this class like that.";
+		return json_encode(array(
+			new command("failure", "Error: you don't have permission to share this class like that.")));
 	}
 	
 	// check that the class and user exist
 	$a_query = db_query("SELECT `id` FROM `{$maindb}`.`students` WHERE `username`='[username]' AND `disabled`='0'", array("username"=>$username));
 	if ($a_query === FALSE || count($a_query) == 0) {
-			return "Error: can't find that banwebplus username to share with.";
+		return json_encode(array(
+			new command("failure", "Error: can't find that banwebplus username to share with.")));
 	}
 	$i_user_id = (int)$a_query[0]['id'];
 	$a_user_accesses = get_user_accesses($crn, $semester, $year);
 	if ($a_user_accesses == NULL) {
-			return "Error: can't find that class to share.";
+		return json_encode(array(
+			new command("failure", "Error: can't find that class to share.")));
 	}
 
 	// compute the new user accesses
@@ -390,9 +407,11 @@ function share_custom_class($sem, $year, $crn, $accesses, $username) {
 	$s_update_clause = array_to_update_clause($a_update_vars);
 	$a_query = db_query("UPDATE `{$maindb}`.`classes` SET {$s_update_clause} WHERE {$s_where_clause}", array_merge($a_update_vars, $a_where_vars));
 	if ($a_query == FALSE) {
-			return "Failed to update database.";
+		return json_encode(array(
+			new command("failure", "Failed to update database.")));
 	}
-	return "success";
+	return json_encode(array(
+		new command("success", "")));
 }
 
 ?>

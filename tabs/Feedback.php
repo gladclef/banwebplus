@@ -2,6 +2,7 @@
 
 require_once(dirname(__FILE__)."/../objects/forum.php");
 require_once(dirname(__FILE__)."/../objects/user.php");
+require_once(dirname(__FILE__)."/../objects/command.php");
 
 function init_feedback_tab() {
 	global $o_feedback;
@@ -231,47 +232,52 @@ class bugtracker_object_type extends forum_object_type {
 	 * Changes the owner of the bug
 	 * @$s_post_id string id of the post
 	 * @$s_userid  string id of the user that should own the bug
-	 * @return     string should be "alert[*note*]message" on failure or "set value[*note*]{'element_find_by':string,'html':string}" on success
+	 * @return     string should be "[{alert,message}]" on failure or "[{set value,{'element_find_by':string,'html':string}}]" on success
 	 */
 	public function handleChangeBugOwnerAJAX($s_post_id, $s_userid) {
 		global $maindb;
 		
 		// check that the user has permission
 		if (!$this->user->has_access($this->s_createaccess)) {
-				return "alert[*note*]Incorrect permission";
+			return json_encode(array(
+				new command("alert","Incorrect permission")));
 		}
 		
 		// check that the post and owner exist
 		$a_posts = db_query("SELECT `id` FROM `{$maindb}`.`buglog` WHERE `id`='[id]'", array("id"=>$s_post_id));
 		$a_users = db_query("SELECT `username` FROM `{$maindb}`.`students` WHERE `id`='[id]'", array("id"=>$s_userid));
 		if (!is_array($a_posts) || !is_array($a_users) || count($a_posts) == 0 || count($a_users) == 0) {
-				return "alert[*note*]Error: either the user can't be found or the bug can't be found in the database";
+			return json_encode(array(
+				new command("alert","Error: either the user can't be found or the bug can't be found in the database")));
 		}
 
 		// change the owner and return
 		db_query("UPDATE `{$maindb}`.`buglog` SET `owner_userid`='[userid]' WHERE `id`='[id]'", array("id"=>$s_post_id, "userid"=>$s_userid));
 		$s_json = json_encode(array("element_find_by"=>"#bug_owner_{$s_post_id}", "html"=>$a_users[0]["username"]));
-		return "set value[*note*]{$s_json}";
+		return json_encode(array(
+			new command("set value", $s_json)));
 	}
 
 	/**
 	 * Changes the status of the bug
 	 * @$s_post_id string id of the post
 	 * @$s_status  string the status to be changed to
-	 * @return     string should be "alert[*note*]message" on failure or "set value[*note*]{'element_find_by':string,'html':string}" on success
+	 * @return     string should be "[{alert,message}]" on failure or "[{set value,{'element_find_by':string,'html':string}}]" on success
 	 */
 	public function handleChangeBugStatusAJAX($s_post_id, $s_status) {
 		global $maindb;
 		
 		// check that the user has permission
 		if (!$this->user->has_access($this->s_createaccess)) {
-				return "alert[*note*]Incorrect permission";
+			return json_encode(array(
+				new command("alert","Incorrect permission")));
 		}
 		
 		// check that the post exists
 		$a_posts = db_query("SELECT `status` FROM `{$maindb}`.`buglog` WHERE `id`='[id]'", array("id"=>$s_post_id));
 		if (!is_array($a_posts) || count($a_posts) == 0) {
-				return "alert[*note*]Error: the bug can't be found in the database";
+			return json_encode(array(
+				new command("alert","Error: the bug can't be found in the database")));
 		}
 
 		// change the status
@@ -284,12 +290,12 @@ class bugtracker_object_type extends forum_object_type {
 		
 		// return
 		$s_json = json_encode(array("element_find_by"=>"#bug_status_{$s_post_id}", "html"=>$s_status));
-		$a_retval[] = "set value[*note*]{$s_json}";
+		$a_retval[] = new command("set value", "{$s_json}");
 		$s_json = json_encode(array("element_find_by"=>"#bug_container_{$s_post_id}", "class"=>"status_{$s_old_status_string}"));
-		$a_retval[] = "remove class[*note*]{$s_json}";
+		$a_retval[] = new command("remove class", "{$s_json}");
 		$s_json = json_encode(array("element_find_by"=>"#bug_container_{$s_post_id}", "class"=>"status_{$s_new_status_string}"));
-		$a_retval[] = "add class[*note*]{$s_json}";
-		return implode("[*command*]", $a_retval);
+		$a_retval[] = new command("add class", "{$s_json}");
+		return json_encode($a_retval);
 	}
 }
 

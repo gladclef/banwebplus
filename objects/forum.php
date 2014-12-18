@@ -1,6 +1,7 @@
 <?php
 
 require_once(dirname(__FILE__)."/user.php");
+require_once(dirname(__FILE__)."/command.php");
 
 class forum_object_type {
 	
@@ -192,7 +193,7 @@ class forum_object_type {
 	 * updates post entries if the user has the proper access
 	 * @$s_post_id          string the string representation of the post id
 	 * @$s_new_query_string string the new query string to insert into the database
-	 * @return              string one of "alert[*note*]message[*command*]reset old value[*note*]" on error or "" on success
+	 * @return              string one of "[{alert,message},{reset old value}]" on error or "[]" on success
 	 */
 	public function handleEditPostAJAX($s_post_id, $s_new_query_string) {
 		global $maindb;
@@ -201,24 +202,30 @@ class forum_object_type {
 		$id = (int)$s_post_id;
 		$a_forum_posts = db_query("SELECT * FROM `{$maindb}`.`[table]` WHERE `id`='{$id}'", array("table"=>$this->s_tablename));
 		if (!is_array($a_forum_posts) || count($a_forum_posts) == 0) {
-				return "alert[*note*]Post {$id} not found. Value not saved.[*command*]reset old values[*note*]";
+			return json_encode(array(
+				new command("alert","Post {$id} not found. Value not saved."),
+				new command("reset old values", "")));
 		}
 		if ($a_forum_posts[0]["userid"] != $this->user->get_id()) {
-				return "alert[*note*]Incorrect permissions. Value not saved.[*command*]reset old values[*note*]";
+			return json_encode(array(
+				new command("alert","Incorrect permissions. Value not saved."),
+				new command("reset old values", "")));
 		}
 		
 		// try and update the note
 		$query = db_query("UPDATE `{$maindb}`.`[table]` SET `query`='[query]' WHERE `id`='[id]'", array("table"=>$this->s_tablename, "id"=>$id, "query"=>$s_new_query_string));
 		if ($query === FALSE) {
-				return "alert[*note*]Failed to update database. Value not saved.[*command*]reset old values[*note*]";
+			return json_encode(array(
+				new command("alert","Failed to update database. Value not saved."),
+				new command("reset old values", "")));
 		}
-		return "";
+		return "[]";
 	}
 
 	/**
 	 * creates a new post and response
 	 * @$b_no_response boolean if TRUE, don't automatically generate a response to the post
-	 * @return         array   array("success"=>boolean, "create_id"=>integer, "response"=>one of "alert[*note*]message" on error or "reload page[*note*]" on success)
+	 * @return array array("success"=>boolean, "create_id"=>integer, "response"=>one of "[{alert, message}]" on error or "[{reload page}]" on success)
 	 */
 	public function handleCreatePostAJAX($b_no_response = FALSE) {
 		global $maindb;
@@ -226,7 +233,9 @@ class forum_object_type {
 		
 		// check if the user has permission
 		if (!$this->user->has_access($this->s_createaccess)) {
-				return array("success"=>FALSE, "create_id"=>0, "response"=>"alert[*note*]Incorrect permissions");
+			$s_response = json_encode(array(
+				new command("alert", "Incorrect permissions")));
+			return array("success"=>FALSE, "create_id"=>0, "response"=>$s_response);
 		}
 
 		// create the new post
@@ -234,7 +243,9 @@ class forum_object_type {
 		$s_insert_post = array_to_insert_clause($a_insert_post);
 		$query = db_query("INSERT INTO `{$maindb}`.`[table]` {$s_insert_post}", array_merge($a_insert_post,array("table"=>$this->s_tablename)));
 		if ($query === FALSE) {
-				return array("success"=>FALSE, "create_id"=>0, "response"=>"alert[*note*]Failed to insert into database");
+			$s_response = json_encode(array(
+				new command("alert", "Failed to insert into database")));
+			return array("success"=>FALSE, "create_id"=>0, "response"=>$s_response);
 		}
 		$i_insert_id = $mysqli->insert_id;
 
@@ -245,7 +256,9 @@ class forum_object_type {
 				$query = db_query("INSERT INTO `{$maindb}`.`[table]` {$s_insert_response}", array_merge($a_insert_response,array("table"=>$this->s_tablename)));
 		}
 
-		return array("success"=>TRUE, "create_id"=>$i_insert_id, "response"=>"reload page[*note*]");
+		$s_response = json_encode(array(
+			new command("reload page", "")));
+		return array("success"=>TRUE, "create_id"=>$i_insert_id, "response"=>$s_response);
 	}
 
 	public function handleRespondPostAJAX($post_id) {
@@ -253,13 +266,15 @@ class forum_object_type {
 		
 		// check if the user has permission
 		if (!$this->user->has_access($this->s_createaccess)) {
-				return "alert[*note*]Incorrect permissions";
+			return json_encode(array(
+				new command("alert", "Incorrect permissions")));
 		}
 
 		// check that the post exists that we're trying to create a response to
 		$a_posts = db_query("SELECT `id` FROM `{$maindb}`.`[table]` WHERE `id`='[id]' LIMIT 1", array("table"=>$this->s_tablename, "id"=>$post_id));
 		if (!is_array($a_posts) || count($a_posts) == 0) {
-				return "alert[*note*]Original post not found, possible error in database";
+			return json_encode(array(
+				new command("alert", "Original post not found, possible error in database")));
 		}
 
 		// create the response
@@ -267,10 +282,12 @@ class forum_object_type {
 		$s_insert_response = array_to_insert_clause($a_insert_response);
 		$query = db_query("INSERT INTO `{$maindb}`.`[table]` {$s_insert_response}", array_merge($a_insert_response,array("table"=>$this->s_tablename)));
 		if ($query === FALSE) {
-				return "alert[*note*]Failed to insert into database";
+			return json_encode(array(
+				new command("alert", "Failed to insert into database")));
 		}
 
-		return "reload page[*note*]";
+		return json_encode(array(
+			new command("reload page", "")));
 	}
 
 	/**
@@ -284,15 +301,18 @@ class forum_object_type {
 		
 		// check that the user has permission
 		if (!$this->user->has_access($this->s_deleteaccess)) {
-				return "alert[*note*]Incorrect permission";
+			return json_encode(array(
+				new command("alert", "Incorrect permission")));
 		}
 		
 		// try and delete the post
 		$query = db_query("UPDATE `{$maindb}`.`[table]` SET `deleted`='1' WHERE `id`='[id]'", array("table"=>$this->s_tablename, "id"=>$post_id));
 		if ($query === FALSE || $mysqli->affected_rows == 0) {
-				return "alert[*note*]Failed to update database";
+			return json_encode(array(
+				new command("alert", "Failed to update database")));
 		}
-		return "reload page[*note*]";
+		return json_encode(array(
+			new command("reload page", "")));
 	}
 
 	/**

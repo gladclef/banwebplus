@@ -75,7 +75,8 @@ typeAccountManager = function() {
 		jsubmit.click(function() {
 			draw_error(jform, "Contacting server...", null);
 			vars = {username:get_username(), password:jpass.val(), command:"verify_password"};
-			send_ajax_call("/resources/ajax_calls.php", vars, function(success){
+			send_ajax_call("/resources/ajax_calls.php", vars, function(message){
+				var success = JSON.parse(message)[0].command;
 				if (success == "success") {
 					draw_error(jform, "Success", true);
 					setTimeout(kill, 200);
@@ -112,7 +113,8 @@ typeAccountManager = function() {
 		this.authenticateUser(function(vars, success) {
 			if (success) {
 				vars = {username:vars.username, password:vars.password, new_password:jpass.val(), command:"change_password"};
-				send_ajax_call("/resources/ajax_calls.php", vars, function(success) {
+				send_ajax_call("/resources/ajax_calls.php", vars, function(message) {
+					var success = JSON.parse(message)[0].command;
 					if (success == "success") {
 						draw_error(jform, "Success: your password has been changed", true);
 					} else {
@@ -168,7 +170,8 @@ typeAccountManager = function() {
 		this.authenticateUser(function(vars, success) {
 			if (success) {
 				vars = {username:vars.username, password:vars.password, command:s_command};
-				send_ajax_call("/resources/ajax_calls.php", vars, function(success) {
+				send_ajax_call("/resources/ajax_calls.php", vars, function(message) {
+					var success = JSON.parse(message)[0].command;
 					if (success == "success") {
 						draw_error(jform, "Success: "+s_success, true);
 					} else {

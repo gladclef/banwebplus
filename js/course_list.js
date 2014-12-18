@@ -59,7 +59,8 @@ typeCoursesList = function() {
 	
 	this.getAvailableSemesters = function() {
 		if (typeof(available_semesters) == 'undefined' || available_semesters.length == 0) {
-			available_semesters = $.parseJSON(send_ajax_call('/resources/ajax_calls.php', {command:'list_available_semesters'}));
+			available_semesters = JSON.parse(send_ajax_call('/resources/ajax_calls.php', {command:'list_available_semesters'}));
+			available_semesters = available_semesters[0].action;
 			available_semesters = $(available_semesters).sort(function(a,b){ return a > b ? 1 : -1; });
 		}
 		for (var i = 0; i < available_semesters.length; i++) {
@@ -74,6 +75,7 @@ typeCoursesList = function() {
 			default_semester = o_storage.getGuestData('defaultSemester');
 			if (default_semester === null) {
 				default_semester = send_ajax_call('/resources/ajax_calls.php', {command:'get_default_semester'});
+				default_semester = JSON.parse(default_semester)[0].action;
 			}
 		}
 		return default_semester;
@@ -285,9 +287,11 @@ typeCoursesList = function() {
 				cache: false,
 				data: { command: 'list_available_semesters' },
 				success: function(message) {
-					if (message.slice(0,7) == 'failed|')
+					var command = JSON.parse(message)[0];
+					if (command.command == "failed") {
 						return;
-					available_semesters = $.parseJSON(message);
+					}
+					available_semesters = command.action;
 					this.loadAllSemesters_part2()
 				}
 			});
@@ -521,15 +525,20 @@ typeCoursesList = function() {
 			data: a_postvars,
 			async: async,
 			success: function(message) {
-				if (message.slice(0,7) == 'failed|')
+				var command = JSON.parse(message)[0];
+				if (command.command == "failed") {
 					return;
-				var a_semester_data = jQuery.parseJSON(message);
+				}
+				console.log(command);
+
+				var a_semester_data = command.action;
 				var a_courses = a_semester_data['classes'];
 				var a_subjects = a_semester_data['subjects'];
 				$.each(a_subjects, function(s_index, s_subject) {
 					current_subjects[sem].push([s_index, s_subject]);
 					full_course_list[sem][s_index] = [];
 				});
+				console.log('a');
 				for (var i = 0; i < a_courses.length; i++) {
 					var s_subject = a_courses[i]['subject'];
 					var course = [];
@@ -551,7 +560,9 @@ typeCoursesList = function() {
 					course['accesses'] = a_courses[i]['accesses'];
 					full_course_list[sem][s_subject].push(course);
 				}
+				console.log('b');
 				loadFullCourseListPart2(sem, async);
+				console.log('c');
 			}
 		});
 	}
@@ -604,11 +615,13 @@ typeCoursesList = function() {
 			data: a_postvars,
 			async: async,
 			success: function(message) {
-				if (message.slice(0,7) == 'failed|') {
+				var command = JSON.parse(message)[0];
+				if (command.command == "failed") {
 					getGuestClasses(sem);
 					return;
 				}
-				user_data = jQuery.parseJSON(message);
+				user_data = command.action;
+
 				var user_classes = user_data.user_classes;
 				var user_whitelist = user_data.user_whitelist;
 				var user_blacklist = user_data.user_blacklist;
