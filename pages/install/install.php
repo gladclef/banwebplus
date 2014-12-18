@@ -11,7 +11,7 @@ class ProjectInstaller {
 
 	/**
 	 * Checks that a database is available to use.
-	 * If not, return false.
+	 * @return TRUE if database is available, FALSE otherwise
 	 */
 	public function check_install_database() {
 		global $global_opened_db;
@@ -24,7 +24,7 @@ class ProjectInstaller {
 
 	/**
 	 * Checks that all necessary *.ini files are present and formatted correctly.
-	 * Returns TRUE if formatted correctly, or FALSE if not.
+	 * @return TRUE if formatted correctly, or FALSE if not.
 	 */
 	public function check_ini_files() {
 		global $global_loaded_server_settings;
@@ -54,7 +54,7 @@ class ProjectInstaller {
 
 	/**
 	 * Checks that the basic users have been created.
-	 * If not, return false.
+	 * @return TRUE if users have been created, FALSE otherwise.
 	 */
 	public function check_create_users() {
 		global $maindb;
@@ -74,10 +74,24 @@ class ProjectInstaller {
 		return FALSE;
 	}
 
+	/**
+	 * Check that class and semester data is available.
+	 * @return TRUE if data is available, FALSE otherwise.
+	 */
+	public function check_classes_availability() {
+		$filename = dirname(__FILE__) . "/../../scraping/banweb_terms.php";
+
+		if (!file_exists($filename)) {
+			return FALSE;
+		}
+		return TRUE;
+	}
+
 	public function check_installed() {
 		return ($this->check_install_database() &&
 			$this->check_ini_files() &&
-			$this->check_create_users());
+			$this->check_create_users() &&
+			$this->check_classes_availability());
 	}
 }
 

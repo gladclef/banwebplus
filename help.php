@@ -78,7 +78,7 @@ function draw_status_code($block_style) {
 	$success = "<div style='display:inline-block; color:green; font-weight:bold;'>Success:</div>";
 	$error = "<div style='display:inline-block; color:red; font-weight:bold;'>Error:</div>";
 	$info_div = "<div style='display:none; border:1px solid black; border-radius:0.5em; padding:1.5em; margin:0.8em; 0.5em; background-color:rgba(0,0,0,0.05);'";
-	$codebox = "<div style='margin:0.5em; padding:0.5em; border:1px dashed black; font-familiy:monospace;'>";
+	$codebox = "<div style='margin:0.5em; padding:0.5em; border:1px dashed black; font-family:monospace;'>";
 	$b_all_green = TRUE;
 
 	echo "<script type='text/javascript'>
@@ -194,7 +194,33 @@ function draw_status_code($block_style) {
 		echo "</div>\n";
 		$b_all_green = FALSE;
 	} else {
-		echo "{$success} Users exist.<br />\n";
+		echo "{$success} users exist.<br /><br />\n";
+	}
+
+	if (!$o_project_installer->check_classes_availability()) {
+		$show_block1 = "<a href='#' style='inline-block;' onclick='show_block(\"classes\", \"";
+		$show_block2 = "\");'>";
+		$show_block3 = "</a>";
+
+		echo "{$error}
+			{$show_block1}data{$show_block2}class data{$show_block3} is not available.<br /><br />\n\n";
+
+		$monospace = "<div style='display:inline-block; font-family:monospace;'>";
+		$root_dir = dirname(__FILE__) . "/scraping/";
+		$terms_fname = $root_dir . "banweb_terms.py";
+		$banweb_fname = $root_dir . "banweb.py";
+		echo "<div id='classes' style='padding:0; margin:0;'>\n";
+		echo "${info_div} class='data'>Run these steps, in order:
+			<ol>
+				<li>Create the file	{$monospace}{$terms_fname}</div> with the following line:<br />\n
+					{$codebox}terms = []</div>
+				<li>Run the file {$monospace}{$banweb_fname}</div> with python 2.x.<br />\n
+					{$codebox}python2.7 {$banweb_fname} --path {$root_dir}</div>
+			</ol></div>\n";
+		echo "</div>\n";
+		$b_all_green = FALSE;
+	} else {
+		echo "{$success} class data available.<br />\n";
 	}
 
 	echo "\n</div><br /><br />\n\n";
