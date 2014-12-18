@@ -21,7 +21,11 @@ function define_global_vars() {
 	$tab_init_function = NULL; // redefined with each tab file required
 	$global_loaded_server_settings = FALSE;
 
-	$a_configs = parse_ini_file(dirname(__FILE__)."/server_config.ini");
+	$a_configs = [];
+	$filename = dirname(__FILE__) . "/server_config.ini";
+	if (file_exists($filename)) {
+		$a_configs = parse_ini_file($filename);
+	}
 
 	if ($a_configs === FALSE) {
 		return;

@@ -2,6 +2,7 @@
 
 require_once(dirname(__FILE__)."/globals.php");
 require_once(dirname(__FILE__)."/db_query.php");
+require_once(dirname(__FILE__)."/../pages/install/install.php");
 
 if (isset($argv)) {
 	foreach($argv as $arg){
@@ -13,9 +14,9 @@ if (isset($argv)) {
 }
 
 if (isset($_GET["action"])) {
-		executeAction($_GET["action"]);
+	executeAction($_GET["action"]);
 } else {
-		drawOptions();
+	drawOptions();
 }
 
 function executeAction($s_action) {
@@ -57,10 +58,21 @@ function saveTables() {
 
 function loadTables() {
 	$filename = dirname(__FILE__)."/../database_desc.txt";
+	if (!file_exists($filename)) {
+		echo "<!DOCTYPE html><body>
+			<div style='display:inline-block; color:red; font-weight:bold;'>Error:</div>
+			file
+			<div style='display:inline-block; font-family:monospace;'>{$filename}</div>
+			describing the tables does not exist!<br />
+			Please retrieve this file and try again.
+			</body>";
+		return;
+	}
 	$a_file_tables = unserialize(file_get_contents($filename));
 	$a_file_tables = $a_file_tables["Tables"];
 	$a_tables = getTables();
 	updateTables($a_tables, $a_file_tables);
+	echo "success";
 }
 
 function saveCommon_Data() {
@@ -81,10 +93,21 @@ function saveCommon_Data() {
 function loadCommon_Data() {
 	global $maindb;
 	$filename = dirname(__FILE__)."/../database_desc.txt";
+	if (!file_exists($filename)) {
+		echo "<!DOCTYPE html><body>
+			<div style='display:inline-block; color:red; font-weight:bold;'>Error:</div>
+			file
+			<div style='display:inline-block; font-family:monospace;'>{$filename}</div>
+			describing the data to load does not exist!<br />
+			Please retrieve this file and try again.
+			</body>";
+		return;
+	}
 	$a_tables = unserialize(file_get_contents($filename));
 	$a_common_data = $a_tables["Common_Data"];
 	$a_curr_common_data = getCommon_date();
 	updateCommon_Data($a_curr_common_data, $a_common_data);
+	echo "success";
 }
 
 function getCommon_date() {
@@ -285,12 +308,10 @@ function getTableDescription($s_tablename) {
 
 function initializeUserData() {
 	global $maindb;
+	global $o_project_installer;
 
 	// check if users already exist
-	$a_users_count = db_query("SELECT COUNT(`id`) AS 'count' FROM `[maindb]`.`students`",
-		array("maindb"=>$maindb));
-	$i_users_count = intval($a_users_count[0]["count"]);
-	if ($i_users_count > 0) {
+	if ($o_project_installer->check_create_users(FALSE)) {
 		echo "users already exist";
 		return;
 	}

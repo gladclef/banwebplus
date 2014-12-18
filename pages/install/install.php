@@ -30,12 +30,21 @@ class ProjectInstaller {
 		global $global_loaded_server_settings;
 		global $global_opened_db;
 
-		$a_server = parse_ini_file(dirname(__FILE__)."/../../resources/server_config.ini");
-		$a_mysql = parse_ini_file(dirname(__FILE__)."/../../resources/mysql_config.ini");
+		$server_file = dirname(__FILE__)."/../../resources/server_config.ini";
+		$mysql_file = dirname(__FILE__)."/../../resources/server_config.ini";
+
+		if (!file_exists($server_file) ||
+			!file_exists($mysql_file)) {
+			return FALSE;
+		}
+
+		$a_server = parse_ini_file($server_file);
+		$a_mysql = parse_ini_file($mysql_file);
 		if ($a_server === FALSE ||
 			$a_mysql === FALSE) {
 			return FALSE;
 		}
+
 		if (!$global_loaded_server_settings ||
 			!$global_opened_db) {
 			return FALSE;
@@ -49,6 +58,11 @@ class ProjectInstaller {
 	 */
 	public function check_create_users() {
 		global $maindb;
+		global $global_opened_db;
+
+		if (!$global_opened_db) {
+			return FALSE;
+		}
 		
 		// check if users already exist
 		$a_users_count = db_query("SELECT COUNT(`id`) AS 'count' FROM `[maindb]`.`students`",

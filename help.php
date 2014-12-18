@@ -12,18 +12,11 @@ function draw() {
 
 	$block_style = "display:inline-block; border:1px solid black; padding:1em; background-color:rgba(0,0,0,0.05);";
 
-	// the installer injects code here
-	ob_start();
-	$b_installer_executes = !$o_project_installer->check_arguments();
-	$s_installer_code = ob_get_clean();
-	ob_end_clean();
-
 	echo "<!DOCTYPE html>
 	<head><title>Banwebplus help!</title>
 	<script src='{$global_path_to_jquery}'></script></head>\n
 	<body><div style='width:800px; margin:0 auto;'>\n\n";
 	draw_jquery($block_style);
-	draw_installer_code($b_installer_executes, $s_installer_code);
 	draw_help_code($block_style);
 	$b_all_green = draw_status_code($block_style);
 	draw_link_to_login($block_style, $b_all_green);
@@ -49,16 +42,6 @@ function draw_jquery($block_style) {
 			</div>
 		</div><br /><br />\n\n";
 	}
-}
-
-function draw_installer_code($b_installer_executes, $s_installer_code) {
-	if (!$b_installer_executes) {
-		return;
-	}
-
-	echo "<div style='border:1px solid black; border-radius:5px; padding:1em; color:#555; background-color:#eee; margin:1.5em;'
-		{$s_installer_code}
-		</div>";
 }
 
 function draw_help_code($block_style) {
@@ -178,7 +161,7 @@ function draw_status_code($block_style) {
 			{$codebox}
 				CREATE USER 'user'@'localhost' IDENTIFIED BY 'password';<br />
 				CREATE DATABASE banwebplus;<br />
-				GRANT ALL ON `banwebplus`.* to `user`@'localhost';
+				GRANT ALL ON `banwebplus`.* to 'user'@'localhost';
 			</div>
 			More information on using MySQL can be found
 			<a href='http://www.mysqltutorial.org/basic-mysql-tutorial.aspx' target='_blank'>here</a>.

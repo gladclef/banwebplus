@@ -3,9 +3,9 @@ require_once(dirname(__FILE__)."/common_functions.php");
 require_once(dirname(__FILE__)."/globals.php");
 
 if ($global_opened_db === FALSE) {
-		if (open_db()) {
-				$global_opened_db = TRUE;
-		}
+	if (open_db()) {
+		$global_opened_db = TRUE;
+	}
 }
 
 function replace_values_in_db_query_string($s_query, $a_values) {
@@ -38,19 +38,29 @@ function db_query($s_query, $a_values=NULL, $b_print_query = FALSE) {
 }
 
 function open_db() {
-	global $db_is_already_connected;
+	global $global_opened_db;
 
-	if ($db_is_already_connected === TRUE) {
+	if ($global_opened_db === TRUE) {
 			return TRUE;
 	}
 
-	$a_configs = parse_ini_file(dirname(__FILE__)."/mysql_config.ini");
+	$a_configs = [];
+	$filename = dirname(__FILE__)."/mysql_config.ini";
+	if (file_exists($filename)) {
+		$a_configs = parse_ini_file($filename);
+	}
+	if (!isset($a_configs["host"]) ||
+		!isset($a_configs["user"]) ||
+		!isset($a_configs["password"])) {
+		return FALSE;
+	}
+
 	$link = mysql_connect($a_configs["host"], $a_configs["user"], $a_configs["password"]);
 	if ($link) {
-			$db_is_already_connected = TRUE;
-			return TRUE;
+		$global_opened_db = TRUE;
+		return TRUE;
 	} else {
-			return FALSE;
+		return FALSE;
 	}
 }
 
