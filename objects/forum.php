@@ -222,6 +222,7 @@ class forum_object_type {
 	 */
 	public function handleCreatePostAJAX($b_no_response = FALSE) {
 		global $maindb;
+		global $mysqli;
 		
 		// check if the user has permission
 		if (!$this->user->has_access($this->s_createaccess)) {
@@ -235,11 +236,11 @@ class forum_object_type {
 		if ($query === FALSE) {
 				return array("success"=>FALSE, "create_id"=>0, "response"=>"alert[*note*]Failed to insert into database");
 		}
-		$i_insert_id = mysql_insert_id();
+		$i_insert_id = $mysqli->insert_id;
 
 		// create the response
 		if (!$b_no_response) {
-				$a_insert_response = array("userid"=>$this->user->get_id(), "owner_userid"=>$this->user->get_id(), "datetime"=>date("Y-m-d H:i:s"), "is_response"=>1, "original_post_id"=>mysql_insert_id());
+				$a_insert_response = array("userid"=>$this->user->get_id(), "owner_userid"=>$this->user->get_id(), "datetime"=>date("Y-m-d H:i:s"), "is_response"=>1, "original_post_id"=>$mysqli->insert_id());
 				$s_insert_response = array_to_insert_clause($a_insert_response);
 				$query = db_query("INSERT INTO `{$maindb}`.`[table]` {$s_insert_response}", array_merge($a_insert_response,array("table"=>$this->s_tablename)));
 		}
@@ -279,6 +280,7 @@ class forum_object_type {
 	 */
 	public function handleDeletePostAJAX($post_id) {
 		global $maindb;
+		global $mysqli;
 		
 		// check that the user has permission
 		if (!$this->user->has_access($this->s_deleteaccess)) {
@@ -287,7 +289,7 @@ class forum_object_type {
 		
 		// try and delete the post
 		$query = db_query("UPDATE `{$maindb}`.`[table]` SET `deleted`='1' WHERE `id`='[id]'", array("table"=>$this->s_tablename, "id"=>$post_id));
-		if ($query === FALSE || mysql_affected_rows() == 0) {
+		if ($query === FALSE || $mysqli->affected_rows == 0) {
 				return "alert[*note*]Failed to update database";
 		}
 		return "reload page[*note*]";

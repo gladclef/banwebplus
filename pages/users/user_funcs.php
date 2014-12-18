@@ -7,6 +7,7 @@ require_once(dirname(__FILE__)."/../login/access_object.php");
 class user_funcs {
 	public static function create_user($s_username, $s_password, $s_email, $a_other = NULL) {
 		global $maindb;
+		global $mysqli;
 		$a_other = ($a_other == NULL) ? array() : $a_other;
 		$s_access = (isset($a_other['access'])) ? $a_other['access'] : 'feedback';
 		
@@ -23,7 +24,7 @@ class user_funcs {
 		// create the user
 		db_query("INSERT INTO `[maindb]`.`students` (`username`,`pass`,`email`,`accesses`) VALUES ('[username]',AES_ENCRYPT('[username]','[password]'),'[email]','[accesses]')",
 				 array('maindb'=>$maindb, 'username'=>$s_username, 'password'=>$s_password, 'email'=>$s_email, 'accesses'=>$s_access));
-		if (mysql_affected_rows() > 0)
+		if ($mysqli->affected_rows > 0)
 				return TRUE;
 		return FALSE;
 	}

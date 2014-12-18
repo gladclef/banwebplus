@@ -12,6 +12,7 @@ function define_global_vars() {
 	global $global_path_to_jquery;
 	global $tab_init_function;
 	global $global_loaded_server_settings;
+	global $mysqli;
 
 	$maindb = "";
 	$global_path_to_jquery = "";
@@ -20,6 +21,7 @@ function define_global_vars() {
 	$session_started = FALSE;
 	$tab_init_function = NULL; // redefined with each tab file required
 	$global_loaded_server_settings = FALSE;
+	$mysqli = NULL;
 
 	$a_configs = [];
 	$filename = dirname(__FILE__) . "/server_config.ini";

@@ -122,10 +122,11 @@ function getCommon_date() {
 
 function updateCommon_Data($a_curr_common_data, $a_common_data) {
 	global $maindb;
+	global $mysqli;
 	echo "<pre>";
 	foreach($a_common_data as $a_table) {
-		$s_tablename = mysql_real_escape_string($a_table["name"]);
-		$s_index = mysql_real_escape_string($a_table["index"]);
+		$s_tablename = $mysqli->real_escape_string($a_table["name"]);
+		$s_index = $mysqli->real_escape_string($a_table["index"]);
 		
 		echo "importing table {$s_tablename}\n";
 		$i_rows_to_import = 0;
@@ -167,6 +168,7 @@ function updateCommon_Data($a_curr_common_data, $a_common_data) {
 function updateTables($a_old_tables, $a_new_tables) {
 
 	global $maindb;
+	global $mysqli;
 	echo "<pre>";
 	
 	// index current tables by name,
@@ -203,7 +205,7 @@ function updateTables($a_old_tables, $a_new_tables) {
 			foreach($a_table["columns"] as $col_key=>$a_column) {
 					$s_colname = $a_column["name"];
 					if ($s_prev_colname != "") {
-						$a_table["columns"][$col_key]["after_clause"] = "AFTER ".mysql_real_escape_string($s_prev_colname);
+						$a_table["columns"][$col_key]["after_clause"] = "AFTER ".$mysqli->real_escape_string($s_prev_colname);
 					}
 					$s_prev_colname = $s_colname;
 					if (isset($a_curr_cols[$s_colname])) {

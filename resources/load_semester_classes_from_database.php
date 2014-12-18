@@ -226,6 +226,7 @@ function edit_custom_course($sem, $year, $crn, $attribute, $value) {
 	
 	global $global_user;
 	global $maindb;
+	global $mysqli;
 
 	// get the real semester/year
 	$semester = get_real_semester($sem, $year);
@@ -267,7 +268,7 @@ function edit_custom_course($sem, $year, $crn, $attribute, $value) {
 	if ($a_query === FALSE) {
 			return "Failed to update database.";
 	}
-	if (mysql_affected_rows() == 0) {
+	if ($mysqli->affected_rows == 0) {
 			return "success";
 	}
 	return "success";

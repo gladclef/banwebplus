@@ -31,7 +31,7 @@ class ProjectInstaller {
 		global $global_opened_db;
 
 		$server_file = dirname(__FILE__)."/../../resources/server_config.ini";
-		$mysql_file = dirname(__FILE__)."/../../resources/server_config.ini";
+		$mysql_file = dirname(__FILE__)."/../../resources/mysql_config.ini";
 
 		if (!file_exists($server_file) ||
 			!file_exists($mysql_file)) {

@@ -59,6 +59,7 @@ function loadTerm($term) {
 function saveData($s_semester, $s_year, $a_data_to_save, $a_keys, $s_primary_key, $s_table, $exclude_comparison_columns = NULL, $a_searchby = NULL) {
 	
 	global $maindb;
+	global $mysqli;
 
 	// compiles the keys
 	$s_keylist = "`".implode("`,`",$a_keys)."`";
@@ -136,19 +137,19 @@ function saveData($s_semester, $s_year, $a_data_to_save, $a_keys, $s_primary_key
 			$s_update_clause = array_to_update_clause($a_row);
 			$success = db_query("UPDATE `{$maindb}`.`{$s_table}` SET {$s_update_clause} WHERE `{$s_primary_key}`='[$s_primary_key]' {$s_where_clause}", array_merge($a_searchby, $a_row));
 			if ($success === FALSE)
-					echo mysql_error()."\n";
+					echo $mysqli->error()."\n";
 	}
 	foreach($data_to_remove as $primary_value) {
 			$success = db_query("DELETE FROM `{$maindb}`.`{$s_table}` WHERE `{$s_primary_key}`='[{$s_primary_key}]' {$s_where_clause}", array_merge($a_searchby, array("{$s_primary_key}"=>$primary_value)));
 			if ($success === FALSE)
-					echo mysql_error()."\n";
+					echo $mysqli->error()."\n";
 	}
 	foreach($data_to_add as $a_row) {
 			$a_row = array_merge($a_row, array("year"=>$s_year, "semester"=>$s_semester));
 			$s_insert_clause = array_to_insert_clause($a_row);
 			$success = db_query("INSERT INTO `{$maindb}`.`{$s_table}` {$s_insert_clause}", $a_row);
 			if ($success === FALSE)
-					echo mysql_error()."\n";
+					echo $mysqli->error()."\n";
 	}
 }
 

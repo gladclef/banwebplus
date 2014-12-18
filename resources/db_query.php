@@ -9,16 +9,20 @@ if ($global_opened_db === FALSE) {
 }
 
 function replace_values_in_db_query_string($s_query, $a_values) {
+	global $mysqli;
+
 	foreach($a_values as $k=>$v) {
 			$s_query = str_replace("[$k]", "[--$k--]", $s_query);
 	}
 	foreach($a_values as $k=>$v) {
-			$s_query = str_replace("[--$k--]", mysql_real_escape_string($v), $s_query);
+			$s_query = str_replace("[--$k--]", $mysqli->real_escape_string($v), $s_query);
 	}
 	return $s_query;
 }
 
 function db_query($s_query, $a_values=NULL, $b_print_query = FALSE) {
+	global $mysqli;
+
 	if ($a_values !== NULL && gettype($a_values) == 'array')
 			$s_query_string = replace_values_in_db_query_string($s_query, $a_values);
 	else
@@ -27,18 +31,19 @@ function db_query($s_query, $a_values=NULL, $b_print_query = FALSE) {
 			error_log($s_query_string);
 	else if ($b_print_query === 1)
 			echo $s_query_string;
-	$wt_retval = mysql_query($s_query_string);
+	$wt_retval = $mysqli->query($s_query_string);
 	if ($wt_retval === TRUE || $wt_retval === FALSE)
 			return $wt_retval;
 	$a_retval = array();
-	while ($row = mysql_fetch_assoc($wt_retval))
+	while ($row = $wt_retval->fetch_assoc())
 			$a_retval[] = $row;
-	mysql_free_result($wt_retval);
+	$wt_retval->free_result();
 	return $a_retval;
 }
 
 function open_db() {
 	global $global_opened_db;
+	global $mysqli;
 
 	if ($global_opened_db === TRUE) {
 			return TRUE;
@@ -55,21 +60,22 @@ function open_db() {
 		return FALSE;
 	}
 
-	$link = mysql_connect($a_configs["host"], $a_configs["user"], $a_configs["password"]);
-	if ($link) {
-		$global_opened_db = TRUE;
-		return TRUE;
-	} else {
+	$mysqli = mysqli_connect($a_configs["host"], $a_configs["user"], $a_configs["password"]);
+	if ($mysqli->connect_errno) {
 		return FALSE;
 	}
+	$global_opened_db = TRUE;
+	return TRUE;
 }
 
 // returns "`key1`='value1' AND `key2`='value2' AND ..."
 function array_to_where_clause($a_vars) {
+	global $mysqli;
+
 	$a_where = array();
 	foreach($a_vars as $k=>$v) {
-			$k = mysql_real_escape_string($k);
-			$v = mysql_real_escape_string($v);
+			$k = $mysqli->real_escape_string($k);
+			$v = $mysqli->real_escape_string($v);
 			$a_where[] = "`$k`='$v'";
 	}
 	$s_where = implode(' AND ', $a_where);
@@ -78,11 +84,13 @@ function array_to_where_clause($a_vars) {
 
 // returns "(`key1`,`key2`,...) VALUES ('value1','value2',...)"
 function array_to_set_clause($a_vars) {
+	global $mysqli;
+
 	$a_set = array();
 	$a_values = array();
 	foreach($a_vars as $k=>$v) {
-			$k = mysql_real_escape_string($k);
-			$v = mysql_real_escape_string($v);
+			$k = $mysqli->real_escape_string($k);
+			$v = $mysqli->real_escape_string($v);
 			$a_set[] = $k;
 			$a_values[] = $v;
 	}

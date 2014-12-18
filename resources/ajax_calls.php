@@ -13,6 +13,7 @@ class ajax {
 	function save_classes($s_classes, $s_year, $s_semester, $s_timestamp) {
 		global $maindb;
 		global $global_user;
+		global $mysqli;
 		$s_classes = get_post_var('classes', $s_classes);
 		$s_year = get_post_var('year', $s_year);
 		$s_semester = get_post_var('semester', $s_semester);
@@ -38,13 +39,13 @@ class ajax {
 		// update/insert
 		if ($b_exists) {
 				db_query("UPDATE `[maindb]`.`[tablename]` SET `json`='[classes]',`time_submitted`='[timestamp]' WHERE `id`='[id]'", $a_queryvars);
-				if (mysql_affected_rows() > 0)
+				if ($mysqli->affected_rows > 0)
 						return "success|updated classes";
 				else
 						return "failed|update failed";
 		} else {
 				db_query("INSERT INTO `[maindb]`.`[tablename]` (`json`,`time_submitted`,`year`,`semester`,`user_id`) VALUES ('[classes]','[timestamp]','[year]','[semester]','[user_id]')", $a_queryvars);
-				if (mysql_affected_rows() > 0)
+				if ($mysqli->affected_rows > 0)
 						return "success|inserted classes";
 				else
 						return "failed|insert failed";

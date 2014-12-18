@@ -60,6 +60,7 @@ class user {
 	 */
 	public function update_settings($s_type, $a_settings) {
 		global $maindb;
+		global $mysqli;
 		if ($this->check_is_guest())
 				return 'error|settings can\'t be saved as a guest';
 
@@ -73,7 +74,7 @@ class user {
 		$a_current = db_query("SELECT * FROM `[database]`.`[table]` WHERE `user_id`='[user_id]' AND `type`='server'", $query_vars);
 		$query_string = 'UPDATE `[database]`.`[table]` SET '.array_to_update_clause($a_settings).' WHERE `user_id`=\'[user_id]\' AND `type`=\'[type]\'';
 		db_query($query_string, array_merge($a_settings, $query_vars));
-		if (mysql_affected_rows() == 0) {
+		if ($mysqli->affected_rows == 0) {
 				return "print error[*note*]Failed to save settings";
 		} else {
 				$this->updateSpecialSettings($a_settings, $a_current[0]);
@@ -132,25 +133,28 @@ class user {
 	
 	public function update_password($s_password) {
 		global $maindb;
+		global $mysqli;
 		if ($this->name == "guest") {
 				return False;
 		}
 		$a_query = db_query("UPDATE `{$maindb}`.`students` SET `pass`=AES_ENCRYPT('[username]','[password]') WHERE `username`='[username]'", array("username"=>$this->name, "password"=>$s_password));
-		if ($a_query !== FALSE && mysql_affected_rows() > 0) {
+		if ($a_query !== FALSE && $mysqli->affected_rows > 0) {
 				return TRUE;
 		}
 		return FALSE;
 	}
 	public function disable_account() {
 		global $maindb;
+		global $mysqli;
 		$a_query = db_query("UPDATE `{$maindb}`.`students` SET `disabled`='1' WHERE `username`='[name]'", array("name"=>$this->name));
-		if ($a_query !== FALSE && mysql_affected_rows() > 0) {
+		if ($a_query !== FALSE && $mysqli->affected_rows > 0) {
 				return TRUE;
 		}
 		return FALSE;
 	}
 	public function delete_account() {
 		global $maindb;
+		global $mysqli;
 		$username = $this->name;
 		$id = $this->get_id();
 		$a_username = array("username"=>$username);
@@ -162,7 +166,7 @@ class user {
 		db_query("DELETE FROM `{$maindb}`.`semester_classes` WHERE `user_id`='[id]'", $a_id);
 		db_query("DELETE FROM `{$maindb}`.`semester_whitelist` WHERE `user_id`='[id]'", $a_id);
 		$query = db_query("DELETE FROM `{$maindb}`.`students` WHERE `id`='[id]'", $a_id);
-		$affected_rows = mysql_affected_rows();
+		$affected_rows = $mysqli->affected_rows;
 		db_query("DELETE FROM `{$maindb}`.`user_settings` WHERE `user_id`='[id]'", $a_id);
 		if ($query !== FALSE && $affected_rows) {
 				return TRUE;
@@ -277,12 +281,13 @@ class user {
 
 	private function save_user_data($s_year, $s_semester, $s_tablename, $s_json_saveval, $s_timestamp) {
 		global $maindb;
+		global $mysqli;
 
 		$a_queryvars = array("table"=>$s_tablename, "year"=>$s_year, "semester"=>$s_semester, "user_id"=>$this->get_id(), "database"=>$maindb);
 		$s_querystring = "UPDATE `[database]`.`[table]` SET `json`='[json]',`time_submitted`='[timestamp]' WHERE `year`='[year]' AND `semester`='[semester]' AND `user_id`='[user_id]'";
 		create_row_if_not_existing($a_queryvars);
 		db_query($s_querystring, array_merge(array('json'=>$s_json_saveval, 'timestamp'=>$s_timestamp), $a_queryvars));
-		return (mysql_affected_rows());
+		return ($mysqli->affected_rows);
 	}
 
 	private function set_accesses() {
