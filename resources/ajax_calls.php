@@ -77,6 +77,7 @@ class ajax {
 						unset($terms[$k]);
 				}
 		}
+		error_log(print_r($terms,TRUE));
 		
 		return json_encode($terms);
 	}

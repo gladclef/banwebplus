@@ -197,7 +197,7 @@ function draw_status_code($block_style) {
 		echo "{$success} users exist.<br /><br />\n";
 	}
 
-	if (!$o_project_installer->check_classes_availability()) {
+	if (!$o_project_installer->check_classes_availability() || TRUE) {
 		$show_block1 = "<a href='#' style='inline-block;' onclick='show_block(\"classes\", \"";
 		$show_block2 = "\");'>";
 		$show_block3 = "</a>";
@@ -210,6 +210,7 @@ function draw_status_code($block_style) {
 		$terms_fname = $root_dir . "banweb_terms.py";
 		$banweb_fname = $root_dir . "banweb.py";
 		$nmt_fname = $root_dir . "new_mexico_tech_banweb.py";
+		$translate_fname = $root_dir . "php_to_mysql.php";
 		echo "<div id='classes' style='padding:0; margin:0;'>\n";
 		echo "${info_div} class='data'>Run these steps, in order:
 			<ol>
@@ -220,6 +221,8 @@ function draw_status_code($block_style) {
 					{$codebox}ln -s {$nmt_fname} {$banweb_fname} 
 				<li>Run the file {$monospace}{$banweb_fname}</div> with python 2.x.<br />\n
 					{$codebox}python2.7 {$banweb_fname} --path {$root_dir}</div>
+				<li>Run the file {$monospace}{$translate_fname}</div> with php.<br />\n
+					{$codebox}php {$translate_fname}</div>
 			</ol></div>\n";
 		echo "</div>\n";
 		$b_all_green = FALSE;
