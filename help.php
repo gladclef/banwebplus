@@ -197,7 +197,7 @@ function draw_status_code($block_style) {
 		echo "{$success} users exist.<br /><br />\n";
 	}
 
-	if (!$o_project_installer->check_classes_availability() || TRUE) {
+	if (!$o_project_installer->check_classes_availability()) {
 		$show_block1 = "<a href='#' style='inline-block;' onclick='show_block(\"classes\", \"";
 		$show_block2 = "\");'>";
 		$show_block3 = "</a>";
