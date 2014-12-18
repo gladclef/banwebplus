@@ -11,21 +11,34 @@ function define_global_vars() {
 	global $session_started;
 	global $global_path_to_jquery;
 	global $tab_init_function;
-	global $db_is_already_connected;
+	global $global_loaded_server_settings;
 
-	$a_configs = parse_ini_file(dirname(__FILE__)."/server_config.ini");
-
-	$maindb = $a_configs["maindb"];
-
-	if ($db_is_already_connected !== TRUE)
-			$db_is_already_connected = FALSE;
+	$maindb = "";
+	$global_path_to_jquery = "";
 	$global_user = NULL;
 	$global_opened_db = FALSE;
 	$session_started = FALSE;
-	$global_path_to_jquery = $a_configs["global_path_to_jquery"];
 	$tab_init_function = NULL; // redefined with each tab file required
+	$global_loaded_server_settings = FALSE;
 
-	date_default_timezone_set($a_configs["timezone"]);
+	$a_configs = parse_ini_file(dirname(__FILE__)."/server_config.ini");
+
+	if ($a_configs === FALSE) {
+		return;
+	}
+
+	if (isset($a_configs["maindb"]))
+		$maindb = $a_configs["maindb"];
+	if (isset($a_configs["global_path_to_jquery"]))
+		$global_path_to_jquery = $a_configs["global_path_to_jquery"];
+	if (isset($a_configs["timezone"]))
+		date_default_timezone_set($a_configs["timezone"]);
+
+	if (isset($a_configs["maindb"]) &&
+		isset($a_configs["global_path_to_jquery"]) &&
+		isset($a_configs["timezone"])) {
+		$global_loaded_server_settings = TRUE;
+	}
 }
 
 ?>

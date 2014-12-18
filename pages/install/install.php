@@ -59,6 +59,12 @@ class ProjectInstaller {
 		}
 		return FALSE;
 	}
+
+	public function check_installed() {
+		return ($this->check_install_database() &&
+			$this->check_ini_files() &&
+			$this->check_create_users());
+	}
 }
 
 global $o_project_installer;
