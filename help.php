@@ -209,11 +209,15 @@ function draw_status_code($block_style) {
 		$root_dir = dirname(__FILE__) . "/scraping/";
 		$terms_fname = $root_dir . "banweb_terms.py";
 		$banweb_fname = $root_dir . "banweb.py";
+		$nmt_fname = $root_dir . "new_mexico_tech_banweb.py";
 		echo "<div id='classes' style='padding:0; margin:0;'>\n";
 		echo "${info_div} class='data'>Run these steps, in order:
 			<ol>
 				<li>Create the file	{$monospace}{$terms_fname}</div> with the following line:<br />\n
 					{$codebox}terms = []</div>
+				<li>Create a symbolic link to the version of the scraping file necessary for
+					gather class data about your school. For example:
+					{$codebox}ln -s {$nmt_fname} {$banweb_fname} 
 				<li>Run the file {$monospace}{$banweb_fname}</div> with python 2.x.<br />\n
 					{$codebox}python2.7 {$banweb_fname} --path {$root_dir}</div>
 			</ol></div>\n";
