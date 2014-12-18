@@ -288,7 +288,7 @@ typeCoursesList = function() {
 				data: { command: 'list_available_semesters' },
 				success: function(message) {
 					var command = JSON.parse(message)[0];
-					if (command.command == "failed") {
+					if (command.command == "failure") {
 						return;
 					}
 					available_semesters = command.action;
@@ -526,10 +526,9 @@ typeCoursesList = function() {
 			async: async,
 			success: function(message) {
 				var command = JSON.parse(message)[0];
-				if (command.command == "failed") {
+				if (command.command == "failure") {
 					return;
 				}
-				console.log(command);
 
 				var a_semester_data = command.action;
 				var a_courses = a_semester_data['classes'];
@@ -538,7 +537,6 @@ typeCoursesList = function() {
 					current_subjects[sem].push([s_index, s_subject]);
 					full_course_list[sem][s_index] = [];
 				});
-				console.log('a');
 				for (var i = 0; i < a_courses.length; i++) {
 					var s_subject = a_courses[i]['subject'];
 					var course = [];
@@ -560,9 +558,7 @@ typeCoursesList = function() {
 					course['accesses'] = a_courses[i]['accesses'];
 					full_course_list[sem][s_subject].push(course);
 				}
-				console.log('b');
 				loadFullCourseListPart2(sem, async);
-				console.log('c');
 			}
 		});
 	}
@@ -616,7 +612,7 @@ typeCoursesList = function() {
 			async: async,
 			success: function(message) {
 				var command = JSON.parse(message)[0];
-				if (command.command == "failed") {
+				if (command.command == "failure") {
 					getGuestClasses(sem);
 					return;
 				}

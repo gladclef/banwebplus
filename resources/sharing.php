@@ -27,12 +27,12 @@ class sharing {
 		$username = get_post_var("username");
 		if ($username === $global_user->get_name()) {
 			return json_encode(array(
-				new command("print error", "Why are you trying to share a schedule with yourself?")));
+				new command("print failure", "Why are you trying to share a schedule with yourself?")));
 		}
 		$id = user::get_id_by_username($username);
 		if ($id == -1) {
 			return json_encode(array(
-				new command("print error", "The user \"{$username}\" can't be found.")));
+				new command("print failure", "The user \"{$username}\" can't be found.")));
 		}
 		$a_ids = $global_user->get_schedule_shared_users();
 		if (!in_array($id, $a_ids)) {
@@ -42,7 +42,7 @@ class sharing {
 				new command("share with user", "{$username}")));
 		}
 		return json_encode(array(
-			new command("print error", "Already shared schedule with \"{$username}\".")));
+			new command("print failure", "Already shared schedule with \"{$username}\".")));
 	}
 
 	function unshare_user_schedule() {

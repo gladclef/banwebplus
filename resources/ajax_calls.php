@@ -72,10 +72,10 @@ class ajax {
 	//     where "yyyy" is the school year, "pp" is one of {10,20,30}, and
 	//     "season year" is the real season and real year
 	function list_available_semesters() {
-		
+
 		// get the list of available semesters according to banweb
 		require(dirname(__FILE__).'/../scraping/banweb_terms.php');
-		
+
 		// remove any semesters that don't have classes
 		foreach($terms as $k=>$a_term) {
 				$s_semester = substr($a_term[0], 4, 2);
@@ -84,7 +84,7 @@ class ajax {
 						unset($terms[$k]);
 				}
 		}
-		
+
 		return json_encode(array(
 			new command("success", $terms)));
 	}
@@ -175,9 +175,8 @@ class ajax {
 		$s_semester = get_post_var('default_semester', $default_semester);
 		if ($b_load) {
 			$s_setting = $global_user->get_server_setting('default_semester');
-			if ($s_setting == "") {
-				$a_setting = array("", "");
-			} else {
+			$a_setting = array("", "");
+			if ($s_setting != "") {
 				$a_setting = explode("|", $s_setting);
 				$s_retval = $a_setting[1];
 			}
@@ -221,10 +220,10 @@ class ajax {
 		$s_body = get_post_var("email_body");
 		if ($s_subject == "")
 			return json_encode(array(
-				new command("print error", "Please include a subject in your email.<br />")));
+				new command("print failure", "Please include a subject in your email.<br />")));
 		if ($s_body == "")
 			return json_encode(array(
-				new command("print error", "Please include a body in your email.<br />")));
+				new command("print failure", "Please include a body in your email.<br />")));
 		mail("bbean@cs.nmt.edu", "Banwebplus Feedback: {$s_subject}", $s_body, "From: ".$global_user->get_email());
 		return json_encode(array(
 			new command("print success", "Thank you for your feedback!<br />")));
@@ -300,7 +299,7 @@ class ajax {
 		global $global_user;
 		$s_username = get_post_var('username');
 		$s_new_password = get_post_var('new_password');
-		$success = $this->verify_password();
+		$success = $this->verify_password(TRUE);
 		if ($success == "success") {
 				$success = ($global_user->update_password($s_new_password)) ? "success" : "failure";
 				if ($success) {
@@ -311,33 +310,49 @@ class ajax {
 		return json_encode(array(new command($success, "")));
 	}
 
-	function verify_password() {
+	function verify_password($b_no_encode = FALSE) {
 		$s_username = get_post_var('username');
 		$s_password = get_post_var('password');
 		$o_user = new user($s_username, $s_password, '');
+		$s_retval = "failure";
+		$s_error_msg = "Invalid password";
 		if ($o_user->exists_in_db()) {
-			return json_encode(array(new command("success", "")));
+			$s_retval = "success";
+			$s_error_msg = "";
+		}
+		if ($b_no_encode) {
+			return $s_retval;
 		} else {
-			return json_encode(array(new command("failure", "")));
+			return json_encode(array(new command($s_retval, $s_error_msg)));
 		}
 	}
 
 	function disable_account() {
 		global $global_user;
-		$b_verified = $this->verify_password() == "success";
-		if ($b_verified && $global_user->disable_account()) {
-			return json_encode(array(new command("success", "")));
+		$b_verified = $this->verify_password(TRUE) == "success";
+		if (!$b_verified) {
+			return json_encode(array(new command("failure", "Invalid password")));
 		}
-		return json_encode(array(new command("failure", "")));
+		$s_success = $global_user->disable_account();
+		if ($s_success === "success") {
+			return json_encode(array(new command("success", "")));
+		} else {
+			return json_encode(array(new command("failure", $s_success)));
+		}
 	}
 
 	function delete_account() {
 		global $global_user;
-		$b_verified = $this->verify_password() == "success";
-		if ($b_verified && $global_user->delete_account()) {
-			return json_encode(array(new command("success", "")));
+		$b_verified = $this->verify_password(TRUE) == "success";
+		if (!$b_verified) {
+			return json_encode(array(new command("failure", "Invalid password")));
 		}
-		return json_encode(array(new command("failure", "")));
+		$s_success = $global_user->delete_account();
+		if ($s_success === "success") {
+			return json_encode(array(new command("success", "")));
+		} else {
+			return json_encode(array(new command("failure", $s_success)));
+		}
 	}
 
 	function add_custom_class() {
@@ -389,25 +404,28 @@ if ($s_command != '') {
 		if ($global_user->check_is_guest()) {
 			
 			// build the list of commands and what to say to the guest
-			$sgc = 'failure';
+			$sgc = json_encode(array(new command("failure", "")));
 			$no_nos = [];
 			$no_nos_base = array(
 				array('save_classes', 'load_user_classes', 
-					json_encode(array(new command("failure", "Guest can\'t save classes")))),
+					json_encode(array(new command("failure", "Guest can't save classes")))),
 				array('update_settings', 
-					json_encode(array(new command("failure", "Guest can\'t change settings")))),
+					json_encode(array(new command("print failure", "Guest can't change settings")))),
 				array('edit_post', 'delete_post', 'change_bug_status', 'change_bug_owner', 
 					json_encode(array(new command("print failure", "Guests can't edit posts")))),
 				array('save_user_data', 
-					json_encode(array(new command("failure", "Guest can\'t edit account")))),
-				array('change_password', 'disable_account', 'delete_account', $sgc),
-				array('add_custom_class', 'edit_custom_course', 'share_custom_class', 'remove_custom_course_access', $sgc),
+					json_encode(array(new command("failure", "Guest can't edit account")))),
+				array('change_password', 'disable_account', 'delete_account',
+					json_encode(array(new command("print failure", "Guest can't edit account")))),
+				array('add_custom_class', 'edit_custom_course', 'share_custom_class', 'remove_custom_course_access',
+					json_encode(array(new command("print failure", "Guest can't edit custom classes")))),
 				array('share_user_schedule', 'unshare_user_schedule', 
-					json_encode(array(new command("print failure", "Guests can't share schedules"))))
+					json_encode(array(new command("print failure", "Guests can't share schedule"))))
 			);
-			foreach ($no_nos_base as $s_phrase=>$a_commands) {
-				foreach ($a_commands as $k=>$s_command) {
-					$no_nos[$s_command] = $s_phrase;
+			foreach ($no_nos_base as $k=>$a_commands) {
+				$s_phrase = $a_commands[count($a_commands)-1];
+				for ($i = 0; $i < count($a_commands)-1; $i++) {
+					$no_nos[$a_commands[$i]] = $s_phrase;
 				}
 			}
 

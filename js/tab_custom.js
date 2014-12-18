@@ -80,10 +80,12 @@ window.tabCustomClasses = {
 		
 		// contact the server to try and add the class
 		send_ajax_call("/resources/ajax_calls.php", {command:"add_custom_class", values:values, semester:semester, year:year}, function(message) {
-			var success = JSON.parse(message)[0].command;
+			var command = JSON.parse(message)[0];
+			var success = command.command;
 			if (success != "success") {
-				if (success == "failure") {
-					draw_error(jform, "Failed to add class", false);
+				if (success == "failure" || success == "print failure") {
+					var fail_msg = (command.action != "") ? command.action : "Failed to add class";
+					draw_error(jform, fail_msg, false);
 				} else {
 					draw_error(jform, success, false);
 				}
@@ -205,11 +207,13 @@ window.tabCustomClasses = {
 			vars["year"] = year;
 			draw_error(jform, "Contacting server...", null);
 			send_ajax_call("/resources/ajax_calls.php", vars, function(message) {
-				var success = JSON.parse(message)[0].command;
+				var command = JSON.parse(message)[0];
+				var success = command.command;
 				if (success == "success") {
 					draw_error(jform, "Successfully shared the class with "+jusername.val()+".", true);
 				} else {
-					draw_error(jform, success, false);
+					var fail_msg = (command.action != "") ? command.action : success;
+					draw_error(jform, fail_msg, false);
 				}
 			});
 			return false;
@@ -257,11 +261,13 @@ window.tabCustomClasses = {
 		if (confirm("Are you sure you want to remove the class \""+title+"?\"")) {
 			var vars = {command:"remove_custom_course_access", semester:semester, year:year, crn:crn};
 			send_ajax_call("/resources/ajax_calls.php", vars, function(message) {
-				var success = JSON.parse(message)[0].command;
+				var command = JSON.parse(message)[0];
+				var success = command.command;
 				if (success == "success") {
 					reload_classes();
 				} else {
-					alert(success);
+					var fail_msg = (command.action != "") ? command.action : success;
+					alert(fail_msg);
 				}
 			});
 		}
@@ -283,7 +289,9 @@ window.tabCustomClasses = {
 		jspan.hide();
 		
 		// create the new form
-		jform = $("<form><input type='textbox' value='"+value+"' name='value' onkeydown='form_enter_press(this,event);'></input><input type='button' value='Submit' onclick='get_parent_by_tag(\"form\", $(this)).submit();'></input></form>");
+		var s_input = "<input type='textbox' value='"+value+"' name='value' onkeydown='form_enter_press(this,event);'></input><input type='button' value='Submit' onclick='get_parent_by_tag(\"form\", $(this)).submit();'></input>";
+		var s_error = "<label class='errors'></label>";
+		jform = $("<form>" + s_error + s_input + "</form>");
 		var restore = function(val) {
 			if (val != value) {
 				reload_classes();
@@ -306,11 +314,13 @@ window.tabCustomClasses = {
 			}
 			var vars = {command:"edit_custom_course", attribute:headers[hindex], value:val, semester:semester, year:year, crn:crn};
 			send_ajax_call("/resources/ajax_calls.php", vars, function(message) {
-				var success = JSON.parse(message)[0].command;
+				var command = JSON.parse(message)[0];
+				var success = command.command;
 				if (success == "success") {
 					restore(val);
 				} else {
-					alert(success);
+					var fail_msg = (command.action != "") ? command.action : success;
+					draw_error(jform, fail_msg, false);
 				}
 			});
 			return false;

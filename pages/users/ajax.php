@@ -14,10 +14,10 @@ class user_ajax {
 		switch ($s_username_status) {
 		case 'blank':
 			return json_encode(array(
-				new command("print error", "The username is blank")));
+				new command("print failure", "The username is blank")));
 		case 'taken':
 			return json_encode(array(
-				new command("print error", "That username is already taken.")));
+				new command("print failure", "That username is already taken.")));
 		case 'available':
 			return json_encode(array(
 				new command("print success", "That username is available.")));
@@ -33,29 +33,29 @@ class user_ajax {
 		// check the input
 		if (strlen($s_username) == 0)
 			return json_encode(array(
-				new command("print error", "The username is blank.")));
+				new command("print failure", "The username is blank.")));
 		if (strlen($s_password) == 0)
 			return json_encode(array(
-				new command("print error", "The password is blank.")));
+				new command("print failure", "The password is blank.")));
 		if (strlen($s_email) == 0)
 			return json_encode(array(
-				new command("print error", "The email is blank.")));
+				new command("print failure", "The email is blank.")));
 		
 		// check that the email and username are unique
 		$a_users = db_query("SELECT * FROM `[database]`.`students` WHERE `username`='[username]' OR `email`='[email]'", array("database"=>$maindb, "username"=>$s_username, "email"=>$s_email));
 		if (count($a_users) > 0)
 			return json_encode(array(
-				new command("print error", "That username or email is already taken.")));
+				new command("print failure", "That username or email is already taken.")));
 		
 		// check that the username is valid
 		if (!preg_match("/^[a-zA-Z0-9 ]+$/", $s_username))
 			return json_encode(array(
-				new command("print error", "The username is invalid (may only contain letters, numbers, and spaces)")));
+				new command("print failure", "The username is invalid (may only contain letters, numbers, and spaces)")));
 
 		// try creating the user
 		if (!user_funcs::create_user($s_username, $s_password, $s_email))
 			return json_encode(array(
-				new command("print error", "Error creating user")));
+				new command("print failure", "Error creating user")));
 
 		mail($s_email, 'banwebplus account', 'You just created an account on banwebplus.com with the username "'.$s_username.'."
 Log in to your new account from www.banwebplus.com.
@@ -142,7 +142,7 @@ If you ever forget your password you can reset it from the main page by clicking
 				new command("print success", $a_retval[1])));
 		} else {
 			return json_encode(array(
-				new command("print error", $a_retval[1])));
+				new command("print failure", $a_retval[1])));
 		}
 	}
 
@@ -156,7 +156,7 @@ If you ever forget your password you can reset it from the main page by clicking
 				new command("print success", $a_retval[1])));
 		} else {
 			return json_encode(array(
-				new command("print error", $a_retval[1])));
+				new command("print failure", $a_retval[1])));
 		}
 	}
 }

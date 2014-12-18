@@ -248,8 +248,11 @@ function edit_custom_course($sem, $year, $crn, $attribute, $value) {
 	$attribute = strtolower($attribute);
 	switch($attribute) {
 	case "*campus":
-			$attribute = "campus";
-			break;
+		$attribute = "campus";
+		break;
+	case "hrs":
+		$attribute = "hours";
+		break;
 	}
 
 	// build the query

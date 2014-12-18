@@ -17,7 +17,7 @@ if ($o_user->exists_in_db()) {
 			new command("load page", "/pages/classes/main.php")));
 } else {
 		echo json_encode(array(
-			new command("print error", "Bad username or password"),
+			new command("print failure", "Bad username or password"),
 			new command("clear field", "password")));
 }
 

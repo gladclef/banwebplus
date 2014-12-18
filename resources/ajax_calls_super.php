@@ -39,14 +39,14 @@ $s_super_password = get_post_var("super_password");
 if ($s_command != '' && $s_super_password != '') {
 	if ($global_user->check_is_guest()) {
 		echo json_encode(array(
-			new command("failed", "Guest can't use super calls")));
+			new command("failure", "Guest can't use super calls")));
 		return;
 	}
 
 	$o_user = new user($global_user->get_name(), $s_super_password, "");
 	if (!$o_user->exists_in_db()) {
 		echo json_encode(array(
-			new command("print error", "Invalid credentials")));
+			new command("print failure", "Invalid credentials")));
 		return;
 	}
 	
@@ -55,11 +55,11 @@ if ($s_command != '' && $s_super_password != '') {
 		echo $o_ajax_super->$s_command('','','','');
 	} else {
 		echo json_encode(array(
-			new command("failed", "bad command")));
+			new command("failure", "bad command")));
 	}
 } else {
 	echo json_encode(array(
-		new command("failed", "no command")));
+		new command("failure", "no command")));
 }
 
 ?>

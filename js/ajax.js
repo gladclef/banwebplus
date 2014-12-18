@@ -80,7 +80,7 @@ function send_ajax_call_from_form_super(php_file_name, form_id, callback) {
 						jerror.css({ color:'black' });
 						set_html_and_fade_in(jerror, "", v[1]);
 						setTimeout(function(){ alert(v[1]); jpassbox.remove() }, 300);
-					} else if (v[0] == 'print error') {
+					} else if (v[0] == 'print failure') {
 						jerror.css({ color:'red' });
 						set_html_and_fade_in(jerror, "", v[1]);
 					}
@@ -126,7 +126,7 @@ function send_ajax_call_from_form(php_file_name, form_id) {
 	for (var i = 0; i < commands_array.length; i++) {
 		var command = commands_array[i][0];
 		var note = commands_array[i][1];
-		if (command == "print error") {
+		if (command == "print failure") {
 			set_html_and_fade_in(jerrors_label, "", "<span style='color:red;'>"+note+"</span>");
 		} else if (command == "print success") {
 			set_html_and_fade_in(jerrors_label, "", "<span style='color:black;font-weight:normal;'>"+note+"</span>");

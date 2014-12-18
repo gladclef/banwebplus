@@ -78,7 +78,7 @@ class user {
 		db_query($query_string, array_merge($a_settings, $query_vars));
 		if ($mysqli->affected_rows == 0) {
 			return json_encode(array(
-				new command("print error", "Failed to save settings")));
+				new command("print failure", "Failed to save settings")));
 		} else {
 				$this->updateSpecialSettings($a_settings, $a_current[0]);
 			return json_encode(array(
@@ -150,11 +150,17 @@ class user {
 	public function disable_account() {
 		global $maindb;
 		global $mysqli;
-		$a_query = db_query("UPDATE `{$maindb}`.`students` SET `disabled`='1' WHERE `username`='[name]'", array("name"=>$this->name));
-		if ($a_query !== FALSE && $mysqli->affected_rows > 0) {
-				return TRUE;
+		$a_query = db_query("SELECT `disabled` FROM `[maindb]`.`students` WHERE `username`='[name]'",
+			array("maindb"=>$maindb, "name"=>$this->name));
+		if ($a_query === FALSE || count($a_query) == 0 || (int)$a_query[0]["disabled"] != 0) {
+			return "Account already disabled.";
 		}
-		return FALSE;
+		$a_query = db_query("UPDATE `[maindb]`.`students` SET `disabled`='1' WHERE `username`='[name]'",
+			array("maindb"=>$maindb, "name"=>$this->name));
+		if ($a_query !== FALSE && $mysqli->affected_rows > 0) {
+			return "success";
+		}
+		return "Failed to update account.";
 	}
 	public function delete_account() {
 		global $maindb;
@@ -163,6 +169,10 @@ class user {
 		$id = $this->get_id();
 		$a_username = array("username"=>$username);
 		$a_id = array("id"=>$id);
+		$a_query = db_query("SELECT `id` FROM `[maindb]`.`students` WHERE `id`='[id]'", $a_id);
+		if ($a_query === FALSE || count($a_query) == 0) {
+			return "Account already deleted/doesn't exist.";
+		}
 		db_query("DELETE FROM `{$maindb}`.`access_log` WHERE `username`='[username]'", $a_username);
 		db_query("DELETE FROM `{$maindb}`.`blacklist_preferences` WHERE `user_id`='[id]'", $a_id);
 		db_query("DELETE FROM `{$maindb}`.`generated_settings` WHERE `user_id`='[id]'", $a_id);
@@ -173,9 +183,9 @@ class user {
 		$affected_rows = $mysqli->affected_rows;
 		db_query("DELETE FROM `{$maindb}`.`user_settings` WHERE `user_id`='[id]'", $a_id);
 		if ($query !== FALSE && $affected_rows) {
-				return TRUE;
+				return "success";
 		}
-		return FALSE;
+		return "Failed to update account.";
 	}
 
 	// get the ids of those users who can see this user's schedule

@@ -76,13 +76,15 @@ typeAccountManager = function() {
 			draw_error(jform, "Contacting server...", null);
 			vars = {username:get_username(), password:jpass.val(), command:"verify_password"};
 			send_ajax_call("/resources/ajax_calls.php", vars, function(message){
-				var success = JSON.parse(message)[0].command;
+				var command = JSON.parse(message)[0];
+				var success = command.command;
 				if (success == "success") {
 					draw_error(jform, "Success", true);
 					setTimeout(kill, 200);
 					callback(vars, true);
 				} else {
-					draw_error(jform, "Failure", false);
+					var fail_msg = (command.action != "") ? command.action : "failure";
+					draw_error(jform, fail_msg, false);
 					callback(vars, false);
 				}
 			});
@@ -136,7 +138,7 @@ typeAccountManager = function() {
 			draw_error(form, "Username can't be blank", false);
 			return false;
 		}
-		draw_error(form, "Contacting server...", null);
+		draw_error(form, "Coming soon...", null);
 	};
 
 	this.drawDelete = function(form_element) {
@@ -165,16 +167,18 @@ typeAccountManager = function() {
 		// try to disable/delete the account
 		s_action = (b_disable) ? "disabling your account" : "deleting your account";
 		s_command = (b_disable) ? "disable_account" : "delete_account";
-		s_success = (b_disable) ? "your account hass be disabled" : "your account has been deleted";
+		s_success = (b_disable) ? "your account has be disabled" : "your account has been deleted";
 		s_failure = (b_disable) ? "failed to disable your account" : "failed to delete your account";
 		this.authenticateUser(function(vars, success) {
 			if (success) {
 				vars = {username:vars.username, password:vars.password, command:s_command};
 				send_ajax_call("/resources/ajax_calls.php", vars, function(message) {
-					var success = JSON.parse(message)[0].command;
+					var command = JSON.parse(message)[0];
+					var success = command.command;
 					if (success == "success") {
 						draw_error(jform, "Success: "+s_success, true);
 					} else {
+						s_failure += (command.action != "") ? (" ("+command.action+")") : "";
 						draw_error(jform, "Error: "+s_failure, false);
 					}
 				});

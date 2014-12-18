@@ -186,11 +186,14 @@ function updateTables($a_old_tables, $a_new_tables) {
 	
 	// check for non-existant tables
 	foreach($a_new_tables as $k=>$a_table) {
-			if (!isset($a_tables[$a_table["Table"]])) {
-					db_query(str_replace("CREATE TABLE ", "CREATE TABLE `{$maindb}`.", $a_table["Create Table"]), 1);
-					echo "\n";
-					unset($a_new_tables[$k]);
-			}
+		if (!isset($a_tables[$a_table["Table"]])) {
+			db_query(str_replace("CREATE TABLE ", "CREATE TABLE `{$maindb}`.", $a_table["Create Table"]), 1);
+			echo "\n";
+			db_query("ALTER TABLE `[maindb]`.`[table]` AUTO_INCREMENT = 1",
+				array("maindb"=>$maindb, "table"=>$a_table["Table"]), 1);
+			echo "\n";
+			unset($a_new_tables[$k]);
+		}
 	}
 
 	// all other tables are either the same or need to be updated
