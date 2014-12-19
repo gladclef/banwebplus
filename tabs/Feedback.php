@@ -138,13 +138,13 @@ class bugtracker_object_type extends forum_object_type {
 		if ($this->user->has_access($this->s_createaccess)) {
 				$s_owner .= "
     <input type='button' value='Change' onclick='o_bugtracker.showChange(this, event, \"Owner\");'></input>
-    <form class='changeOwner' id='post_change_owner_{$id}_{$this->forum_instance}' style='display:none; margin:0;'>
+    <form class='changeOwner' id='post_change_owner_{$id}_{$this->forum_instance}' style='display:none; margin:0; position:relative;'>
         <input type='hidden' name='tablename' value='{$this->s_tablename}'></input>
         <input type='hidden' name='post_id' value='{$id}'></input>
         <input type='hidden' name='command' value='change_bug_owner'></input>
         <select name='userid'>";
-				$a_students = db_query("SELECT `id`,`username` FROM `{$maindb}`.`students` WHERE `disabled`='0'");
-				$a_students = array_merge($a_students, array(array("id"=>-1, "username"=>"none")));
+				$a_students = db_query("SELECT `id`,`username` FROM `[maindb]`.`students` WHERE `disabled`='0' AND `username`!='guest'",
+					array("maindb"=>$maindb));
 				foreach($a_students as $a_student) {
 						$s_owner .= "
             <option value='".$a_student["id"]."'>".$a_student["username"]."</option>";
@@ -152,6 +152,7 @@ class bugtracker_object_type extends forum_object_type {
 				$s_owner .= "
         </select>
         <input type='button' value='Apply' onclick='o_bugtracker.change(this, \"Owner\");'></input>
+        <label class='errors'></label>
     </form>";
 		}
 
@@ -241,6 +242,14 @@ class bugtracker_object_type extends forum_object_type {
 		if (!$this->user->has_access($this->s_createaccess)) {
 			return json_encode(array(
 				new command("print failure","Incorrect permission")));
+		}
+
+		// check that the new user isn't guest
+		$a_guest_id = db_query("SELECT `id` FROM `[maindb]`.`students` WHERE `username`='guest' LIMIT 1",
+			array("maindb"=>$maindb));
+		if ($a_guest_id !== FALSE && count($a_guest_id) > 0 && (int)$a_guest_id[0]["id"] == (int)$s_userid) {
+			return json_encode(array(
+				new command("print failure", "Guest can't be owner")));
 		}
 		
 		// check that the post and owner exist

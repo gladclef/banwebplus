@@ -24,16 +24,28 @@ class sharing {
 
 	function share_user_schedule() {
 		global $global_user;
+
+		// check that the user is not sharing with themselves
 		$username = get_post_var("username");
 		if ($username === $global_user->get_name()) {
 			return json_encode(array(
 				new command("print failure", "Why are you trying to share a schedule with yourself?")));
 		}
+
+		// check that the user isn't guest
+		if (strtolower($username) === "guest") {
+			return json_encode(array(
+				new command("print failure", "Can't share schedule with guest.")));
+		}
+
+		// check that the user exists
 		$id = user::get_id_by_username($username);
 		if ($id == -1) {
 			return json_encode(array(
 				new command("print failure", "The user \"{$username}\" can't be found.")));
 		}
+
+		// success!
 		$a_ids = $global_user->get_schedule_shared_users();
 		if (!in_array($id, $a_ids)) {
 				$a_ids[] = $id;
@@ -41,6 +53,8 @@ class sharing {
 			return json_encode(array(
 				new command("share with user", "{$username}")));
 		}
+
+		// must have already been shared
 		return json_encode(array(
 			new command("print failure", "Already shared schedule with \"{$username}\".")));
 	}
