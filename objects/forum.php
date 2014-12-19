@@ -251,7 +251,12 @@ class forum_object_type {
 
 		// create the response
 		if (!$b_no_response) {
-				$a_insert_response = array("userid"=>$this->user->get_id(), "owner_userid"=>$this->user->get_id(), "datetime"=>date("Y-m-d H:i:s"), "is_response"=>1, "original_post_id"=>$mysqli->insert_id());
+				$a_insert_response = array(
+					"userid"=>$this->user->get_id(),
+					"owner_userid"=>$this->user->get_id(),
+					"datetime"=>date("Y-m-d H:i:s"),
+					"is_response"=>1,
+					"original_post_id"=>$i_insert_id);
 				$s_insert_response = array_to_insert_clause($a_insert_response);
 				$query = db_query("INSERT INTO `{$maindb}`.`[table]` {$s_insert_response}", array_merge($a_insert_response,array("table"=>$this->s_tablename)));
 		}
