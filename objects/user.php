@@ -169,7 +169,8 @@ class user {
 		$id = $this->get_id();
 		$a_username = array("username"=>$username);
 		$a_id = array("id"=>$id);
-		$a_query = db_query("SELECT `id` FROM `[maindb]`.`students` WHERE `id`='[id]'", $a_id);
+		$a_query = db_query("SELECT `id` FROM `[maindb]`.`students` WHERE `id`='[id]'", 
+			array_merge(array("maindb"=>$maindb), $a_id));
 		if ($a_query === FALSE || count($a_query) == 0) {
 			return "Account already deleted/doesn't exist.";
 		}
