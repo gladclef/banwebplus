@@ -8,6 +8,10 @@ sem_*.py
 sem_*.pyc
 *.ini
 database_desc.txt
-/scraping/
+/scraping/*.php
 /scraping_bk/
 *.png
+*.classpath
+*.project
+*.class
+*.jar
