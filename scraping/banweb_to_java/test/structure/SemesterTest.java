@@ -17,7 +17,7 @@ public class SemesterTest {
 	public void getCalendarYear_success()
 	{
 		Assert.assertEquals(new Integer(2015), (new Semester("201610")).getCalendarYear());
-		Assert.assertEquals(new Integer(2016), (new Semester("201620")).getCalendarYear());
+		Assert.assertEquals(new Integer(2015), (new Semester("201620")).getCalendarYear());
 		Assert.assertEquals(new Integer(2016), (new Semester("201630")).getCalendarYear());
 	}
 	
