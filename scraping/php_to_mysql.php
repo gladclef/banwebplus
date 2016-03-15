@@ -10,12 +10,17 @@ require_once(dirname(__FILE__)."/../resources/conversions.php");
  */
 function getNextTerm() {
 	static $terms;
+	
+	// Check if the terms have been loaded. If not, load them by 
+	// loading the PHP file with the global $terms array defined.
 	if (!$terms) {
 			require_once(dirname(__FILE__)."/banweb_terms.php");
 			if (!$terms) {
 					$terms = array();
 			}
 	}
+	
+	// pops the front term off of the list of terms, and returns that term
 	if (count($terms) > 0) {
 			$retval = $terms[0];
 			$newterms = array();
@@ -26,6 +31,7 @@ function getNextTerm() {
 	} else {
 			$retval = NULL;
 	}
+	
 	return $retval;
 }
 
@@ -37,22 +43,17 @@ function getNextTerm() {
  */
 function loadTerm($term) {
 	$filename = dirname(__FILE__)."/sem_".$term[0].".php";
+	
+	// load the semester data from the global #semesterData defined in file $filename
 	if (!file_exists($filename)) {
 			return NULL;
 	}
 	require_once($filename);
+	
 	$a_semester = explode(" ",$semesterData["name"]);
 	$semesterData["term"] = $term[0];
 	$semesterData["year"] = (int)$a_semester[1];
 	$semesterData["semester"] = strtolower(substr($a_semester[0], 0, 3));
-	if ($semesterData["semester"] != "spr") {
-			$semesterData["year"] = $semesterData["year"]-1;
-			if ($semesterData["semester"] == "sum") {
-					$semesterData["name"] = "Summer ".$semesterData["year"];
-			} else {
-					$semesterData["name"] = "Fall ".$semesterData["year"];
-			}
-	}
 	return $semesterData;
 }
 
