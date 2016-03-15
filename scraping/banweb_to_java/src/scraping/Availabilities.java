@@ -30,7 +30,8 @@ public class Availabilities {
 	 * Scrapes the front page of the banweb site to update the semesters and
 	 * subjects listing.
 	 * 
-	 * @throws IOException From {@link Jsoup#connect(String)}
+	 * @throws IOException
+	 *             From {@link Jsoup#connect(String)}
 	 */
 	public void scrape() throws IOException {
 		// get the page
@@ -63,7 +64,8 @@ public class Availabilities {
 	 * 
 	 * @param document
 	 *            The front page of the banweb course offering.
-	 * @throws IOException If {@link Jsoup#connect(String)} throws an exception.
+	 * @throws IOException
+	 *             If {@link Jsoup#connect(String)} throws an exception.
 	 */
 	protected void scrapeSemesters(Document document) throws IOException {
 		// find the selector
@@ -75,14 +77,19 @@ public class Availabilities {
 			semesters.add(new Semester(value));
 		}
 
-		// try to add the next semester, when not yet posted, so as to give a
-		// peek preview
-		if (isNextSemesterAvailable()) {
-			// get the next semester
-			Semester unpostedSemester = new Semester(semesters.last().getPredictedNext());
+		// they post summer and fall at the same time, usually
+		int possibleNextSemesters = (semesters.last().getSemesterName().equals("Spring")) ? 2 : 1;
 
-			// add the next semester
-			semesters.add(unpostedSemester);
+		// try to add the next semester, when not yet posted, so as to give
+		// a peek preview
+		for (int nextSemestersCount = 0; nextSemestersCount < possibleNextSemesters; nextSemestersCount++) {
+			if (isNextSemesterAvailable()) {
+				// get the next semester
+				Semester unpostedSemester = new Semester(semesters.last().getPredictedNext());
+
+				// add the next semester
+				semesters.add(unpostedSemester);
+			}
 		}
 	}
 
@@ -111,15 +118,13 @@ public class Availabilities {
 	 * 
 	 * @return True if the next semester is available after the last of the
 	 *         currently known {@link semesters}.
-	 * @throws IOException If {@link Jsoup#connect(String)} throws an exception.
+	 * @throws IOException
+	 *             If {@link Jsoup#connect(String)} throws an exception.
 	 */
 	protected boolean isNextSemesterAvailable() throws IOException {
 
-		// get what is currently the last semester
-		Semester currentLast = semesters.last();
-
 		// ask it for what should be next
-		String nextSemesterString = currentLast.getPredictedNext();
+		String nextSemesterString = semesters.last().getPredictedNext();
 
 		// Try to find the course offerings page for (that semester + math).
 		// Note: math just seems to be more reliable.
