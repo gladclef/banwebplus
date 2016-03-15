@@ -3,7 +3,7 @@ package scraping;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class Connection {
+public class ConnectionUtils {
 	/**
 	 * Format the given urlParams using the standard "?", "&", and "=".
 	 * <p>

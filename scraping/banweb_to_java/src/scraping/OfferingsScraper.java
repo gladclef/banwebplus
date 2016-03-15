@@ -49,7 +49,7 @@ public class OfferingsScraper {
 		pageVars.put("p_subj", subject.getShortName());
 
 		// get the page
-		Document page = Jsoup.connect(baseurl + Connection.urlParamsToList(pageVars)).get();
+		Document page = Jsoup.connect(baseurl + ConnectionUtils.urlParamsToList(pageVars)).get();
 		
 		// verify the page has courses
 		for (Element element : page.getElementsByTag("h2"))
