@@ -65,24 +65,23 @@ public class Main {
 			// scrape each subject in turn
 			for (Subject subject : subjectsToScrape) {
 
-				// create the subject instance and insert it into the returned
-				// value
-				SemesterAndSubjectCourses scrapedSubject = new SemesterAndSubjectCourses(semester, subject);
-				scrapedSemester.put(subject, scrapedSubject);
-
 				// create the scraper and scrape
 				OfferingsScraper scraper = new OfferingsScraper(semester, subject);
 				try {
 					scraper.scrape();
+					System.out.println(String.format("scraped %3d courses:  %s",
+							scraper.getScrapedCourses().getClasses().size(), subject.getLongName()));
 				} catch (NoCoursesException e) {
 					// TODO log only when verbose
-					System.out.println(String.format("...%s has no courses", subject.getLongName()));
+					System.out.println(String.format("...subj no courses:   %s", subject.getLongName()));
 				} catch (IOException e) {
 					throw new IOException("Can't scrape from Banweb!", e);
 				}
-				// TODO add all classes from the scraper to the scrapedSubject
+
+				// add the scraped classes to the return value
+				scrapedSemester.put(subject, scraper.getScrapedCourses());
 			}
-			
+
 			System.out.println("");
 		}
 
@@ -109,17 +108,14 @@ public class Main {
 
 		// look for semesters not yet cached
 		SemesterIO semesterChecker = new SemesterIO(FileInterface.class);
-		for (Semester semester : semesters) {
-			// stop once we've encountered the semesters already added to the
-			// retval
-			if (semester.compareTo(retval.first()) >= 0) {
-				break;
-			}
+		while (nextLast != null) {
 
 			// check if the semester is cached
-			if (!semesterChecker.isSemesterCached(semester)) {
-				retval.add(semester);
+			if (!semesterChecker.isSemesterCached(nextLast)) {
+				retval.add(nextLast);
 			}
+
+			nextLast = semesters.lower(nextLast);
 		}
 
 		return retval;

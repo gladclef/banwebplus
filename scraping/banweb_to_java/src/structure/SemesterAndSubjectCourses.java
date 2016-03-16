@@ -2,6 +2,7 @@ package structure;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Contains all courses offered for a given subject + semester.
@@ -26,5 +27,28 @@ public class SemesterAndSubjectCourses {
 	 */
 	public void addClass(Clazz clazz) {
 		classes.add(clazz);
+	}
+
+	/**
+	 * @return The classes registered in this instance.
+	 */
+	public Set<Clazz> getClasses() {
+		return classes;
+	}
+	
+	/**
+	 * @return The semester registered for this instance.
+	 */
+	public Semester getSemester()
+	{
+		return semester;
+	}
+	
+	/**
+	 * @return The subject registered for this instance.
+	 */
+	public Subject getSubject()
+	{
+		return subject;
 	}
 }

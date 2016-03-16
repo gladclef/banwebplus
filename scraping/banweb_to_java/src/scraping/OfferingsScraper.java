@@ -70,6 +70,14 @@ public class OfferingsScraper {
 		// parse out the classes
 		parseClasses(page);
 	}
+	
+	/**
+	 * @return The reference to this instance's courses object.
+	 */
+	public SemesterAndSubjectCourses getScrapedCourses()
+	{
+		return classes;
+	}
 
 	/**
 	 * Parses the classes on the given page and inserts them into this
