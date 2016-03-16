@@ -7,7 +7,6 @@ public class Clazz {
 	public static enum ClassAttribute
 	{	
 		CourseReferenceNumber("CRN", true),
-		Subject("subject", false),
 		CourseShortName("Course", false),
 		Campus("*Campus", false),
 		Days("Days", false),
@@ -18,7 +17,8 @@ public class Clazz {
 		Instructor("Instructor", false),
 		SeatsAvailable("Seats", true),
 		SeatsLimit("Limit", true),
-		EnrolledStudents("Enroll", true);
+		EnrolledStudents("Enroll", true),
+		Subject("subject", false);
 		
 		public String shortName = "";
 		public Boolean interpretAsInteger = false;
@@ -48,6 +48,9 @@ public class Clazz {
 		{
 			attributes.put(attributeType, new Integer(value));
 		}
-		attributes.put(attributeType, value);
+		else
+		{
+			attributes.put(attributeType, value);
+		}
 	}
 }

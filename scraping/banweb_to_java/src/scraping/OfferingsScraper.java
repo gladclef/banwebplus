@@ -105,7 +105,7 @@ public class OfferingsScraper {
 		Elements cells = row.getElementsByTag("td");
 		
 		// verify has enough contents to count as a class
-		if (cells.size() > MIN_CLASS_ATTRIBUTES_SIZE)
+		if (cells.size() < MIN_CLASS_ATTRIBUTES_SIZE)
 		{
 			return false;
 		}
@@ -134,7 +134,12 @@ public class OfferingsScraper {
 		// verify is a class by its filled cells count
 		if (filledCellCount > MIN_CLASS_ATTRIBUTES_SIZE)
 		{
-			// is a class! add it!
+			// is a class!
+			
+			// fill in the subject
+			clazz.addAttribute(Clazz.ClassAttribute.Subject, subject.getShortName());
+			
+			// add it!
 			classes.addClass(clazz);
 		}
 		else
