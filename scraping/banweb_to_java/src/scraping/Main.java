@@ -73,7 +73,7 @@ public class Main {
 							scraper.getScrapedCourses().getClasses().size(), subject.getLongName()));
 				} catch (NoCoursesException e) {
 					// TODO log only when verbose
-					System.out.println(String.format("...subj no courses:   %s", subject.getLongName()));
+					System.out.println(String.format("...subj --0 courses:  %s", subject.getLongName()));
 				} catch (IOException e) {
 					throw new IOException("Can't scrape from Banweb!", e);
 				}

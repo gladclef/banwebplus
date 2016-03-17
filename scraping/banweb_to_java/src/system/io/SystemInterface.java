@@ -1,6 +1,11 @@
 package system.io;
 
 import java.io.IOException;
+import java.util.Collection;
+
+import structure.Clazz;
+import structure.Semester;
+import structure.Subject;
 
 /**
  * Used to interact with the system, whether that is files, a database, etc...
@@ -9,18 +14,25 @@ import java.io.IOException;
  */
 public interface SystemInterface {
 	/**
-	 * Instantialize with a handle to this interface's preferred communication
-	 * channel with the given tableName. Use isWritable to open a writable
-	 * communication channel.
+	 * Saves the given semester to the table this interface was
+	 * {@link #initialize(String, boolean) initialized} with.
 	 * 
-	 * @param tableName
-	 *            The name of the table/file/etc to open with.
-	 * @param isWritable
-	 *            If true, will open/create an existing/new file to write to
-	 *            with the given fileName. Otherwise, will attempt to read a
-	 *            file.
+	 * @param semester
+	 *            The semester to save.
+	 * @param subject
+	 *            The associated subject of the semester.
+	 * @param classes
+	 *            The classes of the semester.
 	 * @throws IOException
-	 *             If opening the file failed.
+	 *             If there is an issue saving any of the data.
 	 */
-	public void initialize(String tableName, boolean isWritable) throws IOException;
+	public void saveSemester(Semester semester, Subject subject, Collection<Clazz> classes) throws IOException;
+	
+	/**
+	 * Determines if the given semester is cached somewhere.
+	 * 
+	 * @param semester The semester to check for.
+	 * @return True if cached, false otherwise.
+	 */
+	public boolean isSemesterCached(Semester semester);
 }
