@@ -18,6 +18,8 @@ public class Main {
 	private static final int NUM_SEMESTERS_ALWAYS_SCRAPED = 5;
 	/** The URL to look for available semester data at. */
 	public static final String baseurl = "https://banweb7.nmt.edu/pls/PROD/hwzkcrof.p_uncgslctcrsoff";
+	/** The semester saver to use for this program. */
+	private static SemesterIO semesterSaver = new SemesterIO(FileInterface.class);
 
 	public static void main(String[] args) throws IOException {
 		Availabilities availabilities = new Availabilities(baseurl);
@@ -27,11 +29,14 @@ public class Main {
 		printSemesters(availabilities.getSemesters());
 
 		// figure out which semesters are missing
-		TreeSet<Semester> semestersToScrape = getUnchachedOrRecentSemesters(availabilities.getSemesters());
+		TreeSet<Semester> semestersToScrape = filterForUncachedOrRecentSemesters(availabilities.getSemesters());
 
 		// scrape those semesters
 		TreeMap<Semester, TreeMap<Subject, SemesterAndSubjectCourses>> scrapedSemesters = new TreeMap<>();
 		scrapeSemesters(semestersToScrape, availabilities.getSubjects(), scrapedSemesters);
+
+		// save the scraped data
+		semesterSaver.saveSemesters(scrapedSemesters, availabilities.getSemesters(), availabilities.getSubjects());
 	}
 
 	/**
@@ -83,6 +88,8 @@ public class Main {
 			}
 
 			System.out.println("");
+			
+			break;
 		}
 
 		System.out.println("");
@@ -95,8 +102,14 @@ public class Main {
 	 * @param semesters
 	 *            The semesters to pick from.
 	 * @return The semesters that should probably be scraped.
+	 * @throws IOException
+	 *             If there is an issue checking for cached semesters on the
+	 *             System.
+	 * @throws IllegalStateException
+	 *             If the interface to the System can't be initiated.
 	 */
-	private static TreeSet<Semester> getUnchachedOrRecentSemesters(TreeSet<Semester> semesters) {
+	private static TreeSet<Semester> filterForUncachedOrRecentSemesters(TreeSet<Semester> semesters)
+			throws IllegalStateException, IOException {
 		TreeSet<Semester> retval = new TreeSet<>();
 
 		// start by adding all semesters in the last five semesters
@@ -107,11 +120,10 @@ public class Main {
 		}
 
 		// look for semesters not yet cached
-		SemesterIO semesterChecker = new SemesterIO(FileInterface.class);
 		while (nextLast != null) {
 
 			// check if the semester is cached
-			if (!semesterChecker.isSemesterCached(nextLast)) {
+			if (!semesterSaver.isSemesterCached(nextLast)) {
 				retval.add(nextLast);
 			}
 

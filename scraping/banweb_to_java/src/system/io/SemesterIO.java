@@ -1,8 +1,13 @@
 package system.io;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import structure.Semester;
+import structure.SemesterAndSubjectCourses;
+import structure.Subject;
 
 /**
  * Defines methods to perform I/O on Semester related functionality, including
@@ -41,8 +46,11 @@ public class SemesterIO {
 	 * @throws IllegalStateException
 	 *             If the interface to the system can't instantiate (probably
 	 *             won't happen).
+	 * @throws IOException
+	 *             If there is an issue checking with the System if the semester
+	 *             is cached.
 	 */
-	public boolean isSemesterCached(Semester semester) throws IllegalStateException {
+	public boolean isSemesterCached(Semester semester) throws IllegalStateException, IOException {
 
 		// open an interface
 		SystemInterface interfaceInstance = getInterfaceInstance();
@@ -56,7 +64,8 @@ public class SemesterIO {
 	 * perform I/O with.
 	 * 
 	 * @return The new I/O instance.
-	 * @throws IllegalStateException If creating the instance failed for some reason.
+	 * @throws IllegalStateException
+	 *             If creating the instance failed for some reason.
 	 */
 	protected SystemInterface getInterfaceInstance() throws IllegalStateException {
 		try {
@@ -65,5 +74,26 @@ public class SemesterIO {
 				| NoSuchMethodException | SecurityException e) {
 			throw new IllegalStateException("Can't instantiate SystemInteface class " + systemInterfaceClass);
 		}
+	}
+
+	/**
+	 * Save the given scrapedSemesters. Also saves the other given semesters and
+	 * subjects as if available.
+	 * 
+	 * @param scrapedSemesters
+	 *            The semesters that were scraped, and their scraped data.
+	 * @param semesters
+	 *            All available semesters, including those not scraped.
+	 * @param subjects
+	 *            All available subjects, including those not scraped.
+	 * @throws IOException
+	 *             If saving fails.
+	 */
+	public void saveSemesters(TreeMap<Semester, TreeMap<Subject, SemesterAndSubjectCourses>> scrapedSemesters,
+			TreeSet<Semester> semesters, TreeSet<Subject> subjects) throws IOException {
+		SystemInterface interfaceInstance = getInterfaceInstance();
+
+		// save all available semesters/subjects
+		interfaceInstance.saveSemestersAndSubjects(semesters, subjects);
 	}
 }
