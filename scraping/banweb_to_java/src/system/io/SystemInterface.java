@@ -2,9 +2,10 @@ package system.io;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Map;
 
-import structure.Clazz;
 import structure.Semester;
+import structure.SemesterAndSubjectCourses;
 import structure.Subject;
 
 /**
@@ -19,14 +20,12 @@ public interface SystemInterface {
 	 * 
 	 * @param semester
 	 *            The semester to save.
-	 * @param subject
-	 *            The associated subject of the semester.
-	 * @param classes
-	 *            The classes of the semester.
+	 * @param subjectsAndClasses
+	 *            The associated subjects and courses of the semester.
 	 * @throws IOException
 	 *             If there is an issue saving any of the data.
 	 */
-	public void saveSemester(Semester semester, Subject subject, Collection<Clazz> classes) throws IOException;
+	public void saveSemester(Semester semester, Map<Subject, SemesterAndSubjectCourses> subjectsAndClasses) throws IOException;
 
 	/**
 	 * Will be called once by the {@link SemesterIO} class upon saving, in case

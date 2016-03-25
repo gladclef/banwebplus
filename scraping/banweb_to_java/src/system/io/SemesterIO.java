@@ -95,5 +95,11 @@ public class SemesterIO {
 
 		// save all available semesters/subjects
 		interfaceInstance.saveSemestersAndSubjects(semesters, subjects);
+		
+		// save the scraped semesters individually
+		for (Semester semester : scrapedSemesters.keySet())
+		{
+			interfaceInstance.saveSemester(semester, scrapedSemesters.get(semester));
+		}
 	}
 }

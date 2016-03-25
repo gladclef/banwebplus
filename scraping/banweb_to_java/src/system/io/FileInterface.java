@@ -8,9 +8,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Map;
 
 import structure.Clazz;
 import structure.Semester;
+import structure.SemesterAndSubjectCourses;
 import structure.Subject;
 
 /**
@@ -85,11 +87,6 @@ public class FileInterface implements SystemInterface {
 	}
 
 	@Override
-	public void saveSemester(Semester semester, Subject subject, Collection<Clazz> classes) throws IOException {
-
-	}
-
-	@Override
 	public boolean isSemesterCached(Semester semester) throws IOException {
 		try {
 			openFile(getFileNameForSemester(semester), false);
@@ -107,17 +104,17 @@ public class FileInterface implements SystemInterface {
 
 		// open the file for writing
 		openFile("banweb_terms.php", true);
+		writeHandle.write(getWaterMark());
 
 		// add the boiler plate php code
-		writeHandle.write(getWaterMark());
-		writeHandle.write("$terms = [\n");
+		writeHandle.write("$terms = array(\n");
 
 		// add each semester as a value to "terms"
 		String lineEnding = "";
 		boolean first = true;
 		for (Semester semester : semesters) {
 			// write the current semester to file
-			writeHandle.write(String.format("%s    [\"%s\", \"%s %s\"]", lineEnding,
+			writeHandle.write(String.format("%s    array(\"%s\", \"%s %s\")", lineEnding,
 					semester.getCode(), semester.getSemesterName(), semester.getCalendarYear()));
 
 			// get ready for semesters 2 .. n
@@ -128,7 +125,7 @@ public class FileInterface implements SystemInterface {
 		}
 		
 		// close the php code
-		writeHandle.write("\n];\n");
+		writeHandle.write("\n);\n");
 
 		close();
 	}
@@ -138,5 +135,18 @@ public class FileInterface implements SystemInterface {
 				"// generated with the %s.java class at %s\n",
 				this.getClass().getSimpleName(),
 				(new Date()).toString());
+	}
+
+	@Override
+	public void saveSemester(Semester semester, Map<Subject, SemesterAndSubjectCourses> subjectsAndClasses)
+			throws IOException {
+		
+		// open the semester handle for writing to
+		openFile(getFileNameForSemester(semester), true);
+		writeHandle.write(getWaterMark());
+		
+		// start the boiler plate php code
+		
+		close();
 	}
 }
