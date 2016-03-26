@@ -85,6 +85,8 @@ public class Main {
 
 				// add the scraped classes to the return value
 				scrapedSemester.put(subject, scraper.getScrapedCourses());
+				
+				break;
 			}
 
 			System.out.println("");

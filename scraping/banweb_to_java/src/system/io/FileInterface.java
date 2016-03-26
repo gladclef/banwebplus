@@ -6,11 +6,14 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.security.InvalidParameterException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
-import structure.Clazz;
 import structure.Semester;
 import structure.SemesterAndSubjectCourses;
 import structure.Subject;
@@ -101,31 +104,34 @@ public class FileInterface implements SystemInterface {
 	@Override
 	public void saveSemestersAndSubjects(Collection<Semester> semesters, Collection<Subject> subjects)
 			throws IOException {
+		StringBuilder builder = new StringBuilder();
 
 		// open the file for writing
 		openFile("banweb_terms.php", true);
-		writeHandle.write(getWaterMark());
+		builder.append(getWaterMark());
 
 		// add the boiler plate php code
-		writeHandle.write("$terms = array(\n");
+		builder.append("$terms = ");
 
-		// add each semester as a value to "terms"
-		String lineEnding = "";
-		boolean first = true;
+		// add each semester to the list to be saved
+		List<List<Object>> semestersList = new ArrayList<>(semesters.size());
 		for (Semester semester : semesters) {
-			// write the current semester to file
-			writeHandle.write(String.format("%s    array(\"%s\", \"%s %s\")", lineEnding,
-					semester.getCode(), semester.getSemesterName(), semester.getCalendarYear()));
-
-			// get ready for semesters 2 .. n
-			if (first) {
-				first = false;
-				lineEnding = ",\n";
-			}
+			
+			// add the semester to the list
+			semestersList.add(Arrays.asList(new Object[] {
+					semester.getCode(),
+					String.format("%s %s", semester.getSemesterName(), semester.getCalendarYear())
+			}));
 		}
 		
+		// append the list
+		objToPHPString(semestersList, 1, builder);
+		
 		// close the php code
-		writeHandle.write("\n);\n");
+		builder.append(";\n");
+		
+		// write out the builder's value
+		writeHandle.write(builder.toString());
 
 		close();
 	}
@@ -140,13 +146,147 @@ public class FileInterface implements SystemInterface {
 	@Override
 	public void saveSemester(Semester semester, Map<Subject, SemesterAndSubjectCourses> subjectsAndClasses)
 			throws IOException {
-		
+
 		// open the semester handle for writing to
 		openFile(getFileNameForSemester(semester), true);
 		writeHandle.write(getWaterMark());
-		
+
 		// start the boiler plate php code
+		writeHandle.write("$semesterData = array(\n");
+
+		// add the semester name
+		writeHandle.write(
+				String.format("\t\"name\" => \"%s %d\"", semester.getSemesterName(), semester.getCalendarYear()));
+		
+		// add the list of subjects and their abbreviations
+		writeHandle.write("\t\"subjects\" => ");
+		
+		// add the courses
 		
 		close();
+	}
+	
+	public String listToPHPString(List<Object> listToSerialize, int depth)
+	{
+		StringBuilder retval = new StringBuilder();
+
+		// Don't need to add extra tabs because the calling method of this one
+		// should have already done that.
+		// Add the code for a new list.
+		retval.append("array(\n");
+		
+		boolean hadPreviousLine = false;
+		for (Object val : listToSerialize)
+		{
+			// write the value
+			try
+			{
+				// add a spacer between the previous line and this line
+				if (hadPreviousLine)
+				{
+					retval.append(",\n");
+				}
+				hadPreviousLine = true;
+				
+				// get the whitespace to prepend
+				appendSpacing(depth, retval);
+				
+				// append the value
+				objToPHPString(val, depth + 1, retval);
+			}
+			catch (InvalidParameterException e)
+			{
+				System.err.println(e);
+			}
+		}
+		
+		// add the end of the list
+		retval.append("\n");
+		appendSpacing(Math.max(0, depth - 1), retval);
+		retval.append(")");
+		
+		return retval.toString();
+	}
+
+	public String mapToPHPString(Map<String, Object> mapToSerialize, int depth)
+	{
+		StringBuilder retval = new StringBuilder();
+
+		// Don't need to add extra tabs because the calling method of this one
+		// should have already done that.
+		// Add the code for a new list.
+		retval.append("array(\n");
+		
+		boolean hadPreviousLine = false;
+		for (String key : mapToSerialize.keySet())
+		{
+			Object val = mapToSerialize.get(key);
+			
+			// write the value
+			try
+			{
+				// add a spacer between the previous line and this line
+				if (hadPreviousLine)
+				{
+					retval.append(",\n");
+				}
+				hadPreviousLine = true;
+				
+				// get the spacing to prepend
+				appendSpacing(depth, retval);
+				
+				// append the key
+				retval.append(String.format("\"%s\" => ", key));
+				
+				// append the value
+				objToPHPString(val, 0, retval);
+			}
+			catch (InvalidParameterException e)
+			{
+				System.err.println(e);
+			}
+		}
+		
+		// add the end of the list
+		retval.append("\n");
+		appendSpacing(Math.max(0, depth - 1), retval);
+		retval.append(")");
+		
+		return retval.toString();
+	}
+
+	private void appendSpacing(int depth, StringBuilder builder) {
+		for (int i = 0; i < depth; i++)
+		{
+			builder.append("\t");
+		}
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void objToPHPString(Object val, int depth, StringBuilder builder) throws InvalidParameterException {
+
+		// write the value
+		if (val instanceof List)
+		{
+			// list
+			builder.append(listToPHPString((List) val, depth));
+		}
+		else if (val instanceof Map)
+		{
+			// map
+			builder.append(mapToPHPString((Map) val, depth));
+		}
+		else if (PrimitiveHelper.primitiveClasses.contains(val.getClass()))
+		{
+			// primitive
+			builder.append("\"");
+			builder.append(val.toString());
+			builder.append("\"");
+		}
+		else
+		{
+			// unknown
+			throw new InvalidParameterException("Unable to serialize " + val + " (class " + val.getClass() + ")");
+		}
 	}
 }
