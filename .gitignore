@@ -12,3 +12,4 @@ database_desc.txt
 *.class
 *.jar
 /scraping/banweb_to_java/target/
+/resources/server_config.ini

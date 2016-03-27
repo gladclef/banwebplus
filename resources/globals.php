@@ -1,5 +1,6 @@
 <?php
 
+require_once(dirname(__FILE__)."/debug.php");
 define_global_vars();
 require_once(dirname(__FILE__)."/common_functions.php");
 require_once(dirname(__FILE__)."/../objects/user.php");
@@ -24,11 +25,11 @@ function define_global_vars() {
 	$mysqli = NULL;
 
 	$a_configs = array();
-	$filename = dirname(__FILE__) . "\server_config.ini";
+	$filename = dirname(__FILE__) . "/server_config.ini";
 	if (file_exists($filename)) {
 		$a_configs = parse_ini_file($filename);
 	} else {
-		echo "<p>DEBUG: Could not find server_config.ini</p>";
+		print_debug_as_html_paragraph("Could not find ${filename}");
 	}
 
 	if ($a_configs === FALSE) {
@@ -38,17 +39,17 @@ function define_global_vars() {
 	if (isset($a_configs["maindb"])) {
 		$maindb = $a_configs["maindb"];
 	} else {
-		echo "DEBUG: maindb is not set in server_config.ini";
+		print_debug_as_html_paragraph("maindb is not set in server_config.ini");
 	}
 	if (isset($a_configs["global_path_to_jquery"])) {
 		$global_path_to_jquery = $a_configs["global_path_to_jquery"];
 	} else {
-		echo "DEBUG: global_path_to_jquery is not set in server_config.ini";
+		print_debug_as_html_paragraph("global_path_to_jquery is not set in server_config.ini");
 	}
 	if (isset($a_configs["timezone"])) {
 		date_default_timezone_set($a_configs["timezone"]);
 	} else {
-		echo "DEBUG: timezone is not set in server_config.ini";
+		print_debug_as_html_paragraph("timezone is not set in server_config.ini");
 	}
 
 	if (isset($a_configs["maindb"]) &&
@@ -56,7 +57,7 @@ function define_global_vars() {
 		isset($a_configs["timezone"])) {
 		$global_loaded_server_settings = TRUE;
 	} else {
-		echo "DEBUG: server_config.ini is not configured properly"; 
+		print_debug_as_html_paragraph("server_config.ini is not configured properly");
 	}
 }
 

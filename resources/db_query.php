@@ -53,14 +53,28 @@ function open_db() {
 	$filename = dirname(__FILE__)."/mysql_config.ini";
 	if (file_exists($filename)) {
 		$a_configs = parse_ini_file($filename);
+	} else {
+		print_debug_as_html_paragraph("Could not find file ${filename}");
+		return FALSE;
 	}
 	if (!isset($a_configs["host"]) ||
 		!isset($a_configs["user"]) ||
 		!isset($a_configs["password"])) {
+		print_debug_as_html_paragraph("Undefined host, user, and password in ${filename}");
 		return FALSE;
 	}
 
-	$mysqli = mysqli_connect($a_configs["host"], $a_configs["user"], $a_configs["password"]);
+	# try and open the database
+	if (!function_exists("mysqli_connect")) {
+		print_debug_as_html_paragraph("Must install php5-mysql to interface to MySQL database. Then add extension=php_mysqli.so to your php.ini configuration file and restart the Apache server.");
+		//return FALSE;
+	}
+	try {
+		$mysqli = mysqli_connect($a_configs["host"], $a_configs["user"], $a_configs["password"]);
+	} catch (Exception $e) {
+		print_debug_as_html_paragraph("Unable to connect to MySQL. ${e}");
+		return FALSE;
+	}
 	if ($mysqli->connect_errno) {
 		return FALSE;
 	}
