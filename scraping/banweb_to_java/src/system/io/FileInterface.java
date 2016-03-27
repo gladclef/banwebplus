@@ -195,7 +195,15 @@ public class FileInterface implements SystemInterface {
 		close();
 	}
 	
-	public String listToPHPString(List<Object> listToSerialize, int depth)
+	/**
+	 * Convert the given listToSerialize into PHP code.
+	 *
+	 * @param listToSerialize The list to turn into PHP code.
+	 * @param depth The number of tabs to use.
+	 * @param builder The StringBuilder to append to.
+	 * @see #objToPHPString(Object, int, StringBuilder)
+	 */
+	public static String listToPHPString(List<Object> listToSerialize, int depth)
 	{
 		StringBuilder retval = new StringBuilder();
 
@@ -237,7 +245,15 @@ public class FileInterface implements SystemInterface {
 		return retval.toString();
 	}
 
-	public void mapToPHPString(Map<String, Object> mapToSerialize, int depth, StringBuilder builder)
+	/**
+	 * Convert the given mapToSerialize into PHP code.
+	 *
+	 * @param mapToSerialize The map to turn into PHP code.
+	 * @param depth The number of tabs to use.
+	 * @param builder The StringBuilder to append to.
+	 * @see #objToPHPString(Object, int, StringBuilder)
+	 */
+	public static void mapToPHPString(Map<String, Object> mapToSerialize, int depth, StringBuilder builder)
 	{
 		// Don't need to add extra tabs because the calling method of this one
 		// should have already done that.
@@ -280,15 +296,34 @@ public class FileInterface implements SystemInterface {
 		builder.append(")");
 	}
 
-	private void appendSpacing(int depth, StringBuilder builder) {
+	/**
+	 * Append depth number of tabs to the given builder.
+	 * 
+	 * @param depth The number of tabs to use.
+	 * @param builder The StringBuilder to append to.
+	 */
+	public static void appendSpacing(int depth, StringBuilder builder) {
 		for (int i = 0; i < depth; i++)
 		{
 			builder.append("\t");
 		}
 	}
 
+	/**
+	 * For converting any nested value of maps/lists/primitives into a string
+	 * representing PHP code, appended to the given builder.
+	 * 
+	 * @param val
+	 *            The object value to convert.
+	 * @param depth
+	 *            The number of tabs to insert before each contained object if
+	 *            val is either a list or map.
+	 * @param depth The number of tabs to use for nested values of val.
+	 * @param builder The StringBuilder to append to.
+	 * @throws InvalidParameterException If the given val is not a List, Map, or Primitive.
+	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void objToPHPString(Object val, int depth, StringBuilder builder) throws InvalidParameterException {
+	public static void objToPHPString(Object val, int depth, StringBuilder builder) throws InvalidParameterException {
 
 		// write the value
 		if (val instanceof List)

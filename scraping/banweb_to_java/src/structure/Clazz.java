@@ -4,7 +4,14 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+/**
+ * Collector to hold all class data from scraped courses.
+ */
 public class Clazz {
+	
+	/**
+	 * The available class attributes to scrape, plus subject.
+	 */
 	public static enum ClassAttribute
 	{	
 		CourseReferenceNumber("CRN", true),
@@ -31,11 +38,8 @@ public class Clazz {
 		}
 	}
 	
+	/** Container for the class attributes to their values. */
 	protected Map<ClassAttribute, Object> attributes = new LinkedHashMap<>();
-	
-	public Clazz()
-	{
-	}
 	
 	/**
 	 * Adds the given attribute to this clazz.
@@ -55,6 +59,12 @@ public class Clazz {
 		}
 	}
 	
+	/**
+	 * Creates a map containing the attributes (using their abbreviated names)
+	 * to their values.
+	 * 
+	 * @return The newly created map of "abbreviated name" => value.
+	 */
 	public Map<String, Object> getAttributeValues()
 	{
 		Map<String, Object> retval = new TreeMap<>();
