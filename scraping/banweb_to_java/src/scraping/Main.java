@@ -27,10 +27,13 @@ public class Main {
 
 		// get the available semesters from banweb
 		availabilities.scrape();
+		System.out.println("Available semesters for download: ");
 		printSemesters(availabilities.getSemesters());
 
 		// figure out which semesters are missing
 		List<Semester> semestersToScrape = filterForUncachedOrRecentSemesters(availabilities.getSemesters());
+		System.out.println("Semesters to be scraped: ");
+		printSemesters(semestersToScrape);
 
 		// scrape those semesters
 		LinkedHashMap<Semester, LinkedHashMap<Subject, SemesterAndSubjectCourses>> scrapedSemesters = new LinkedHashMap<>();
@@ -90,8 +93,6 @@ public class Main {
 			}
 
 			System.out.println("");
-
-			break;
 		}
 
 		System.out.println("");
@@ -143,7 +144,6 @@ public class Main {
 	 *            The semesters to list.
 	 */
 	private static void printSemesters(Collection<Semester> semesters) {
-		System.out.println("Available semesters for download: ");
 		for (Semester semester : semesters) {
 			System.out.println(semester);
 		}
