@@ -161,7 +161,7 @@ public class FileInterface implements SystemInterface {
 
 		// add the semester name
 		semesterDataMap.put("name",
-				String.format("\"%s %d\"", semester.getSemesterName(), semester.getCalendarYear()));
+				String.format("%s %d", semester.getSemesterName(), semester.getCalendarYear()));
 		
 		// add the list of subjects and their abbreviations
 		Map<String, String> subjectAbbreviations = new TreeMap<>();
