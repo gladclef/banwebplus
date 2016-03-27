@@ -1,8 +1,7 @@
 package structure;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Contains all courses offered for a given subject + semester.
@@ -13,7 +12,7 @@ public class SemesterAndSubjectCourses {
 	/** The subject of classes */
 	Subject subject = null;
 	/** The classes matching the semester + subject */
-	Set<Clazz> classes = new HashSet<>();
+	List<Clazz> classes = new ArrayList<>();
 
 	public SemesterAndSubjectCourses(Semester semester, Subject subject) {
 		this.semester = semester;
@@ -32,7 +31,7 @@ public class SemesterAndSubjectCourses {
 	/**
 	 * @return The classes registered in this instance.
 	 */
-	public Set<Clazz> getClasses() {
+	public List<Clazz> getClasses() {
 		return classes;
 	}
 	

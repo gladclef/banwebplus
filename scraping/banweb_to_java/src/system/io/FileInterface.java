@@ -13,7 +13,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
+import structure.Clazz;
 import structure.Semester;
 import structure.SemesterAndSubjectCourses;
 import structure.Subject;
@@ -101,6 +103,13 @@ public class FileInterface implements SystemInterface {
 		return true;
 	}
 
+	protected String getWaterMark() {
+		return String.format(
+				"// generated with the %s.java class at %s\n",
+				this.getClass().getSimpleName(),
+				(new Date()).toString());
+	}
+
 	@Override
 	public void saveSemestersAndSubjects(Collection<Semester> semesters, Collection<Subject> subjects)
 			throws IOException {
@@ -136,32 +145,51 @@ public class FileInterface implements SystemInterface {
 		close();
 	}
 
-	protected String getWaterMark() {
-		return String.format(
-				"// generated with the %s.java class at %s\n",
-				this.getClass().getSimpleName(),
-				(new Date()).toString());
-	}
-
 	@Override
 	public void saveSemester(Semester semester, Map<Subject, SemesterAndSubjectCourses> subjectsAndClasses)
 			throws IOException {
+		StringBuilder builder = new StringBuilder();
 
 		// open the semester handle for writing to
 		openFile(getFileNameForSemester(semester), true);
-		writeHandle.write(getWaterMark());
+		builder.append(getWaterMark());
 
 		// start the boiler plate php code
-		writeHandle.write("$semesterData = array(\n");
+		builder.append("$semesterData = \n");
+		Map<String, Object> semesterDataMap = new TreeMap<>();
 
 		// add the semester name
-		writeHandle.write(
-				String.format("\t\"name\" => \"%s %d\"", semester.getSemesterName(), semester.getCalendarYear()));
+		semesterDataMap.put("name",
+				String.format("\"%s %d\"", semester.getSemesterName(), semester.getCalendarYear()));
 		
 		// add the list of subjects and their abbreviations
-		writeHandle.write("\t\"subjects\" => ");
+		Map<String, String> subjectAbbreviations = new TreeMap<>();
+		for (Subject subject : subjectsAndClasses.keySet())
+		{
+			subjectAbbreviations.put(subject.getShortName(), subject.getLongName());
+		}
+		semesterDataMap.put("subjects", subjectAbbreviations);
 		
 		// add the courses
+		List<Map<String, Object>> allCourses = new ArrayList<>();
+		for (Subject subject : subjectsAndClasses.keySet())
+		{
+			List<Clazz> courses = subjectsAndClasses.get(subject).getClasses();
+			for (Clazz clazz : courses)
+			{
+				allCourses.add(clazz.getAttributeValues());
+			}
+		}
+		semesterDataMap.put("classes", allCourses);
+		
+		// append the map
+		objToPHPString(semesterDataMap, 1, builder);
+		
+		// close the php code
+		builder.append(";\n");
+		
+		// write out the builder's value
+		writeHandle.write(builder.toString());
 		
 		close();
 	}
@@ -208,14 +236,12 @@ public class FileInterface implements SystemInterface {
 		return retval.toString();
 	}
 
-	public String mapToPHPString(Map<String, Object> mapToSerialize, int depth)
+	public void mapToPHPString(Map<String, Object> mapToSerialize, int depth, StringBuilder builder)
 	{
-		StringBuilder retval = new StringBuilder();
-
 		// Don't need to add extra tabs because the calling method of this one
 		// should have already done that.
 		// Add the code for a new list.
-		retval.append("array(\n");
+		builder.append("array(\n");
 		
 		boolean hadPreviousLine = false;
 		for (String key : mapToSerialize.keySet())
@@ -228,18 +254,18 @@ public class FileInterface implements SystemInterface {
 				// add a spacer between the previous line and this line
 				if (hadPreviousLine)
 				{
-					retval.append(",\n");
+					builder.append(",\n");
 				}
 				hadPreviousLine = true;
 				
 				// get the spacing to prepend
-				appendSpacing(depth, retval);
+				appendSpacing(depth, builder);
 				
 				// append the key
-				retval.append(String.format("\"%s\" => ", key));
+				builder.append(String.format("\"%s\" => ", key));
 				
 				// append the value
-				objToPHPString(val, 0, retval);
+				objToPHPString(val, 0, builder);
 			}
 			catch (InvalidParameterException e)
 			{
@@ -248,11 +274,9 @@ public class FileInterface implements SystemInterface {
 		}
 		
 		// add the end of the list
-		retval.append("\n");
-		appendSpacing(Math.max(0, depth - 1), retval);
-		retval.append(")");
-		
-		return retval.toString();
+		builder.append("\n");
+		appendSpacing(Math.max(0, depth - 1), builder);
+		builder.append(")");
 	}
 
 	private void appendSpacing(int depth, StringBuilder builder) {
@@ -274,7 +298,7 @@ public class FileInterface implements SystemInterface {
 		else if (val instanceof Map)
 		{
 			// map
-			builder.append(mapToPHPString((Map) val, depth));
+			mapToPHPString((Map) val, depth, builder);
 		}
 		else if (PrimitiveHelper.primitiveClasses.contains(val.getClass()))
 		{

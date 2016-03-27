@@ -1,7 +1,8 @@
 package structure;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class Clazz {
 	public static enum ClassAttribute
@@ -30,7 +31,7 @@ public class Clazz {
 		}
 	}
 	
-	protected Map<ClassAttribute, Object> attributes = new HashMap<>();
+	protected Map<ClassAttribute, Object> attributes = new LinkedHashMap<>();
 	
 	public Clazz()
 	{
@@ -52,5 +53,17 @@ public class Clazz {
 		{
 			attributes.put(attributeType, value);
 		}
+	}
+	
+	public Map<String, Object> getAttributeValues()
+	{
+		Map<String, Object> retval = new TreeMap<>();
+		
+		for (ClassAttribute attribute : attributes.keySet())
+		{
+			retval.put(attribute.shortName, attributes.get(attribute));
+		}
+		
+		return retval;
 	}
 }
