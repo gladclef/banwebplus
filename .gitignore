@@ -1,8 +1,4 @@
-*.php~
-*.css~
-*.pyc
-*.js~
-*.ini~
+*~
 sem_*.php
 sem_*.py
 sem_*.pyc
@@ -15,3 +11,4 @@ database_desc.txt
 *.project
 *.class
 *.jar
+/scraping/banweb_to_java/target/

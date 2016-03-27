@@ -1,6 +1,0 @@
-# emacs files
-*~
-
-# artifact files
-*.class
-target/
