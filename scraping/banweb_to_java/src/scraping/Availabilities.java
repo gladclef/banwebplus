@@ -1,7 +1,8 @@
 package scraping;
 
 import java.io.IOException;
-import java.util.TreeSet;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -18,9 +19,9 @@ public class Availabilities {
 	/** URL to the front page of banweb. */
 	private String baseurl = "https://banweb7.nmt.edu/pls/PROD/hwzkcrof.P_UncgSrchCrsOff";
 	/** The available semesters. */
-	protected TreeSet<Semester> semesters = new TreeSet<>();
+	protected List<Semester> semesters = new ArrayList<>();
 	/** The available subjects. */
-	protected TreeSet<Subject> subjects = new TreeSet<>();
+	protected List<Subject> subjects = new ArrayList<>();
 
 	public Availabilities(String baseurl) {
 		this.baseurl = baseurl;
@@ -47,14 +48,14 @@ public class Availabilities {
 	/**
 	 * @return An unmodifiable set of available semesters.
 	 */
-	public TreeSet<Semester> getSemesters() {
+	public List<Semester> getSemesters() {
 		return semesters;
 	}
 
 	/**
 	 * @return An unmodifiable set of available subjects.
 	 */
-	public TreeSet<Subject> getSubjects() {
+	public List<Subject> getSubjects() {
 		return subjects;
 	}
 
@@ -78,14 +79,16 @@ public class Availabilities {
 		}
 
 		// they post summer and fall at the same time, usually
-		int possibleNextSemesters = (semesters.last().getSemesterName().equals("Spring")) ? 2 : 1;
+		Semester lastSemester = semesters.get(semesters.size() - 1);
+		int possibleNextSemesters = (lastSemester.getSemesterName().equals("Spring")) ? 2 : 1;
 
 		// try to add the next semester, when not yet posted, so as to give
 		// a peek preview
 		for (int nextSemestersCount = 0; nextSemestersCount < possibleNextSemesters; nextSemestersCount++) {
 			if (isNextSemesterAvailable()) {
 				// get the next semester
-				Semester unpostedSemester = new Semester(semesters.last().getPredictedNext());
+				lastSemester = semesters.get(semesters.size() - 1);
+				Semester unpostedSemester = new Semester(lastSemester.getPredictedNext());
 
 				// add the next semester
 				semesters.add(unpostedSemester);
@@ -124,7 +127,8 @@ public class Availabilities {
 	protected boolean isNextSemesterAvailable() throws IOException {
 
 		// ask it for what should be next
-		String nextSemesterString = semesters.last().getPredictedNext();
+		Semester lastSemester = semesters.get(semesters.size() - 1);
+		String nextSemesterString = lastSemester.getPredictedNext();
 
 		// Try to find the course offerings page for (that semester + math).
 		// Note: math just seems to be more reliable.

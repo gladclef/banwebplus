@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -155,8 +156,8 @@ public class FileInterface implements SystemInterface {
 		builder.append(getWaterMark());
 
 		// start the boiler plate php code
-		builder.append("$semesterData = \n");
-		Map<String, Object> semesterDataMap = new TreeMap<>();
+		builder.append("$semesterData = ");
+		Map<String, Object> semesterDataMap = new LinkedHashMap<>();
 
 		// add the semester name
 		semesterDataMap.put("name",
@@ -265,7 +266,7 @@ public class FileInterface implements SystemInterface {
 				builder.append(String.format("\"%s\" => ", key));
 				
 				// append the value
-				objToPHPString(val, 0, builder);
+				objToPHPString(val, depth + 1, builder);
 			}
 			catch (InvalidParameterException e)
 			{

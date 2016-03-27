@@ -2,8 +2,8 @@ package system.io;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 import structure.Semester;
 import structure.SemesterAndSubjectCourses;
@@ -89,16 +89,16 @@ public class SemesterIO {
 	 * @throws IOException
 	 *             If saving fails.
 	 */
-	public void saveSemesters(TreeMap<Semester, TreeMap<Subject, SemesterAndSubjectCourses>> scrapedSemesters,
-			TreeSet<Semester> semesters, TreeSet<Subject> subjects) throws IOException {
+	public void saveSemesters(
+			LinkedHashMap<Semester, LinkedHashMap<Subject, SemesterAndSubjectCourses>> scrapedSemesters,
+			List<Semester> semesters, List<Subject> subjects) throws IOException {
 		SystemInterface interfaceInstance = getInterfaceInstance();
 
 		// save all available semesters/subjects
 		interfaceInstance.saveSemestersAndSubjects(semesters, subjects);
-		
+
 		// save the scraped semesters individually
-		for (Semester semester : scrapedSemesters.keySet())
-		{
+		for (Semester semester : scrapedSemesters.keySet()) {
 			interfaceInstance.saveSemester(semester, scrapedSemesters.get(semester));
 		}
 	}

@@ -1,9 +1,10 @@
 package scraping;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 import structure.Semester;
 import structure.SemesterAndSubjectCourses;
@@ -29,10 +30,10 @@ public class Main {
 		printSemesters(availabilities.getSemesters());
 
 		// figure out which semesters are missing
-		TreeSet<Semester> semestersToScrape = filterForUncachedOrRecentSemesters(availabilities.getSemesters());
+		List<Semester> semestersToScrape = filterForUncachedOrRecentSemesters(availabilities.getSemesters());
 
 		// scrape those semesters
-		TreeMap<Semester, TreeMap<Subject, SemesterAndSubjectCourses>> scrapedSemesters = new TreeMap<>();
+		LinkedHashMap<Semester, LinkedHashMap<Subject, SemesterAndSubjectCourses>> scrapedSemesters = new LinkedHashMap<>();
 		scrapeSemesters(semestersToScrape, availabilities.getSubjects(), scrapedSemesters);
 
 		// save the scraped data
@@ -54,7 +55,8 @@ public class Main {
 	 *             If the scraper has an issue connecting to the server.
 	 */
 	private static void scrapeSemesters(Collection<Semester> semestersToScrape, Collection<Subject> subjectsToScrape,
-			TreeMap<Semester, TreeMap<Subject, SemesterAndSubjectCourses>> scrapedSemesters) throws IOException {
+			LinkedHashMap<Semester, LinkedHashMap<Subject, SemesterAndSubjectCourses>> scrapedSemesters)
+					throws IOException {
 		System.out.println("Scraping semesters from Banweb...");
 
 		// scrape each semester in turn
@@ -64,7 +66,7 @@ public class Main {
 
 			// create the semester instance and insert it into the returned
 			// value
-			TreeMap<Subject, SemesterAndSubjectCourses> scrapedSemester = new TreeMap<>();
+			LinkedHashMap<Subject, SemesterAndSubjectCourses> scrapedSemester = new LinkedHashMap<>();
 			scrapedSemesters.put(semester, scrapedSemester);
 
 			// scrape each subject in turn
@@ -88,7 +90,7 @@ public class Main {
 			}
 
 			System.out.println("");
-			
+
 			break;
 		}
 
@@ -108,26 +110,26 @@ public class Main {
 	 * @throws IllegalStateException
 	 *             If the interface to the System can't be initiated.
 	 */
-	private static TreeSet<Semester> filterForUncachedOrRecentSemesters(TreeSet<Semester> semesters)
+	private static List<Semester> filterForUncachedOrRecentSemesters(List<Semester> semesters)
 			throws IllegalStateException, IOException {
-		TreeSet<Semester> retval = new TreeSet<>();
+		List<Semester> retval = new ArrayList<>();
 
 		// start by adding all semesters in the last five semesters
-		Semester nextLast = semesters.last();
+		Semester nextLast = semesters.get(semesters.size() - 1);
 		for (int i = 0; i < NUM_SEMESTERS_ALWAYS_SCRAPED; i++) {
 			retval.add(nextLast);
-			nextLast = semesters.lower(nextLast);
+			nextLast = semesters.get(semesters.size() - 2 - i);
 		}
 
 		// look for semesters not yet cached
-		while (nextLast != null) {
+		for (int i = semesters.indexOf(nextLast); i > -1; i--) {
 
 			// check if the semester is cached
 			if (!semesterSaver.isSemesterCached(nextLast)) {
 				retval.add(nextLast);
 			}
 
-			nextLast = semesters.lower(nextLast);
+			nextLast = semesters.get(i);
 		}
 
 		return retval;
