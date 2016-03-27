@@ -70,6 +70,7 @@ function open_db() {
 		//return FALSE;
 	}
 	try {
+		print_debug_as_html_paragraph("host: ${a_configs['host']}, user: ${a_configs['user']}, password: ${a_configs['password']}");
 		$mysqli = mysqli_connect($a_configs["host"], $a_configs["user"], $a_configs["password"]);
 	} catch (Exception $e) {
 		print_debug_as_html_paragraph("Unable to connect to MySQL. ${e}");

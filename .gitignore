@@ -13,3 +13,4 @@ database_desc.txt
 *.jar
 /scraping/banweb_to_java/target/
 /resources/server_config.ini
+/resources/mysql_config.ini
