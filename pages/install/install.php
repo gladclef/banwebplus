@@ -53,6 +53,34 @@ class ProjectInstaller {
 	}
 
 	/**
+	 * Checks for the existance of tables (and table columns) in the database and
+	 * creates or adds them if not existing.
+	 * <p>
+	 * Does not update the tables.
+	 */
+	public function check_init_database()
+	{
+		require_once(DIRNAME(__FILE__)."/../../resources/database_structure.php");
+		foreach ($a_basic_tables_structure as $s_table_name)
+		{
+			var $a_column_create_statement = array();
+			var $a_indexed_columns = array();
+			var $s_primary_key_column = "";
+			for ($a_basic_tables_structure[$s_table_name] as $s_column_name)
+			{
+				$a_column_structure = $a_basic_tables_structure[$s_table_name][$s_column_name];
+				if ($a_column_structure["isPrimaryKey"] === TRUE)
+					$s_primary_key_column = $s_column_name;
+				if ($a_column_structure["indexed"])
+					array_push($a_indexed_columns, $s_column_name);
+				$s_create_statement = sprintf("%s %s NOT NULL %s",
+					$s_column_name, $a_column_structure["type"], $a_column_structure["special"]);
+				$a_column_create_statement[$s_column_name] = $s_create_statement;
+			}
+		}
+	}
+
+	/**
 	 * Checks that the basic users have been created.
 	 * @return TRUE if users have been created, FALSE otherwise.
 	 */
@@ -67,6 +95,8 @@ class ProjectInstaller {
 		// check if users already exist
 		$a_users_count = db_query("SELECT COUNT(`id`) AS 'count' FROM `[maindb]`.`students`",
 			array("maindb"=>$maindb));
+
+		// check if users count > 0
 		$i_users_count = intval($a_users_count[0]["count"]);
 		if ($i_users_count > 0) {
 			return TRUE;
