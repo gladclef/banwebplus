@@ -50,6 +50,7 @@ public class FileInterface implements SystemInterface {
 	protected void openFile(String fileName, boolean isWritable) throws IOException {
 		File file = new File(getPath() + fileName);
 		if (isWritable) {
+			System.out.println("writing to " + file);
 			writeHandle = new BufferedWriter(new FileWriter(file));
 		} else {
 			readHandle = new BufferedReader(new FileReader(file));
@@ -78,7 +79,7 @@ public class FileInterface implements SystemInterface {
 	 */
 	protected String getPath() {
 		File executionDirectory = new File(System.getProperty("user.dir"));
-		return executionDirectory.getParent() + File.separator;
+		return executionDirectory + File.separator;
 	}
 
 	/**
