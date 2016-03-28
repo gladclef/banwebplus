@@ -35,12 +35,19 @@ public class Main {
 		System.out.println("Semesters to be scraped: ");
 		printSemesters(semestersToScrape);
 
-		// scrape those semesters
-		LinkedHashMap<Semester, LinkedHashMap<Subject, SemesterAndSubjectCourses>> scrapedSemesters = new LinkedHashMap<>();
-		scrapeSemesters(semestersToScrape, availabilities.getSubjects(), scrapedSemesters);
+		// scrape those semesters, one at a time, and same them
+		for (Semester semester : semestersToScrape)
+		{
+			List<Semester> singleSemesterList = new ArrayList<>(1);
+			singleSemesterList.add(semester);
 
-		// save the scraped data
-		semesterSaver.saveSemesters(scrapedSemesters, availabilities.getSemesters(), availabilities.getSubjects());
+			// scrape the single semester
+			LinkedHashMap<Semester, LinkedHashMap<Subject, SemesterAndSubjectCourses>> scrapedSemesters = new LinkedHashMap<>();
+			scrapeSemesters(singleSemesterList, availabilities.getSubjects(), scrapedSemesters);
+
+			// save the scraped data
+			semesterSaver.saveSemesters(scrapedSemesters, availabilities.getSemesters(), availabilities.getSubjects());
+		}
 	}
 
 	/**
