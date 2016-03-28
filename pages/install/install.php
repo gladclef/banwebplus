@@ -81,8 +81,8 @@ class ProjectInstaller {
 					$s_primary_key_column = $s_column_name;
 				if ($a_column_structure["indexed"])
 					$a_indexed_columns[] = $s_column_name;
-				$s_create_statement = sprintf("%s %s NOT NULL %s",
-					$s_column_name, $a_column_structure["type"], $a_column_structure["special"]);
+				$s_create_statement = sprintf("%s NOT NULL %s",
+					$a_column_structure["type"], $a_column_structure["special"]);
 				$a_column_create_statements[$s_column_name] = $s_create_statement;
 			}
 
@@ -91,7 +91,7 @@ class ProjectInstaller {
 			{
 				// create the table
 				$a_vars = array("maindb" => $maindb, "table" => $s_table_name);
-				$s_id_column = "(id INT(11) NOT NULL AUTO_INCREMENT, PRIMARY KEY (id))";
+				$s_id_column = "(`id` INT(11) NOT NULL AUTO_INCREMENT, PRIMARY KEY (`id`))";
 				$b_create_var = db_query("CREATE TABLE IF NOT EXISTS `[maindb]`.`[table]` $s_id_column", $a_vars);
 				if ($b_create_var === FALSE)
 				{
@@ -104,7 +104,7 @@ class ProjectInstaller {
 			$a_column_names = getColumnNames($s_table_name);
 
 			// save each column
-			foreach ($a_column_create_statements as $s_column_name => $a_column_create_statement)
+			foreach ($a_column_create_statements as $s_column_name => $s_column_create_statement)
 			{
 				// does the column exist?
 				if (in_array($s_column_name, $a_column_names))
@@ -114,23 +114,20 @@ class ProjectInstaller {
 
 				// add the column!
 				$a_vars = array("maindb" => $maindb, "table" => $s_table_name,
-					            "column_create" => $a_column_create_statement,
+					            "column_create" => $s_column_create_statement,
 					            "column_name" => $s_column_name);
-				db_query("ALTER TABLE `[maindb]`.`[table]` ADD COLUMN [column_create]");
+				db_query("ALTER TABLE `[maindb]`.`[table]` ADD COLUMN `[column_name]` [column_create]", $a_vars);
 
 				// set the index or primary key
 				if (in_array($s_column_name, $a_indexed_columns))
 				{
-					db_query("ALTER TABLE `[maindb]`.`[table]` ADD INDEX [column_name]");
+					db_query("ALTER TABLE `[maindb]`.`[table]` ADD INDEX `[column_name]` (`[column_name]`)", $a_vars);
 				}
 				if ($s_primary_key_column === $s_column_name)
 				{
-					db_query("ALTER TABLE `[maindb]`.`[table]` ADD PRIMARY KEY [column_name]");
+					db_query("ALTER TABLE `[maindb]`.`[table]` ADD PRIMARY KEY `[column_name]` (`[column_name]`)", $a_vars);
 				}
-
-				break;
 			} // save each column
-			break;
 		} // save each table
 	} // check init database
 
