@@ -276,17 +276,6 @@ function updateTables($a_old_tables, $a_new_tables) {
 	echo "</pre>";
 }
 
-function getTables() {
-	global $maindb;
-	$a_tables = db_query("SHOW TABLES IN `[maindb]`", array("maindb"=>$maindb));
-	$a_retval = array();
-	for($i = 0; $i < count($a_tables); $i++) {
-			$s_tablename = $a_tables[$i]["Tables_in_{$maindb}"];
-			$a_retval[] = getTableDescription($s_tablename);
-	}
-	return $a_retval;
-}
-
 function getTableDescription($s_tablename) {
 	global $maindb;
 	$a_create = db_query("SHOW CREATE TABLE `[maindb]`.`[table]`",
@@ -311,6 +300,17 @@ function getTableDescription($s_tablename) {
 	}
 	$a_create = array_merge($a_create, $a_vals);
 	return $a_create;
+}
+
+function getTables() {
+	global $maindb;
+	$a_tables = db_query("SHOW TABLES IN `[maindb]`", array("maindb"=>$maindb));
+	$a_retval = array();
+	for($i = 0; $i < count($a_tables); $i++) {
+			$s_tablename = $a_tables[$i]["Tables_in_{$maindb}"];
+			$a_retval[] = getTableDescription($s_tablename);
+	}
+	return $a_retval;
 }
 
 function initializeUserData() {

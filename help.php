@@ -116,6 +116,7 @@ function draw_status_code($block_style) {
 		$b_all_green = FALSE;
 	} else {
 		echo "{$success} MySQL installed and set up correctly.<br /><br />\n";
+		$o_project_installer->init_database();
 	}
 
 	if (!$o_project_installer->check_ini_files()) {

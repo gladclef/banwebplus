@@ -27,7 +27,7 @@ function db_query($s_query, $a_values=NULL, $b_print_query = FALSE) {
 			$s_query_string = replace_values_in_db_query_string($s_query, $a_values);
 	else
 			$s_query_string = $s_query;
-	if ($b_print_query === TRUE || $b_print_query === 2)
+	if ($b_print_query === TRUE || $b_print_query === 2 || TRUE)
 			error_log($s_query_string);
 	else if ($b_print_query === 1)
 			echo $s_query_string;
@@ -156,6 +156,37 @@ function create_row_if_not_existing($a_vars, $b_print_queries = FALSE) {
 			}
 	}
 	return FALSE;
+}
+
+function getTableNames() {
+	global $maindb;
+	$a_tables = db_query("SHOW TABLES IN `[maindb]`", array("maindb"=>$maindb));
+	$a_retval = array();
+	for($i = 0; $i < count($a_tables); $i++) {
+			$s_tablename = $a_tables[$i]["Tables_in_{$maindb}"];
+			$a_retval[] = $s_tablename;
+	}
+	return $a_retval;
+}
+
+function getColumnNames($s_tablename)
+{
+	global $maindb;
+	$a_retval = array();
+
+	// get the description
+	$a_vars = array("maindb"=>$maindb, "table"=>$s_tablename);
+	$a_description = db_query("DESCRIBE TABLE `[maindb]`.`[table]`;", $a_vars);
+	error_log("hello");
+	echo "hello";
+	var_dump($a_description);
+	error_log(print_r($a_description, TRUE));
+
+	// parse the description for column names
+	$a_matches = array();
+	preg_match_all("/\n\|\ ([a-zA-Z0-9_])/", $a_description[0], $a_matches);
+	error_log(print_r($a_matches, TRUE));
+	var_dump($a_matches);
 }
 
 ?>

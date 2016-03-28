@@ -56,29 +56,84 @@ class ProjectInstaller {
 	 * Checks for the existance of tables (and table columns) in the database and
 	 * creates or adds them if not existing.
 	 * <p>
-	 * Does not update the tables.
+	 * Does not update the columns if they already exist.
 	 */
-	public function check_init_database()
+	public function init_database()
 	{
+		global $maindb;
+		global $mysqli;
+
 		require_once(DIRNAME(__FILE__)."/../../resources/database_structure.php");
-		foreach ($a_basic_tables_structure as $s_table_name)
+
+		// get the existing tables
+		$a_tables = getTableNames();
+
+		// save each table
+		foreach ($a_basic_tables_structure as $s_table_name => $a_table_structure)
 		{
-			var $a_column_create_statement = array();
-			var $a_indexed_columns = array();
-			var $s_primary_key_column = "";
-			for ($a_basic_tables_structure[$s_table_name] as $s_column_name)
+			// get the information necessary to create the table, or just the row, as necessary
+			$a_column_create_statements = array();
+			$a_indexed_columns = array();
+			$s_primary_key_column = "";
+			foreach ($a_table_structure as $s_column_name => $a_column_structure)
 			{
-				$a_column_structure = $a_basic_tables_structure[$s_table_name][$s_column_name];
 				if ($a_column_structure["isPrimaryKey"] === TRUE)
 					$s_primary_key_column = $s_column_name;
 				if ($a_column_structure["indexed"])
-					array_push($a_indexed_columns, $s_column_name);
+					$a_indexed_columns[] = $s_column_name;
 				$s_create_statement = sprintf("%s %s NOT NULL %s",
 					$s_column_name, $a_column_structure["type"], $a_column_structure["special"]);
-				$a_column_create_statement[$s_column_name] = $s_create_statement;
+				$a_column_create_statements[$s_column_name] = $s_create_statement;
 			}
-		}
-	}
+
+			// does the table exist?
+			if (!in_array($s_table_name, $a_tables))
+			{
+				// create the table
+				$a_vars = array("maindb" => $maindb, "table" => $s_table_name);
+				$s_id_column = "(id INT(11) NOT NULL AUTO_INCREMENT, PRIMARY KEY (id))";
+				$b_create_var = db_query("CREATE TABLE IF NOT EXISTS `[maindb]`.`[table]` $s_id_column", $a_vars);
+				if ($b_create_var === FALSE)
+				{
+					error_log("error creating mysql table $s_table_name");
+					error_log($mysqli->error);
+					continue;
+				}
+			}
+
+			// get the existing column names
+			$a_column_names = getColumnNames($s_table_name);
+
+			// save each column
+			foreach ($a_column_create_statements as $s_column_name => $a_column_create_statement)
+			{
+				// does the column exist?
+				if (in_array($s_column_name, $a_column_names))
+				{
+					continue;
+				}
+
+				// add the column!
+				$a_vars = array("maindb" => $maindb, "table" => $s_table_name,
+					            "column_create" => $a_column_create_statement,
+					            "column_name" => $s_column_name);
+				db_query("ALTER TABLE `[maindb]`.`[table]` ADD COLUMN [column_create]");
+
+				// set the index or primary key
+				if (in_array($s_column_name, $a_indexed_columns))
+				{
+					db_query("ALTER TABLE `[maindb]`.`[table]` ADD INDEX [column_name]");
+				}
+				if ($s_primary_key_column === $s_column_name)
+				{
+					db_query("ALTER TABLE `[maindb]`.`[table]` ADD PRIMARY KEY [column_name]");
+				}
+
+				break;
+			} // save each column
+			break;
+		} // save each table
+	} // check init database
 
 	/**
 	 * Checks that the basic users have been created.
@@ -119,6 +174,7 @@ class ProjectInstaller {
 
 	public function check_installed() {
 		return ($this->check_install_database() &&
+			$this->check_init_database() &&
 			$this->check_ini_files() &&
 			$this->check_create_users() &&
 			$this->check_classes_availability());
