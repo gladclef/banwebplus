@@ -226,7 +226,22 @@ function draw_status_code($block_style) {
 		echo "</div>\n";
 		$b_all_green = FALSE;
 	} else {
-		echo "{$success} class data available.<br />\n";
+		echo "{$success} class data available.<br /><br />\n";
+	}
+
+	if (!$o_project_installer->check_jquery_path_validity())
+	{
+		$show_block1 = "<a href='#' style='inline-block;' onclick='show_block(\"jQuery\", \"";
+		$show_block2 = "\");'>";
+		$show_block3 = "</a>";
+
+		echo "{$error}
+			{$show_block1}jQuery{$show_block2}jQuery{$show_block3} file could not be found as specified in server_config.ini.";
+		$b_all_green = FALSE;
+	}
+	else
+	{
+		echo "{$success} file found on jQuery path.<br />\n";
 	}
 
 	echo "\n</div><br /><br />\n\n";

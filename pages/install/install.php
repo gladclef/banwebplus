@@ -53,6 +53,16 @@ class ProjectInstaller {
 	}
 
 	/**
+	 * Checks the server_config.ini file's validity, verifying that the global_path_to_jquery is
+	 * correct (aka that the file at that location exists).
+	 */
+	public function check_jquery_path_validity() {
+		global $global_path_to_jquery;
+
+		return file_exists(dirname(__FILE__)."/../../$global_path_to_jquery");
+	}
+
+	/**
 	 * Checks for the existance of tables (and table columns) in the database and
 	 * creates or adds them if not existing.
 	 * <p>
@@ -170,10 +180,10 @@ class ProjectInstaller {
 
 	public function check_installed() {
 		return ($this->check_install_database() &&
-			$this->check_init_database() &&
 			$this->check_ini_files() &&
 			$this->check_create_users() &&
-			$this->check_classes_availability());
+			$this->check_classes_availability() &&
+			$this->check_jquery_path_validity());
 	}
 }
 

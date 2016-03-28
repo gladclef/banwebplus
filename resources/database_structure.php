@@ -55,7 +55,7 @@ $a_basic_tables_structure = array(
 	),
 	"students" => array(
 		"id" =>                    array("type" => "INT",          "indexed" => TRUE,  "isPrimaryKey" => TRUE,  "special" => "AUTO_INCREMENT"),
-		"disabled" =>              array("type" => "VARCHAR(255)", "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
+		"disabled" =>              array("type" => "TINYINT",      "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
 		"username" =>              array("type" => "VARCHAR(255)", "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
 		"email" =>                 array("type" => "VARCHAR(255)", "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
 		"pass" =>                  array("type" => "VARCHAR(255)", "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
