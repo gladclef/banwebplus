@@ -27,16 +27,24 @@ function db_query($s_query, $a_values=NULL, $b_print_query = FALSE) {
 			$s_query_string = replace_values_in_db_query_string($s_query, $a_values);
 	else
 			$s_query_string = $s_query;
-	if ($b_print_query === TRUE || $b_print_query === 2 || TRUE)
+	if ($b_print_query === TRUE || $b_print_query === 2)
 			error_log($s_query_string);
 	else if ($b_print_query === 1)
 			echo $s_query_string;
 	$wt_retval = $mysqli->query($s_query_string);
-	if ($wt_retval === TRUE || $wt_retval === FALSE)
+
+	// check for booleans
+	if ($wt_retval === TRUE || $wt_retval === FALSE) {
+			if ($wt_retval === FALSE && $mysqli->errno != 0)
+				error_log("Last MySQL call failed: " . $mysqli->error);
 			return $wt_retval;
+	}
+
+	// return array of selected values
 	$a_retval = array();
 	while ($row = $wt_retval->fetch_assoc())
 			$a_retval[] = $row;
+
 	$wt_retval->free_result();
 	return $a_retval;
 }
@@ -172,21 +180,21 @@ function getTableNames() {
 function getColumnNames($s_tablename)
 {
 	global $maindb;
+	global $mysqli;
 	$a_retval = array();
 
 	// get the description
 	$a_vars = array("maindb"=>$maindb, "table"=>$s_tablename);
-	$a_description = db_query("DESCRIBE TABLE `[maindb]`.`[table]`;", $a_vars);
-	error_log("hello");
-	echo "hello";
-	var_dump($a_description);
-	error_log(print_r($a_description, TRUE));
+	$a_description = db_query("DESCRIBE `[maindb]`.`[table]`", $a_vars);
 
 	// parse the description for column names
-	$a_matches = array();
-	preg_match_all("/\n\|\ ([a-zA-Z0-9_])/", $a_description[0], $a_matches);
-	error_log(print_r($a_matches, TRUE));
-	var_dump($a_matches);
+	$a_column_names = array();
+	foreach ($a_description as $index => $a_column_description)
+	{
+		$a_column_names[] = $a_column_description["Field"];
+	}
+
+	return $a_column_names;
 }
 
 ?>

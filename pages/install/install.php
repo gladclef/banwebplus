@@ -96,7 +96,6 @@ class ProjectInstaller {
 				if ($b_create_var === FALSE)
 				{
 					error_log("error creating mysql table $s_table_name");
-					error_log($mysqli->error);
 					continue;
 				}
 			}
