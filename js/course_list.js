@@ -532,7 +532,7 @@ typeCoursesList = function() {
 
 				var a_semester_data = command.action;
 				var a_courses = a_semester_data['classes'];
-				var a_subjects = a_semester_data['subjects'];
+				var a_subjects = $.extend({}, a_semester_data['subjects'], {CUSTOM:"CUSTOM"});
 				$.each(a_subjects, function(s_index, s_subject) {
 					current_subjects[sem].push([s_index, s_subject]);
 					full_course_list[sem][s_index] = [];

@@ -67,7 +67,7 @@ class user {
 
 		$query_string = 'SELECT `id` FROM `[database]`.`user_settings` WHERE '.array_to_where_clause($a_settings).' AND `user_id`=\'[user_id]\' AND `type`=\'[type]\'';
 		$query_vars = array("database"=>$maindb, "user_id"=>$this->id, "type"=>$s_type, "table"=>"user_settings");
-		$a_exists = db_query($query_string, $query_vars, TRUE);
+		$a_exists = db_query($query_string, $query_vars);
 		if(count($a_exists) > 0)
 			return json_encode(array(
 				new command("print success", "Settings already saved")));
