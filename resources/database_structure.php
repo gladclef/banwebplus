@@ -133,7 +133,11 @@ $a_database_insert_values = array(
 		array("name"=>"modify",         "level"=>2, "parent"=>"users"),
 		array("name"=>"password",       "level"=>3, "parent"=>"modify"),
 		array("name"=>"development",    "level"=>1),
-		array("name"=>"bugtracker",     "level"=>2, "parent"=>"development")
+		array("name"=>"bugtracker",     "level"=>2, "parent"=>"development"),
+		array("name"=>"createposts",    "level"=>2, "parent"=>"development"),
+		array("name"=>"deleteposts",    "level"=>2, "parent"=>"development"),
+		array("name"=>"createbugs",     "level"=>2, "parent"=>"development"),
+		array("name"=>"deletebugs",     "level"=>2, "parent"=>"development")
 	),
 	"tabs" => array(
 		array("name"=>"Calendar", "printed_name"=>"Calendar", "draw_tab"=>1, "order"=>0),
