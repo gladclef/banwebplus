@@ -287,7 +287,7 @@ class user {
 	private function save_time_dependent_user_data($s_year, $s_semester, $s_tablename, $s_json_saveval, $s_timestamp) {
 		global $maindb;
 		$a_queryvars = array('year'=>$s_year, 'semester'=>$s_semester, 'tablename'=>$s_tablename, 'database'=>$maindb, 'timestamp'=>$s_timestamp, 'json'=>$s_json_saveval);
-		$s_querystring = "SELECT * FROM `[database]`.`[tablename]` WHERE `year`='[year]' AND `semester`='[semester]' AND `timestamp`>'[timestamp]'";
+		$s_querystring = "SELECT * FROM `[database]`.`[tablename]` WHERE `year`='[year]' AND `semester`='[semester]' AND `time_submitted`>'[timestamp]'";
 		$a_query = db_query($s_querystring, $a_queryvars);
 		if (is_array($a_query) && count($a_query) > 0)
 				return -1;
@@ -318,9 +318,9 @@ class user {
 		$username = $this->name;
 
 		if ($password !== NULL)
-				$a_users = db_query("SELECT * FROM `[maindb]`.`students` WHERE `username`='[username]' AND `pass`=AES_ENCRYPT('[username]','[password]') AND `disabled`='0'", array("maindb"=>$maindb, "username"=>$username, "password"=>$password));
+				$a_users = db_query("SELECT * FROM `[maindb]`.`students` WHERE `username`='[username]' AND `pass`=AES_ENCRYPT('[username]','[password]') AND `disabled`='0'", array("maindb"=>$maindb, "username"=>$username, "password"=>$password), TRUE);
 		else
-				$a_users = db_query("SELECT * FROM `[maindb]`.`students` WHERE `username`='[username]' AND `pass`='[crypt_password]' AND `disabled`='0'", array("maindb"=>$maindb, "username"=>$username, "crypt_password"=>$crypt_password));
+				$a_users = db_query("SELECT * FROM `[maindb]`.`students` WHERE `username`='[username]' AND `pass`='[crypt_password]' AND `disabled`='0'", array("maindb"=>$maindb, "username"=>$username, "crypt_password"=>$crypt_password), TRUE);
 		if ($a_users === FALSE)
 				return NULL;
 		if (count($a_users) == 0)

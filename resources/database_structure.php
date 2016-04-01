@@ -73,21 +73,24 @@ $a_basic_tables_structure = array(
 		"user_id" =>               array("type" => "INT",          "indexed" => TRUE,  "isPrimaryKey" => FALSE, "special" => ""),
 		"year" =>                  array("type" => "VARCHAR(255)", "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
 		"semester" =>              array("type" => "VARCHAR(255)", "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
-		"json" =>                  array("type" => "VARCHAR(255)", "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => "")
+		"json" =>                  array("type" => "VARCHAR(255)", "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
+		"time_submitted" =>        array("type" => "DATETIME",     "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => "")
 	),
 	"semester_classes" => array( // same as semester_whitelist
 		"id" =>                    array("type" => "INT",          "indexed" => TRUE,  "isPrimaryKey" => TRUE,  "special" => "AUTO_INCREMENT"),
 		"user_id" =>               array("type" => "INT",          "indexed" => TRUE,  "isPrimaryKey" => FALSE, "special" => ""),
 		"year" =>                  array("type" => "VARCHAR(255)", "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
 		"semester" =>              array("type" => "VARCHAR(255)", "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
-		"json" =>                  array("type" => "VARCHAR(255)", "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => "")
+		"json" =>                  array("type" => "VARCHAR(255)", "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
+		"time_submitted" =>        array("type" => "DATETIME",     "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => "")
 	),
 	"subjects" => array(
 		"id" =>                    array("type" => "INT",          "indexed" => TRUE,  "isPrimaryKey" => TRUE,  "special" => "AUTO_INCREMENT"),
 		"abbr" =>                  array("type" => "VARCHAR(255)", "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
 		"title" =>                 array("type" => "VARCHAR(255)", "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
 		"semester" =>              array("type" => "VARCHAR(255)", "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
-		"year" =>                  array("type" => "VARCHAR(255)", "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => "")
+		"year" =>                  array("type" => "VARCHAR(255)", "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
+		"time_submitted" =>        array("type" => "DATETIME",     "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => "")
 	),
 	"tabs" => array(
 		"id" =>                    array("type" => "INT",          "indexed" => TRUE,  "isPrimaryKey" => TRUE,  "special" => "AUTO_INCREMENT"),
