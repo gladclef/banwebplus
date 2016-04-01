@@ -105,7 +105,9 @@ $a_basic_tables_structure = array(
 		"id" =>                    array("type" => "INT",          "indexed" => TRUE,  "isPrimaryKey" => TRUE,  "special" => "AUTO_INCREMENT"),
 		"user_id" =>               array("type" => "INT",          "indexed" => TRUE,  "isPrimaryKey" => FALSE, "special" => ""),
 		"type" =>                  array("type" => "VARCHAR(255)", "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
-		"share_schedule_with" =>   array("type" => "TEXT",         "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => "")
+		"share_schedule_with" =>   array("type" => "TEXT",         "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
+		"session_timeout" =>       array("type" => "INT",          "indexed" => TRUE,  "isPrimaryKey" => FALSE, "special" => ""),
+		"enable_icalendar" =>      array("type" => "TINYINT",      "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => "")
 	)
 );
 

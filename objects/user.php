@@ -67,7 +67,7 @@ class user {
 
 		$query_string = 'SELECT `id` FROM `[database]`.`user_settings` WHERE '.array_to_where_clause($a_settings).' AND `user_id`=\'[user_id]\' AND `type`=\'[type]\'';
 		$query_vars = array("database"=>$maindb, "user_id"=>$this->id, "type"=>$s_type, "table"=>"user_settings");
-		$a_exists = db_query($query_string, $query_vars);
+		$a_exists = db_query($query_string, $query_vars, TRUE);
 		if(count($a_exists) > 0)
 			return json_encode(array(
 				new command("print success", "Settings already saved")));
@@ -318,9 +318,9 @@ class user {
 		$username = $this->name;
 
 		if ($password !== NULL)
-				$a_users = db_query("SELECT * FROM `[maindb]`.`students` WHERE `username`='[username]' AND `pass`=AES_ENCRYPT('[username]','[password]') AND `disabled`='0'", array("maindb"=>$maindb, "username"=>$username, "password"=>$password), TRUE);
+				$a_users = db_query("SELECT * FROM `[maindb]`.`students` WHERE `username`='[username]' AND `pass`=AES_ENCRYPT('[username]','[password]') AND `disabled`='0'", array("maindb"=>$maindb, "username"=>$username, "password"=>$password));
 		else
-				$a_users = db_query("SELECT * FROM `[maindb]`.`students` WHERE `username`='[username]' AND `pass`='[crypt_password]' AND `disabled`='0'", array("maindb"=>$maindb, "username"=>$username, "crypt_password"=>$crypt_password), TRUE);
+				$a_users = db_query("SELECT * FROM `[maindb]`.`students` WHERE `username`='[username]' AND `pass`='[crypt_password]' AND `disabled`='0'", array("maindb"=>$maindb, "username"=>$username, "crypt_password"=>$crypt_password));
 		if ($a_users === FALSE)
 				return NULL;
 		if (count($a_users) == 0)
