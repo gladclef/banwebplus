@@ -134,12 +134,11 @@ public class FileInterface implements SystemInterface {
 		builder.append("$terms = ");
 
 		// add each semester to the list to be saved
-		Map<String, List<Object>> semestersMap = new LinkedHashMap<>(semesters.size());
+		List<List<Object>> semestersList = new ArrayList<>(semesters.size());
 		for (Semester semester : semesters) {
 			
 			// add the semester to the list
-			semestersMap.put(
-				semester.getCode() + "",
+			semestersList.add(
 				Arrays.asList(new Object[] {
 					semester.getCode(),
 					String.format("%s %s", semester.getSemesterName(), semester.getCalendarYear())
@@ -148,7 +147,7 @@ public class FileInterface implements SystemInterface {
 		}
 		
 		// append the list
-		objToPHPString(semestersMap, 1, builder);
+		objToPHPString(semestersList, 1, builder);
 		
 		// close the php code
 		builder.append(";\n");
