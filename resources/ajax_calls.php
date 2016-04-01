@@ -224,7 +224,7 @@ class ajax {
 		if ($s_body == "")
 			return json_encode(array(
 				new command("print failure", "Please include a body in your email.<br />")));
-		mail("bbean@cs.nmt.edu", "Banwebplus Feedback: {$s_subject}", $s_body, "From: ".$global_user->get_email());
+		mail("bbean@cs.nmt.edu", "Beanweb Feedback: {$s_subject}", $s_body, "From: ".$global_user->get_email());
 		return json_encode(array(
 			new command("print success", "Thank you for your feedback!<br />")));
 	}

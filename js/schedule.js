@@ -56,7 +56,7 @@ typeSchedulerTab = function() {
 		
 		// build the contents for sharing
 		var shareHtml = '';
-		shareHtml += 'Share your calender with another banwebplus user!<br /> Just enter their username here:<br />';
+		shareHtml += 'Share your calender with another beanweb user!<br /> Just enter their username here:<br />';
 		shareHtml += '<input type="hidden" name="command" value="share_user_schedule" />';
 		shareHtml += '<input type="textbox" placeholder="username" name="username" onkeypress="if (event.keyCode == 13) { $(this).parent().find(\'input[type=button]\').click(); }" />';
 		shareHtml += '<input type="button" value="Share" onclick="o_schedule.shareScheduleWithUser();" /><br />';

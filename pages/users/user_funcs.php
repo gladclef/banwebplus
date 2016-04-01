@@ -38,7 +38,7 @@ class user_funcs {
 	}
 	
 	/**
-	 * Emails a user from "noreply@banwebplus.com"
+	 * Emails a user from "noreply@beanweb.com"
 	 * @param  string $s_username The username to email.
 	 * @param  string $s_header   The header of the email.
 	 * @param  string $s_body     The body of the email.
@@ -51,7 +51,7 @@ class user_funcs {
 		$s_email_address = $a_user[0]['email'];
 		if ($s_email_address == '')
 				return FALSE;
-		mail($s_email_address, $s_header, $s_body, "From: noreply@banwebplus.com");
+		mail($s_email_address, $s_header, $s_body, "From: noreply@beanweb.com");
 		return TRUE;
 	}
 

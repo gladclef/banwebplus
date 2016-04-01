@@ -190,7 +190,7 @@ window.tabCustomClasses = {
 		jform.submit(function(e) {
 			e.stopPropagation();
 			if (jusername.val() == "") {
-				draw_error(jform, "You must provide a banwebplus username.", false);
+				draw_error(jform, "You must provide a beanweb username.", false);
 				return false;
 			}
 			var varsArray = jform.serializeArray();

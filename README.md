@@ -1,10 +1,10 @@
-banwebplus
+beanweb (aka banwebplus)
 ==========
 
 Make personal class scheduling simpler.
 
 ## Example use
-The project is currently in use at https://banwebplus.com.
+The project is currently in use at https://beanweb.com.
 
 ## Why?
 This project was originally conceived to help [New Mexico Tech](http://www.nmt.edu/) students create a user schedule.
@@ -14,8 +14,8 @@ ignore the 300+ hours I spent putting it together.
 
 ## Installing
 1. Install MySQL, Apache, and git
-2. clone project to /some/path/banwebplus
-3. access /some/path/banwebplus in a web browser (may require some amount of Apache configuration)
+2. clone project to /some/path/beanweb
+3. access /some/path/beanweb in a web browser (may require some amount of Apache configuration)
 4. follow the steps necessary to make all statuses successful (green)
 
 ## Features

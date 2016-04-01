@@ -372,7 +372,7 @@ function share_custom_class($sem, $year, $crn, $accesses, $username) {
 	$a_query = db_query("SELECT `id` FROM `{$maindb}`.`students` WHERE `username`='[username]' AND `disabled`='0'", array("username"=>$username));
 	if ($a_query === FALSE || count($a_query) == 0) {
 		return json_encode(array(
-			new command("failure", "Error: can't find that banwebplus username to share with.")));
+			new command("failure", "Error: can't find that beanweb username to share with.")));
 	}
 	$i_user_id = (int)$a_query[0]['id'];
 	$a_user_accesses = get_user_accesses($crn, $semester, $year);

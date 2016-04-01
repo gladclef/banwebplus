@@ -69,11 +69,11 @@ class icalendarFunctions {
 		$a_settings_rows = db_query("SELECT `private_icalendar_key` FROM `[database]`.`generated_settings` WHERE `user_id` = '[user_id]'", array('database'=>$maindb, 'user_id'=>$s_id));
 		
 		if ($s_linktype == "web")
-				return "http://www.banwebplus.com/pages/icalendar/calendars/{$s_username}/".$a_settings_rows[0]['private_icalendar_key']."/ClassSchedule.ics";
+				return "http://www.beanweb.com/pages/icalendar/calendars/{$s_username}/".$a_settings_rows[0]['private_icalendar_key']."/ClassSchedule.ics";
 		else if ($s_linktype == "view")
-				return "http://www.banwebplus.com/pages/icalendar/calendars/{$s_username}/".$a_settings_rows[0]['private_icalendar_key']."/pretty/ClassSchedule.ics";
+				return "http://www.beanweb.com/pages/icalendar/calendars/{$s_username}/".$a_settings_rows[0]['private_icalendar_key']."/pretty/ClassSchedule.ics";
 		else if ($s_linktype == "download")
-				return "http://www.banwebplus.com/pages/icalendar/calendars/{$s_username}/".$a_settings_rows[0]['private_icalendar_key']."/download/ClassSchedule.ics";
+				return "http://www.beanweb.com/pages/icalendar/calendars/{$s_username}/".$a_settings_rows[0]['private_icalendar_key']."/download/ClassSchedule.ics";
 		else
 				return self::calendarLinkToString("view");
 	}
@@ -88,11 +88,11 @@ class icalendarFunctions {
 		$s_username = '"'.str_replace('"', '', $this->o_user->get_name()).'"';
 
 		return "BEGIN:VCALENDAR
-PRODID:-//Banwebplus//Banwebplus icalendar 1.0//EN
+PRODID:-//Beanweb//Beanweb icalendar 1.0//EN
 VERSION:2.0
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
-X-WR-CALNAME:{$s_username}@banwebplus.com
+X-WR-CALNAME:{$s_username}@beanweb.com
 X-WR-TIMEZONE:America/Denver
 BEGIN:VTIMEZONE
 TZID:America/Denver
@@ -249,7 +249,7 @@ DTSTART;TZID=America/Denver:{$s_class_startday}T{$s_class_starttime}
 DTEND;TZID=America/Denver:{$s_class_startday}T{$s_class_endtime}
 RRULE:FREQ=WEEKLY;UNTIL={$s_semester_endday}T235900Z;BYDAY={$s_class_weekdays}
 DTSTAMP:".date("Ymd")."T".date("His")."Z
-UID:{$s_class_uid}@banwebplus.com
+UID:{$s_class_uid}@beanweb.com
 CATEGORIES:CLASS
 CREATED:{$s_semester_startday}T000000Z
 DESCRIPTION:{$s_description}
