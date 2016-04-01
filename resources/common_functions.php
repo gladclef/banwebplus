@@ -131,7 +131,7 @@ function manage_output($s_output) {
 					$double_pos = (int)strrpos($js_string, '"');
 					$js_substr = substr($js_string, max($single_pos, $double_pos)+1);
 					$modtime = filemtime(dirname(__FILE__)."/../{$js_substr}");
-					$moddatetime = urlencode(date("Y-m-d H:i:s"));
+					$moddatetime = urlencode(date("Y-m-d H:i:s", $modtime));
 					$a_mid[$mid_index] = "{$js_string}?{$moddatetime}{$js_rest}";
 			}
 			$a_parts[$i] = implode($mid_explode, $a_mid);
