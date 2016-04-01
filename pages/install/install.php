@@ -139,6 +139,26 @@ class ProjectInstaller {
 				}
 			} // save each column
 		} // save each table
+
+		// insert predefined values
+		foreach ($a_database_insert_values as $s_table_name => $a_rows)
+		{
+			// determine if there are enough missing rows to constitute inserting the predefined rows
+			$a_vars = array("database" => $maindb, "table" => $s_table_name);
+			$i_existing_row_count = db_query("SELECT COUNT(`id`) AS count FROM `[database]`.`[table]`", $a_vars);
+			$i_existing_row_count = $i_existing_row_count[0]["count"];
+			$i_new_row_count = count($a_rows);
+			if ($i_new_row_count > $i_existing_row_count / 2)
+			{
+
+				// enough rows were missing, insert the defined rows!
+				foreach ($a_rows as $i => $a_row)
+				{
+					$a_row_and_db = array_merge($a_row, $a_vars);
+					create_row_if_not_existing($a_row_and_db, TRUE);
+				}
+			}
+		}
 	} // check init database
 
 	/**
@@ -179,6 +199,8 @@ class ProjectInstaller {
 	}
 
 	public function check_installed() {
+		if ($this->check_install_database())
+			$this->init_database();
 		return ($this->check_install_database() &&
 			$this->check_ini_files() &&
 			$this->check_create_users() &&

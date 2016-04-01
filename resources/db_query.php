@@ -35,8 +35,10 @@ function db_query($s_query, $a_values=NULL, $b_print_query = FALSE) {
 
 	// check for booleans
 	if ($wt_retval === TRUE || $wt_retval === FALSE) {
-			if ($wt_retval === FALSE && $mysqli->errno != 0)
+			if ($wt_retval === FALSE && $mysqli->errno != 0) {
+				error_log($s_query_string);
 				error_log("Last MySQL call failed: " . $mysqli->error);
+			}
 			return $wt_retval;
 	}
 

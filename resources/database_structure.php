@@ -93,7 +93,7 @@ $a_basic_tables_structure = array(
 		"id" =>                    array("type" => "INT",          "indexed" => TRUE,  "isPrimaryKey" => TRUE,  "special" => "AUTO_INCREMENT"),
 		"_deleted" =>              array("type" => "TINYINT",      "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
 		"order" =>                 array("type" => "INT",          "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
-		"access" =>                array("type" => "VARCHAR(255)", "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
+		"accesses" =>              array("type" => "VARCHAR(255)", "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
 		"name" =>                  array("type" => "VARCHAR(255)", "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => "")
 	),
 	"user_settings" => array(
@@ -101,6 +101,20 @@ $a_basic_tables_structure = array(
 		"user_id" =>               array("type" => "INT",          "indexed" => TRUE,  "isPrimaryKey" => FALSE, "special" => ""),
 		"type" =>                  array("type" => "VARCHAR(255)", "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
 		"share_schedule_with" =>   array("type" => "TEXT",         "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => "")
+	)
+);
+
+$a_database_insert_values = array(
+	"tabs" => array(
+		array("name"=>"Calendar", "order"=>0),
+		array("name"=>"Schedule", "order"=>2),
+		array("name"=>"Custom",   "order"=>4),
+		array("name"=>"Classes",  "order"=>6),
+		array("name"=>"Lists",    "order"=>8),
+		array("name"=>"Settings", "order"=>10),
+		array("name"=>"Feedback", "order"=>12, "accesses"=>"feedback"),
+		array("name"=>"Users",    "order"=>14, "accesses"=>"users"),
+		array("name"=>"Account",  "order"=>16)
 	)
 );
 
