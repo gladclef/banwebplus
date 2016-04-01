@@ -355,7 +355,7 @@ public class FileInterface implements SystemInterface {
 		{
 			// primitive
 			builder.append("\"");
-			builder.append(val.toString());
+			builder.append(val.toString().replace("\\", "\\\\").replace("\"", "\\\""));
 			builder.append("\"");
 		}
 		else
