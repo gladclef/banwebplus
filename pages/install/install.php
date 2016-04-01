@@ -155,7 +155,7 @@ class ProjectInstaller {
 				foreach ($a_rows as $i => $a_row)
 				{
 					$a_row_and_db = array_merge($a_row, $a_vars);
-					create_row_if_not_existing($a_row_and_db, TRUE);
+					create_row_if_not_existing($a_row_and_db);
 				}
 			}
 		}

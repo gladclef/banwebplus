@@ -92,9 +92,11 @@ $a_basic_tables_structure = array(
 	"tabs" => array(
 		"id" =>                    array("type" => "INT",          "indexed" => TRUE,  "isPrimaryKey" => TRUE,  "special" => "AUTO_INCREMENT"),
 		"_deleted" =>              array("type" => "TINYINT",      "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
+		"draw_tab" =>              array("type" => "TINYINT",      "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
 		"order" =>                 array("type" => "INT",          "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
 		"accesses" =>              array("type" => "VARCHAR(255)", "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
-		"name" =>                  array("type" => "VARCHAR(255)", "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => "")
+		"name" =>                  array("type" => "VARCHAR(255)", "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
+		"printed_name" =>          array("type" => "VARCHAR(255)", "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => "")
 	),
 	"user_settings" => array(
 		"id" =>                    array("type" => "INT",          "indexed" => TRUE,  "isPrimaryKey" => TRUE,  "special" => "AUTO_INCREMENT"),
@@ -106,15 +108,15 @@ $a_basic_tables_structure = array(
 
 $a_database_insert_values = array(
 	"tabs" => array(
-		array("name"=>"Calendar", "order"=>0),
-		array("name"=>"Schedule", "order"=>2),
-		array("name"=>"Custom",   "order"=>4),
-		array("name"=>"Classes",  "order"=>6),
-		array("name"=>"Lists",    "order"=>8),
-		array("name"=>"Settings", "order"=>10),
-		array("name"=>"Feedback", "order"=>12, "accesses"=>"feedback"),
-		array("name"=>"Users",    "order"=>14, "accesses"=>"users"),
-		array("name"=>"Account",  "order"=>16)
+		array("name"=>"Calendar", "printed_name"=>"Calendar", "draw_tab"=>1, "order"=>0),
+		array("name"=>"Schedule", "printed_name"=>"Schedule", "draw_tab"=>1, "order"=>2),
+		array("name"=>"Custom",   "printed_name"=>"Custom",   "draw_tab"=>1, "order"=>4),
+		array("name"=>"Classes",  "printed_name"=>"Classes",  "draw_tab"=>1, "order"=>6),
+		array("name"=>"Lists",    "printed_name"=>"Lists",    "draw_tab"=>1, "order"=>8),
+		array("name"=>"Settings", "printed_name"=>"Settings", "draw_tab"=>1, "order"=>10),
+		array("name"=>"Feedback", "printed_name"=>"Feedback", "draw_tab"=>1, "order"=>12, "accesses"=>"feedback"),
+		array("name"=>"Users",    "printed_name"=>"Users",    "draw_tab"=>1, "order"=>14, "accesses"=>"users"),
+		array("name"=>"Account",  "printed_name"=>"Account",  "draw_tab"=>1, "order"=>16)
 	)
 );
 
