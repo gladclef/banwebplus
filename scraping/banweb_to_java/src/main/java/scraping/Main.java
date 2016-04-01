@@ -3,6 +3,7 @@ package scraping;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -121,23 +122,23 @@ public class Main {
 	private static List<Semester> filterForUncachedOrRecentSemesters(List<Semester> semesters)
 			throws IllegalStateException, IOException {
 		List<Semester> retval = new ArrayList<>();
+		
+		// get the semesters in reverse order
+		List<Semester> reverse = Collections.reverse(new ArrayList<>(semesters));
 
 		// start by adding all semesters in the last five semesters
-		Semester nextLast = semesters.get(semesters.size() - 1);
 		for (int i = 0; i < NUM_SEMESTERS_ALWAYS_SCRAPED; i++) {
-			retval.add(nextLast);
-			nextLast = semesters.get(semesters.size() - 2 - i);
+			retval.add(reverse.get(i));
+			reverse.remove(i);
 		}
 
 		// look for semesters not yet cached
-		for (int i = semesters.indexOf(nextLast); i > -1; i--) {
-
+		for (Semester semester : reverse)
+		{
 			// check if the semester is cached
-			if (!semesterSaver.isSemesterCached(nextLast)) {
-				retval.add(nextLast);
+			if (!semesterSaver.isSemesterCached(semester)) {
+				retval.add(semester);
 			}
-
-			nextLast = semesters.get(i);
 		}
 
 		return retval;
