@@ -175,7 +175,6 @@ class user {
 			return "Account already deleted/doesn't exist.";
 		}
 		db_query("DELETE FROM `{$maindb}`.`access_log` WHERE `username`='[username]'", $a_username);
-		db_query("DELETE FROM `{$maindb}`.`blacklist_preferences` WHERE `user_id`='[id]'", $a_id);
 		db_query("DELETE FROM `{$maindb}`.`generated_settings` WHERE `user_id`='[id]'", $a_id);
 		db_query("DELETE FROM `{$maindb}`.`semester_blacklist` WHERE `user_id`='[id]'", $a_id);
 		db_query("DELETE FROM `{$maindb}`.`semester_classes` WHERE `user_id`='[id]'", $a_id);
