@@ -112,6 +112,14 @@ public class FileInterface implements SystemInterface {
 				(new Date()).toString());
 	}
 
+	protected String getOpenPHPClause() {
+		return "<?php\n\n";
+	}
+
+	protected String getClosePHPClause() {
+		return "\n\n?>";
+	}
+
 	@Override
 	public void saveSemestersAndSubjects(Collection<Semester> semesters, Collection<Subject> subjects)
 			throws IOException {
@@ -119,27 +127,32 @@ public class FileInterface implements SystemInterface {
 
 		// open the file for writing
 		openFile("banweb_terms.php", true);
+		builder.append(getOpenPHPClause());
 		builder.append(getWaterMark());
 
 		// add the boiler plate php code
 		builder.append("$terms = ");
 
 		// add each semester to the list to be saved
-		List<List<Object>> semestersList = new ArrayList<>(semesters.size());
+		Map<String, List<Object>> semestersMap = new LinkedHashMap<>(semesters.size());
 		for (Semester semester : semesters) {
 			
 			// add the semester to the list
-			semestersList.add(Arrays.asList(new Object[] {
+			semestersMap.put(
+				semester.getCode() + "",
+				Arrays.asList(new Object[] {
 					semester.getCode(),
 					String.format("%s %s", semester.getSemesterName(), semester.getCalendarYear())
-			}));
+				})
+			);
 		}
 		
 		// append the list
-		objToPHPString(semestersList, 1, builder);
+		objToPHPString(semestersMap, 1, builder);
 		
 		// close the php code
 		builder.append(";\n");
+		builder.append(getClosePHPClause());
 		
 		// write out the builder's value
 		writeHandle.write(builder.toString());
@@ -154,6 +167,7 @@ public class FileInterface implements SystemInterface {
 
 		// open the semester handle for writing to
 		openFile(getFileNameForSemester(semester), true);
+		builder.append(getOpenPHPClause());
 		builder.append(getWaterMark());
 
 		// start the boiler plate php code
@@ -189,6 +203,7 @@ public class FileInterface implements SystemInterface {
 		
 		// close the php code
 		builder.append(";\n");
+		builder.append(getClosePHPClause());
 		
 		// write out the builder's value
 		writeHandle.write(builder.toString());
