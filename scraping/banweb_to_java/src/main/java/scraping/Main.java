@@ -127,18 +127,22 @@ public class Main {
 		List<Semester> reverse = new ArrayList<>(semesters);
 		Collections.reverse(reverse);
 
-		// start by adding all semesters in the last five semesters
-		for (int i = 0; i < NUM_SEMESTERS_ALWAYS_SCRAPED; i++) {
-			retval.add(reverse.get(i));
-			reverse.remove(i);
-		}
-
 		// look for semesters not yet cached
-		for (Semester semester : reverse)
+		for (Semester semester : semesters)
 		{
 			// check if the semester is cached
 			if (!semesterSaver.isSemesterCached(semester)) {
 				retval.add(semester);
+			}
+		}
+
+		// start by adding all semesters in the last five semesters
+		for (int i = 0; i < NUM_SEMESTERS_ALWAYS_SCRAPED; i++) {
+			Semester semester = reverse.get(i);
+			if (!retval.contains(semester))
+			{
+				retval.add(semester);
+				reverse.remove(i);
 			}
 		}
 
