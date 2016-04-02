@@ -124,7 +124,8 @@ public class Main {
 		List<Semester> retval = new ArrayList<>();
 		
 		// get the semesters in reverse order
-		List<Semester> reverse = Collections.reverse(new ArrayList<>(semesters));
+		List<Semester> reverse = new ArrayList<>(semesters);
+		Collections.reverse(reverse);
 
 		// start by adding all semesters in the last five semesters
 		for (int i = 0; i < NUM_SEMESTERS_ALWAYS_SCRAPED; i++) {
