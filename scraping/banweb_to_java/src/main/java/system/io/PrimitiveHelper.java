@@ -1,4 +1,4 @@
-package system.io;
+package main.java.system.io;
 
 import java.util.Arrays;
 import java.util.HashSet;

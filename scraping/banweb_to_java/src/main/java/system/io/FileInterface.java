@@ -1,4 +1,4 @@
-package system.io;
+package main.java.system.io;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -16,10 +16,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import structure.Clazz;
-import structure.Semester;
-import structure.SemesterAndSubjectCourses;
-import structure.Subject;
+import main.java.structure.Clazz;
+import main.java.structure.Semester;
+import main.java.structure.SemesterAndSubjectCourses;
+import main.java.structure.Subject;
 
 /**
  * For interfacing with system files. This class is, in part, meant to abstract

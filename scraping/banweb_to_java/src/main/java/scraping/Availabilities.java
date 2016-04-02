@@ -1,4 +1,4 @@
-package scraping;
+package main.java.scraping;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,8 +8,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import structure.Semester;
-import structure.Subject;
+import main.java.structure.Semester;
+import main.java.structure.Subject;
 
 /**
  * Will scrape the front page of the banweb site to determine the available

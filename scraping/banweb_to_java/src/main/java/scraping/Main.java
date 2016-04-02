@@ -1,4 +1,4 @@
-package scraping;
+package main.java.scraping;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,11 +7,11 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import structure.Semester;
-import structure.SemesterAndSubjectCourses;
-import structure.Subject;
-import system.io.FileInterface;
-import system.io.SemesterIO;
+import main.java.structure.Semester;
+import main.java.structure.SemesterAndSubjectCourses;
+import main.java.structure.Subject;
+import main.java.system.io.FileInterface;
+import main.java.system.io.SemesterIO;
 
 public class Main {
 	/**
