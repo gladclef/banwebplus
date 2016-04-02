@@ -204,21 +204,18 @@ function draw_status_code($block_style) {
 			{$show_block1}data{$show_block2}class data{$show_block3} is not available.<br /><br />\n\n";
 
 		$monospace = "<div style='display:inline-block; font-family:monospace;'>";
-		$root_dir = dirname(__FILE__) . "/scraping/";
-		$terms_fname = $root_dir . "banweb_terms.py";
-		$banweb_fname = $root_dir . "banweb.py";
-		$nmt_fname = $root_dir . "new_mexico_tech_banweb.py";
+		$root_dir = dirname(__FILE__) . "\/scraping/";
 		$translate_fname = $root_dir . "php_to_mysql.php";
 		echo "<div id='classes' style='padding:0; margin:0;'>\n";
 		echo "${info_div} class='data'>Run these steps, in order:
 			<ol>
-				<li>Create the file	{$monospace}{$terms_fname}</div> with the following line:<br />\n
-					{$codebox}terms = []</div>
-				<li>Create a symbolic link to the version of the scraping file necessary for
-					gather class data about your school. For example:
-					{$codebox}ln -s {$nmt_fname} {$banweb_fname} 
-				<li>Run the file {$monospace}{$banweb_fname}</div> with python 2.x.<br />\n
-					{$codebox}python2.7 {$banweb_fname} --path {$root_dir}</div>
+				<li>Enter the directory:<br />\n
+					{$codebox}${root_dir}banweb_to_java/</div>
+				<li>Run Maven to compile the java web scraper:<br />
+					{$codebox}mvn clean install</div> 
+				<li>Move up to the /scraping/ directory<br />\n
+				<li>Run the compile .jar to download classes. You may need to run this more than once if the connection fails.<br />\n
+					{$codebox}java -jar banweb_to_java/target/beanweb-scraper-1.1-jar-with-dependencies.jar</div>
 				<li>Run the file {$monospace}{$translate_fname}</div> with php.<br />\n
 					{$codebox}php {$translate_fname}</div>
 			</ol></div>\n";
