@@ -1,4 +1,4 @@
-package scraping;
+package main.java.scraping;
 
 import java.util.Map;
 import java.util.Map.Entry;

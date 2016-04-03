@@ -1,7 +1,7 @@
-package scraping;
+package main.java.scraping;
 
-import structure.Semester;
-import structure.Subject;
+import main.java.structure.Semester;
+import main.java.structure.Subject;
 
 /**
  * Indicates that there are no courses found for the registered semester and

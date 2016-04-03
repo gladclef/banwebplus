@@ -1,4 +1,4 @@
-package structure;
+package main.java.structure;
 
 public class Subject implements Comparable<Subject> {
 	protected String shortName = "";

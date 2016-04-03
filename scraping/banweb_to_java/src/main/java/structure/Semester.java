@@ -1,4 +1,4 @@
-package structure;
+package main.java.structure;
 
 import java.util.HashMap;
 import java.util.Map;

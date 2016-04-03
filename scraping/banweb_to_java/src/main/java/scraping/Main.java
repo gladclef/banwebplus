@@ -1,16 +1,17 @@
-package scraping;
+package main.java.scraping;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import structure.Semester;
-import structure.SemesterAndSubjectCourses;
-import structure.Subject;
-import system.io.FileInterface;
-import system.io.SemesterIO;
+import main.java.structure.Semester;
+import main.java.structure.SemesterAndSubjectCourses;
+import main.java.structure.Subject;
+import main.java.system.io.FileInterface;
+import main.java.system.io.SemesterIO;
 
 public class Main {
 	/**
@@ -35,12 +36,19 @@ public class Main {
 		System.out.println("Semesters to be scraped: ");
 		printSemesters(semestersToScrape);
 
-		// scrape those semesters
-		LinkedHashMap<Semester, LinkedHashMap<Subject, SemesterAndSubjectCourses>> scrapedSemesters = new LinkedHashMap<>();
-		scrapeSemesters(semestersToScrape, availabilities.getSubjects(), scrapedSemesters);
+		// scrape those semesters, one at a time, and same them
+		for (Semester semester : semestersToScrape)
+		{
+			List<Semester> singleSemesterList = new ArrayList<>(1);
+			singleSemesterList.add(semester);
 
-		// save the scraped data
-		semesterSaver.saveSemesters(scrapedSemesters, availabilities.getSemesters(), availabilities.getSubjects());
+			// scrape the single semester
+			LinkedHashMap<Semester, LinkedHashMap<Subject, SemesterAndSubjectCourses>> scrapedSemesters = new LinkedHashMap<>();
+			scrapeSemesters(singleSemesterList, availabilities.getSubjects(), scrapedSemesters);
+
+			// save the scraped data
+			semesterSaver.saveSemesters(scrapedSemesters, availabilities.getSemesters(), availabilities.getSubjects());
+		}
 	}
 
 	/**
@@ -114,23 +122,28 @@ public class Main {
 	private static List<Semester> filterForUncachedOrRecentSemesters(List<Semester> semesters)
 			throws IllegalStateException, IOException {
 		List<Semester> retval = new ArrayList<>();
-
-		// start by adding all semesters in the last five semesters
-		Semester nextLast = semesters.get(semesters.size() - 1);
-		for (int i = 0; i < NUM_SEMESTERS_ALWAYS_SCRAPED; i++) {
-			retval.add(nextLast);
-			nextLast = semesters.get(semesters.size() - 2 - i);
-		}
+		
+		// get the semesters in reverse order
+		List<Semester> reverse = new ArrayList<>(semesters);
+		Collections.reverse(reverse);
 
 		// look for semesters not yet cached
-		for (int i = semesters.indexOf(nextLast); i > -1; i--) {
-
+		for (Semester semester : semesters)
+		{
 			// check if the semester is cached
-			if (!semesterSaver.isSemesterCached(nextLast)) {
-				retval.add(nextLast);
+			if (!semesterSaver.isSemesterCached(semester)) {
+				retval.add(semester);
 			}
+		}
 
-			nextLast = semesters.get(i);
+		// start by adding all semesters in the last five semesters
+		for (int i = 0; i < NUM_SEMESTERS_ALWAYS_SCRAPED; i++) {
+			Semester semester = reverse.get(i);
+			if (!retval.contains(semester))
+			{
+				retval.add(semester);
+				reverse.remove(i);
+			}
 		}
 
 		return retval;

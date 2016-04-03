@@ -1,12 +1,12 @@
-package system.io;
+package main.java.system.io;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
-import structure.Semester;
-import structure.SemesterAndSubjectCourses;
-import structure.Subject;
+import main.java.structure.Semester;
+import main.java.structure.SemesterAndSubjectCourses;
+import main.java.structure.Subject;
 
 /**
  * Used to interact with the system, whether that is files, a database, etc...

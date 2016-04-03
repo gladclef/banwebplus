@@ -1,4 +1,4 @@
-package system.io;
+package main.java.system.io;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -16,10 +16,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import structure.Clazz;
-import structure.Semester;
-import structure.SemesterAndSubjectCourses;
-import structure.Subject;
+import main.java.structure.Clazz;
+import main.java.structure.Semester;
+import main.java.structure.SemesterAndSubjectCourses;
+import main.java.structure.Subject;
 
 /**
  * For interfacing with system files. This class is, in part, meant to abstract
@@ -50,6 +50,7 @@ public class FileInterface implements SystemInterface {
 	protected void openFile(String fileName, boolean isWritable) throws IOException {
 		File file = new File(getPath() + fileName);
 		if (isWritable) {
+			System.out.println("writing to " + file);
 			writeHandle = new BufferedWriter(new FileWriter(file));
 		} else {
 			readHandle = new BufferedReader(new FileReader(file));
@@ -78,7 +79,7 @@ public class FileInterface implements SystemInterface {
 	 */
 	protected String getPath() {
 		File executionDirectory = new File(System.getProperty("user.dir"));
-		return executionDirectory.getParent() + File.separator;
+		return executionDirectory + File.separator;
 	}
 
 	/**
@@ -111,6 +112,14 @@ public class FileInterface implements SystemInterface {
 				(new Date()).toString());
 	}
 
+	protected String getOpenPHPClause() {
+		return "<?php\n\n";
+	}
+
+	protected String getClosePHPClause() {
+		return "\n\n?>";
+	}
+
 	@Override
 	public void saveSemestersAndSubjects(Collection<Semester> semesters, Collection<Subject> subjects)
 			throws IOException {
@@ -118,6 +127,7 @@ public class FileInterface implements SystemInterface {
 
 		// open the file for writing
 		openFile("banweb_terms.php", true);
+		builder.append(getOpenPHPClause());
 		builder.append(getWaterMark());
 
 		// add the boiler plate php code
@@ -128,10 +138,12 @@ public class FileInterface implements SystemInterface {
 		for (Semester semester : semesters) {
 			
 			// add the semester to the list
-			semestersList.add(Arrays.asList(new Object[] {
+			semestersList.add(
+				Arrays.asList(new Object[] {
 					semester.getCode(),
 					String.format("%s %s", semester.getSemesterName(), semester.getCalendarYear())
-			}));
+				})
+			);
 		}
 		
 		// append the list
@@ -139,6 +151,7 @@ public class FileInterface implements SystemInterface {
 		
 		// close the php code
 		builder.append(";\n");
+		builder.append(getClosePHPClause());
 		
 		// write out the builder's value
 		writeHandle.write(builder.toString());
@@ -153,6 +166,7 @@ public class FileInterface implements SystemInterface {
 
 		// open the semester handle for writing to
 		openFile(getFileNameForSemester(semester), true);
+		builder.append(getOpenPHPClause());
 		builder.append(getWaterMark());
 
 		// start the boiler plate php code
@@ -188,6 +202,7 @@ public class FileInterface implements SystemInterface {
 		
 		// close the php code
 		builder.append(";\n");
+		builder.append(getClosePHPClause());
 		
 		// write out the builder's value
 		writeHandle.write(builder.toString());
@@ -340,7 +355,7 @@ public class FileInterface implements SystemInterface {
 		{
 			// primitive
 			builder.append("\"");
-			builder.append(val.toString());
+			builder.append(val.toString().replace("\\", "\\\\").replace("\"", "\\\""));
 			builder.append("\"");
 		}
 		else

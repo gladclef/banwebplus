@@ -3,6 +3,8 @@ package structure;
 import org.junit.Assert;
 import org.junit.Test;
 
+import main.java.structure.Semester;
+
 public class SemesterTest {
 	
 	@Test
