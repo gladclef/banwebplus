@@ -32,11 +32,21 @@ function db_query($s_query, $a_values=NULL, $b_print_query = FALSE) {
 	else if ($b_print_query === 1)
 			echo $s_query_string;
 	$wt_retval = $mysqli->query($s_query_string);
-	if ($wt_retval === TRUE || $wt_retval === FALSE)
+
+	// check for booleans
+	if ($wt_retval === TRUE || $wt_retval === FALSE) {
+			if ($wt_retval === FALSE && $mysqli->errno != 0) {
+				error_log($s_query_string);
+				error_log("Last MySQL call failed: " . $mysqli->error);
+			}
 			return $wt_retval;
+	}
+
+	// return array of selected values
 	$a_retval = array();
 	while ($row = $wt_retval->fetch_assoc())
 			$a_retval[] = $row;
+
 	$wt_retval->free_result();
 	return $a_retval;
 }
@@ -53,14 +63,28 @@ function open_db() {
 	$filename = dirname(__FILE__)."/mysql_config.ini";
 	if (file_exists($filename)) {
 		$a_configs = parse_ini_file($filename);
+	} else {
+		print_debug_as_html_paragraph("Could not find file ${filename}");
+		return FALSE;
 	}
 	if (!isset($a_configs["host"]) ||
 		!isset($a_configs["user"]) ||
 		!isset($a_configs["password"])) {
+		print_debug_as_html_paragraph("Undefined host, user, and password in ${filename}");
 		return FALSE;
 	}
 
-	$mysqli = mysqli_connect($a_configs["host"], $a_configs["user"], $a_configs["password"]);
+	# try and open the database
+	if (!function_exists("mysqli_connect")) {
+		print_debug_as_html_paragraph("Must install php5-mysql to interface to MySQL database. Then add extension=php_mysqli.so to your php.ini configuration file and restart the Apache server.");
+		//return FALSE;
+	}
+	try {
+		$mysqli = mysqli_connect($a_configs["host"], $a_configs["user"], $a_configs["password"]);
+	} catch (Exception $e) {
+		print_debug_as_html_paragraph("Unable to connect to MySQL. ${e}");
+		return FALSE;
+	}
 	if ($mysqli->connect_errno) {
 		return FALSE;
 	}
@@ -142,6 +166,37 @@ function create_row_if_not_existing($a_vars, $b_print_queries = FALSE) {
 			}
 	}
 	return FALSE;
+}
+
+function getTableNames() {
+	global $maindb;
+	$a_tables = db_query("SHOW TABLES IN `[maindb]`", array("maindb"=>$maindb));
+	$a_retval = array();
+	for($i = 0; $i < count($a_tables); $i++) {
+			$s_tablename = $a_tables[$i]["Tables_in_{$maindb}"];
+			$a_retval[] = $s_tablename;
+	}
+	return $a_retval;
+}
+
+function getColumnNames($s_tablename)
+{
+	global $maindb;
+	global $mysqli;
+	$a_retval = array();
+
+	// get the description
+	$a_vars = array("maindb"=>$maindb, "table"=>$s_tablename);
+	$a_description = db_query("DESCRIBE `[maindb]`.`[table]`", $a_vars);
+
+	// parse the description for column names
+	$a_column_names = array();
+	foreach ($a_description as $index => $a_column_description)
+	{
+		$a_column_names[] = $a_column_description["Field"];
+	}
+
+	return $a_column_names;
 }
 
 ?>

@@ -77,7 +77,7 @@ function draw_status_code($block_style) {
 
 	$success = "<div style='display:inline-block; color:green; font-weight:bold;'>Success:</div>";
 	$error = "<div style='display:inline-block; color:red; font-weight:bold;'>Error:</div>";
-	$info_div = "<div style='display:none; border:1px solid black; border-radius:0.5em; padding:1.5em; margin:0.8em; 0.5em; background-color:rgba(0,0,0,0.05);'";
+	$info_div = "<div style='border:1px solid black; border-radius:0.5em; padding:1.5em; margin:0.8em; 0.5em; background-color:rgba(0,0,0,0.05);'";
 	$codebox = "<div style='margin:0.5em; padding:0.5em; border:1px dashed black; font-family:monospace;'>";
 	$b_all_green = TRUE;
 
@@ -185,12 +185,10 @@ function draw_status_code($block_style) {
 		$step2 = $root_url . "load_common_data";
 		$step3 = $root_url . "initialize_user_data";
 		echo "<div id='user_status' style='padding:0; margin:0;'>\n";
-		echo "${info_div} class='users'>Run these steps, in order:
-			<ol>
-				<li><a href='{$step1}' target='_blank'>{$step1}</a>
-				<li><a href='{$step2}' target='_blank'>{$step2}</a>
-				<li><a href='{$step3}' target='_blank'>{$step3}</a>
-			</ol></div>\n";
+		echo "${info_div} class='users'>\n
+			<div>Follow this link to create the master user:</div>\n
+			<a href='{$step3}' target='_blank'>{$step3}</a>\n
+		</div>\n";
 		echo "</div>\n";
 		$b_all_green = FALSE;
 	} else {
@@ -227,7 +225,22 @@ function draw_status_code($block_style) {
 		echo "</div>\n";
 		$b_all_green = FALSE;
 	} else {
-		echo "{$success} class data available.<br />\n";
+		echo "{$success} class data available.<br /><br />\n";
+	}
+
+	if (!$o_project_installer->check_jquery_path_validity())
+	{
+		$show_block1 = "<a href='#' style='inline-block;' onclick='show_block(\"jQuery\", \"";
+		$show_block2 = "\");'>";
+		$show_block3 = "</a>";
+
+		echo "{$error}
+			{$show_block1}jQuery{$show_block2}jQuery{$show_block3} file could not be found as specified in server_config.ini.";
+		$b_all_green = FALSE;
+	}
+	else
+	{
+		echo "{$success} file found on jQuery path.<br />\n";
 	}
 
 	echo "\n</div><br /><br />\n\n";

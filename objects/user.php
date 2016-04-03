@@ -175,7 +175,6 @@ class user {
 			return "Account already deleted/doesn't exist.";
 		}
 		db_query("DELETE FROM `{$maindb}`.`access_log` WHERE `username`='[username]'", $a_username);
-		db_query("DELETE FROM `{$maindb}`.`blacklist_preferences` WHERE `user_id`='[id]'", $a_id);
 		db_query("DELETE FROM `{$maindb}`.`generated_settings` WHERE `user_id`='[id]'", $a_id);
 		db_query("DELETE FROM `{$maindb}`.`semester_blacklist` WHERE `user_id`='[id]'", $a_id);
 		db_query("DELETE FROM `{$maindb}`.`semester_classes` WHERE `user_id`='[id]'", $a_id);
@@ -287,7 +286,7 @@ class user {
 	private function save_time_dependent_user_data($s_year, $s_semester, $s_tablename, $s_json_saveval, $s_timestamp) {
 		global $maindb;
 		$a_queryvars = array('year'=>$s_year, 'semester'=>$s_semester, 'tablename'=>$s_tablename, 'database'=>$maindb, 'timestamp'=>$s_timestamp, 'json'=>$s_json_saveval);
-		$s_querystring = "SELECT * FROM `[database]`.`[tablename]` WHERE `year`='[year]' AND `semester`='[semester]' AND `timestamp`>'[timestamp]'";
+		$s_querystring = "SELECT * FROM `[database]`.`[tablename]` WHERE `year`='[year]' AND `semester`='[semester]' AND `time_submitted`>'[timestamp]'";
 		$a_query = db_query($s_querystring, $a_queryvars);
 		if (is_array($a_query) && count($a_query) > 0)
 				return -1;
