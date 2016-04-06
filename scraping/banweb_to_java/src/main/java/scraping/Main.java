@@ -142,7 +142,6 @@ public class Main {
 			if (!retval.contains(semester))
 			{
 				retval.add(semester);
-				reverse.remove(i);
 			}
 		}
 
