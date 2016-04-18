@@ -3,8 +3,13 @@
 $a_basic_tables_structure = array(
 	"access_log" => array(
 		"id" =>                    array("type" => "INT",          "indexed" => TRUE,  "isPrimaryKey" => TRUE,  "special" => "AUTO_INCREMENT"),
-		"username" =>              array("type" => "VARCHAR(255)", "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
-		"initial_access" =>        array("type" => "DATETIME",     "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => "")
+		"username" =>              array("type" => "VARCHAR(255)", "indexed" => TRUE,  "isPrimaryKey" => FALSE, "special" => ""),
+		"ip_address" =>            array("type" => "VARCHAR(255)", "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
+		"initial_access" =>        array("type" => "DATETIME",     "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
+		"num_successes" =>         array("type" => "INT",          "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
+		"num_failures" =>          array("type" => "INT",          "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
+		"num_reset_attempts" =>    array("type" => "INT",          "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
+		"reset_expiration" =>      array("type" => "DATETIME",     "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => "")
 	),
 	"accesses" => array(
 		"id" =>                    array("type" => "INT",          "indexed" => TRUE,  "isPrimaryKey" => TRUE,  "special" => "AUTO_INCREMENT"),
