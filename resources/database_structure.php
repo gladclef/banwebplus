@@ -9,7 +9,8 @@ $a_basic_tables_structure = array(
 		"num_successes" =>         array("type" => "INT",          "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
 		"num_failures" =>          array("type" => "INT",          "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
 		"num_reset_attempts" =>    array("type" => "INT",          "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
-		"reset_expiration" =>      array("type" => "DATETIME",     "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => "")
+		"reset_expiration" =>      array("type" => "DATETIME",     "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => ""),
+		"reset_key" =>             array("type" => "VARCHAR(255)", "indexed" => FALSE, "isPrimaryKey" => FALSE, "special" => "")
 	),
 	"accesses" => array(
 		"id" =>                    array("type" => "INT",          "indexed" => TRUE,  "isPrimaryKey" => TRUE,  "special" => "AUTO_INCREMENT"),
