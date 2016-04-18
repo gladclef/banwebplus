@@ -4,7 +4,7 @@ beanweb (aka banwebplus)
 Make personal class scheduling simpler.
 
 ## Example use
-The project is currently in use at https://beanweb.com.
+The project is currently in use at https://beanweb.us.
 
 ## Why?
 This project was originally conceived to help [New Mexico Tech](http://www.nmt.edu/) students create a user schedule.

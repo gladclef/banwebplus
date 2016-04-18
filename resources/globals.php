@@ -14,6 +14,7 @@ function define_global_vars() {
 	global $tab_init_function;
 	global $global_loaded_server_settings;
 	global $mysqli;
+	global $fqdn;
 
 	$maindb = "";
 	$global_path_to_jquery = "";
@@ -50,6 +51,11 @@ function define_global_vars() {
 		date_default_timezone_set($a_configs["timezone"]);
 	} else {
 		print_debug_as_html_paragraph("timezone is not set in server_config.ini");
+	}
+	if (isset($a_configs["fqdn"])) {
+		$fqdn = $a_configs["fqdn"];
+	} else {
+		print_debug_as_html_paragraph("fqdn is not set in server_config.ini");
 	}
 
 	if (isset($a_configs["maindb"]) &&

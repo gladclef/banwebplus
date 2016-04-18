@@ -61,6 +61,7 @@ class icalendarFunctions {
 	public static function calendarLinkToString($s_linktype) {
 		global $global_user;
 		global $maindb;
+		global $fqdn;
 
 		$s_id = $global_user->get_id();
 		$s_username = $global_user->get_name();
@@ -69,11 +70,11 @@ class icalendarFunctions {
 		$a_settings_rows = db_query("SELECT `private_icalendar_key` FROM `[database]`.`generated_settings` WHERE `user_id` = '[user_id]'", array('database'=>$maindb, 'user_id'=>$s_id));
 		
 		if ($s_linktype == "web")
-				return "http://www.beanweb.com/pages/icalendar/calendars/{$s_username}/".$a_settings_rows[0]['private_icalendar_key']."/ClassSchedule.ics";
+				return "http://www.{$fqdn}/pages/icalendar/calendars/{$s_username}/".$a_settings_rows[0]['private_icalendar_key']."/ClassSchedule.ics";
 		else if ($s_linktype == "view")
-				return "http://www.beanweb.com/pages/icalendar/calendars/{$s_username}/".$a_settings_rows[0]['private_icalendar_key']."/pretty/ClassSchedule.ics";
+				return "http://www.{$fqdn}/pages/icalendar/calendars/{$s_username}/".$a_settings_rows[0]['private_icalendar_key']."/pretty/ClassSchedule.ics";
 		else if ($s_linktype == "download")
-				return "http://www.beanweb.com/pages/icalendar/calendars/{$s_username}/".$a_settings_rows[0]['private_icalendar_key']."/download/ClassSchedule.ics";
+				return "http://www.{$fqdn}/pages/icalendar/calendars/{$s_username}/".$a_settings_rows[0]['private_icalendar_key']."/download/ClassSchedule.ics";
 		else
 				return self::calendarLinkToString("view");
 	}
@@ -83,6 +84,8 @@ class icalendarFunctions {
 	 *******************************************************************************/
 	
 	private function headerToString() {
+
+		global $fqdn;
 		
 		// get some values
 		$s_username = '"'.str_replace('"', '', $this->o_user->get_name()).'"';
@@ -92,7 +95,7 @@ PRODID:-//Beanweb//Beanweb icalendar 1.0//EN
 VERSION:2.0
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
-X-WR-CALNAME:{$s_username}@beanweb.com
+X-WR-CALNAME:{$s_username}@{$fqdn}
 X-WR-TIMEZONE:America/Denver
 BEGIN:VTIMEZONE
 TZID:America/Denver
@@ -203,6 +206,8 @@ END:VTIMEZONE";
 	}
 
 	private function classToString($a_class, $i_semester_startday, $i_semester_endday) {
+
+		global $fqdn;
 		
 		// get some values
 		$s_username = $this->quotes($this->o_user->get_name());
@@ -249,7 +254,7 @@ DTSTART;TZID=America/Denver:{$s_class_startday}T{$s_class_starttime}
 DTEND;TZID=America/Denver:{$s_class_startday}T{$s_class_endtime}
 RRULE:FREQ=WEEKLY;UNTIL={$s_semester_endday}T235900Z;BYDAY={$s_class_weekdays}
 DTSTAMP:".date("Ymd")."T".date("His")."Z
-UID:{$s_class_uid}@beanweb.com
+UID:{$s_class_uid}@{$fqdn}
 CATEGORIES:CLASS
 CREATED:{$s_semester_startday}T000000Z
 DESCRIPTION:{$s_description}

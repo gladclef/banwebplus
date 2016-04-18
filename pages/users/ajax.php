@@ -26,6 +26,8 @@ class user_ajax {
 
 	public static function create_user() {
 		global $maindb;
+		global $fqdn;
+
 		$s_username = trim(get_post_var('username'));
 		$s_password = trim(get_post_var('password'));
 		$s_email = trim(get_post_var('email'));
@@ -57,10 +59,10 @@ class user_ajax {
 			return json_encode(array(
 				new command("print failure", "Error creating user")));
 
-		mail($s_email, 'beanweb account', 'You just created an account on beanweb.com with the username "'.$s_username.'."
-Log in to your new account from www.beanweb.com.
+		mail($s_email, 'beanweb account', 'You just created an account on {$fqdn} with the username "'.$s_username.'."
+Log in to your new account from {$fqdn}.
 
-If you ever forget your password you can reset it from the main page by clicking on the "forgot password" link.', 'From: noreply@beanweb.com');
+If you ever forget your password you can reset it from the main page by clicking on the "forgot password" link.', 'From: noreply@{$fqdn}');
 		return json_encode(array(
 			new command("print success", "Success! You can now use the username {$s_username} to log in from the main page!")));
 	}
@@ -78,6 +80,7 @@ If you ever forget your password you can reset it from the main page by clicking
 
 		global $maindb;
 		global $o_access_object;
+		global $fqdn;
 
 		// get the username or email, and the access object
 		if ($s_username == "")
@@ -127,10 +130,12 @@ If you ever forget your password you can reset it from the main page by clicking
 		$s_reset_key = $o_access_object->get_reset_key($s_username, TRUE);
 		$i_reset_time = $o_access_object->get_reset_expiration($s_username, TRUE);
 		$i_reset_minutes = (int)(($i_reset_time - strtotime('now')) / 60);
-		$s_body = "A password reset attempt has been made with beanweb.com for the user {$s_username}, registered with this email address. If you did not request this reset please ignore this email.\n\nYou have {$i_reset_minutes} minutes to click the link below to reset your password. Ignore this email if you do not want your password reset.\nhttp://beanweb.com/pages/users/reset_password.php?username={$s_username}&key={$s_reset_key}";
+		$s_body = "A password reset attempt has been made with {$fqdn} for the user {$s_username}, registered with this email address. If you did not request this reset please ignore this email.\n\nYou have {$i_reset_minutes} minutes to click the link below to reset your password. Ignore this email if you do not want your password reset.\nhttps://{$fqdn}/pages/users/reset_password.php?username={$s_username}&key={$s_reset_key}";
 		error_log($s_body);
-		mail($s_email, "Request to Reset Beanweb Password", $s_body, "From: noreply@beanweb.com");
-		return array(TRUE, "A verification email has been sent to {$s_email}");
+		mail($s_email, "Request to Reset Beanweb Password", $s_body, "From: noreply@{$fqdn}");
+		$a_email_parts = explode("@", $s_email, 2);
+		$s_email_trimmed = $a_email_parts[1];
+		return array(TRUE, "A verification email has been sent to ****@{$s_email_trimmed}");
 	}
 
 	public static function forgot_password_ajax() {
