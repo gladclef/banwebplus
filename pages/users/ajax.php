@@ -59,10 +59,10 @@ class user_ajax {
 			return json_encode(array(
 				new command("print failure", "Error creating user")));
 
-		mail($s_email, 'beanweb account', 'You just created an account on {$fqdn} with the username "'.$s_username.'."
+		mail($s_email, 'beanweb account', "You just created an account on {$fqdn} with the username \"".$s_username.".\"
 Log in to your new account from {$fqdn}.
 
-If you ever forget your password you can reset it from the main page by clicking on the "forgot password" link.', 'From: noreply@{$fqdn}');
+If you ever forget your password you can reset it from the main page by clicking on the \"forgot password\" link.", "From: noreply@{$fqdn}");
 		return json_encode(array(
 			new command("print success", "Success! You can now use the username {$s_username} to log in from the main page!")));
 	}
