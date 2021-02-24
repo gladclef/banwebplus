@@ -15,6 +15,7 @@ function define_global_vars() {
 	global $global_loaded_server_settings;
 	global $mysqli;
 	global $fqdn;
+	global $feedback_email;
 
 	$maindb = "";
 	$global_path_to_jquery = "";
@@ -57,7 +58,11 @@ function define_global_vars() {
 	} else {
 		print_debug_as_html_paragraph("fqdn is not set in server_config.ini");
 	}
-
+	if (isset($a_configs["feedback_email"])) {
+		$feedback_email = $a_configs["feedback_email"];
+	} else {
+		print_debug_as_html_paragraph("feedback_email is not set in server_config.ini");
+	}
 	if (isset($a_configs["maindb"]) &&
 		isset($a_configs["global_path_to_jquery"]) &&
 		isset($a_configs["timezone"])) {
