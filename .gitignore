@@ -17,3 +17,6 @@ database_desc.txt
 *.sublime-project
 *.sublime-workspace
 sftp-config.json
+*.pyc
+scraping/banweb_subjects.py
+scraping/banweb_terms.py
