@@ -42,6 +42,11 @@ class user_ajax {
 		if (strlen($s_email) == 0)
 			return json_encode(array(
 				new command("print failure", "The email is blank.")));
+		if (strstr($s_email, "@") === FALSE) {
+			error_log("Attempt to create an account with email {$s_email} without an \"@\" character.");
+			return json_encode(array(
+				new command("print failure", "Email address must contain an \"@\" character.")));
+		}
 		
 		// check that the email and username are unique
 		$a_users = db_query("SELECT * FROM `[database]`.`students` WHERE `username`='[username]' OR `email`='[email]'", array("database"=>$maindb, "username"=>$s_username, "email"=>$s_email));
@@ -134,6 +139,16 @@ If you ever forget your password you can reset it from the main page by clicking
 		error_log($s_body);
 		mail($s_email, "Request to Reset Beanweb Password", $s_body, "From: noreply@{$fqdn}");
 		$a_email_parts = explode("@", $s_email, 2);
+		if (count($a_email_parts) < 2) {
+			$s_emailSource = ($b_email_provided) ? "provided" : "on file";
+			error_log("Failed to explode email {$s_email} for user {$s_username}, email provided? " . ($b_email_provided ? "yes" : "no"));
+			ob_start();
+			var_dump($a_email_parts);
+			$s_email_parts = ob_get_contents();
+			ob_end_clean();
+			error_log("$a_email_parts: {$s_email_parts}");
+			return array(FALSE, "Missing \"@\" in email {$s_emailSource}. An attempt to send the password reset email has been made but delivery is not guaranteed.");
+		}
 		$s_email_trimmed = $a_email_parts[1];
 		return array(TRUE, "A verification email has been sent to ****@{$s_email_trimmed}");
 	}
