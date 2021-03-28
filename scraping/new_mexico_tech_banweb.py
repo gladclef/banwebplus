@@ -1,13 +1,19 @@
-#! /usr/bin/python
+#! /usr/bin/python3
 
-import urllib2
+import urllib3
 import copy
 import os
 import banweb_to_php
-from bs4 import BeautifulSoup
+import bs4
 import argparse
+import importlib
+import time
+import json
 
-def getRetardedSelectSyntaxFromBanweb(selectTag):
+# global stuff
+http = urllib3.PoolManager()
+
+def getSelectSyntaxFromBanweb(selectTag):
 	retval = []
 	for subject in selectTag.findAll("option"):
 		sid = subject["value"]
@@ -16,30 +22,23 @@ def getRetardedSelectSyntaxFromBanweb(selectTag):
 		retval.append([sid, sval])
 	return retval
 
-def writeSelectToFile(selectArray, filename, path, title):
+def writeVarToFile(varname, varval, path, filename):
 	f = open(path+filename, "w")
-	f.write(title+" = [['")
-	optionStrings = []
-	for optionParts in selectArray:
-		optionStrings.append("','".join(optionParts))
-	f.write("'],\n\t['".join(optionStrings))
-	f.write("']]")
+	f.write(f"{varname} = {str(varval)}")
 	f.close()
 
 class classList:
-	headers = []
-	classes = []
-	
 	def __init__(self):
 		self.headers = []
 		self.classes = []
 		
 	def getClasses(self):
 		return self.classes
+
 	def getHeaders(self):
 		return self.headers
 	
-	def determinClassType(self, bs4tr):
+	def determineClassType(self, bs4tr):
 		tds = bs4tr.findAll("td")
 		if (len(self.headers) == 0):
 			return "none"
@@ -48,17 +47,21 @@ class classList:
 			for td in tds:
 				if (len(td.contents) == 0):
 					continue
-				text = td.contents[0]
-				if (text.strip() != ""):
+				content = td.contents[0]
+				if isinstance(content, bs4.element.Tag): # example "Bookstore Link" hyperlinks
 					countWithContent += 1
+				elif (content.strip() != ""):
+					countWithContent += 1
+
 			ratio = float(countWithContent) / float(len(self.headers))
 			if (ratio > 0.5):
 				return "class"
-			if (countWithContent > 2 or ratio > 0.5):
+			if (countWithContent > 2):
 				return "subclass"
 		return "none"
+
 	def addClass(self, bs4tr):
-		classType = self.determinClassType(bs4tr)
+		classType = self.determineClassType(bs4tr)
 		if (classType == "class" or classType == "subclass"):
 			tds = bs4tr.findAll("td")
 			classStats = {}
@@ -66,13 +69,16 @@ class classList:
 				td = tds[i]
 				if (len(td.contents) == 0):
 					continue
-				text = td.contents[0]
-				classStats[self.headers[i]] = text
+				content = td.contents[0]
+				if not isinstance(content, bs4.element.NavigableString): # example "Bookstore Link" hyperlinks
+					continue
+				classStats[self.headers[i]] = content
 			classStats["Type"] = classType
 			self.classes.append(classStats)
-			print_verbose("adding class: "+str(classStats))
+			print_verbose("adding class: "+str(classStats), 2)
 			return True
 		return False
+
 	def setHeaders(self, bs4tr):
 		self.headers = []
 		ths = bs4tr.findAll("th")
@@ -83,14 +89,12 @@ class classList:
 		return True
 
 class term:
-	semester = "" #eg "201330"
-	classLists = {} # a dictionary of classlist objects, by subject
-	subjects = [] # an array of arrays[shortname, longname]
-	
-	def __init__(self, semester):
+	def __init__(self, semester : str):
+		# example semester: "201330"
 		self.flush()
-		self.subjects = []
 		self.semester = semester
+		self.subjects = [] # an array of tuples(shortname, longname)
+		self.classLists = {} # a dictionary of classlist objects, by subject index
 		
 	def flush(self):
 		self.semester = ""
@@ -118,10 +122,7 @@ class term:
 		return semesterName+" "+self.semester[:4]
 	
 	def _subjIndex(self, subject):
-		i = self.subjects.index(subject)
-		if (len(self.classLists) <= i):
-			self.addSubject(subject)
-		return i
+		return self.subjects.index(subject)
 	def getClassList(self, subject):
 		return self.classLists[self._subjIndex(subject)]
 	def getClasses(self, subject):
@@ -131,13 +132,9 @@ class term:
 	def addSubject(self, subject):
 		if (not subject in self.subjects):
 			self.subjects.append(subject)
-			i = self.subjects.index(subject)
-			self.classLists.append(classList())
+			self.classLists[self._subjIndex(subject)] = classList()
 	def getSubjects(self):
-		retval = []
-		for subject in self.subjects:
-			retval.append(subject)
-		return retval
+		return copy.copy(self.subjects)
 	# requires a beautiful soup table row
 	def addClass(self, subject, bs4tr):
 		return self.classLists[self._subjIndex(subject)].addClass(bs4tr)
@@ -156,29 +153,28 @@ def getTerm(semester, subjects, parser):
 		if (subjectName == "CUSTOM"):
 			continue
 		url = "http://banweb7.nmt.edu/pls/PROD/hwzkcrof.P_UncgSrchCrsOff?p_term="+t.getSemester()+"&p_subj="+subjectName.replace(" ", "%20")
-		print url
-		page = urllib2.urlopen(url)
-		soup = BeautifulSoup(page)
+		print_verbose(url, 2)
+		page = http.request('GET', url)
+		soup = bs4.BeautifulSoup(page.data, 'html.parser')
 		trs = soup.findAll("tr")
 		trs = trs[1:] #discard the retarded row that banweb is retarded about
-		print_verbose("adding subject "+subjectName)
+		print_verbose("adding subject "+subjectName, 1)
 		if (len(trs) == 0):
-			print_verbose("no table rows...no classes subject")
+			print_verbose("no table rows...no classes subject", 2)
 			continue
 		headersRow = trs[0]
-		print_verbose("adding headers "+str(headersRow))
+		print_verbose("adding headers "+str(headersRow), 2)
 		t.setHeaders(subject, headersRow)
 		classesRows = trs[1:]
 		for tr in classesRows:
 			t.addClass(subject, tr)
+		time.sleep(1) # don't spam the nice people
 	return t
 
 def main(parser):
-	url = "http://banweb7.nmt.edu/pls/PROD/hwzkcrof.p_uncgslctcrsoff"
-
-	page = urllib2.urlopen(url)
-	
-	soup = BeautifulSoup(page)
+	# load the front page with all the terms and subjects
+	page = http.request('GET', 'http://banweb7.nmt.edu/pls/PROD/hwzkcrof.p_uncgslctcrsoff')
+	soup = bs4.BeautifulSoup(page.data, 'html.parser')
 
 	path = ""
 	if (type(parser.path) == type("")):
@@ -187,26 +183,29 @@ def main(parser):
 	# load all terms and subjects from banweb
 	nodes = soup.findAll("select")
 	termsList = [] # each term -> [yyyyss, "season year"]
-	subjects = [] # each subject -> ["abriviation", "full name"]
+	subjects = [] # each subject -> ["abbreviation", "full name"]
 	for node in nodes:
 		nodeAttribs = dict(node.attrs)
 		if nodeAttribs[u"name"] == u"p_term":
-			termsList = getRetardedSelectSyntaxFromBanweb(node)[:]
+			termsList = getSelectSyntaxFromBanweb(node)[:]
 		elif nodeAttribs[u"name"] == u"p_subj":
-			subjects = getRetardedSelectSyntaxFromBanweb(node)[:]
+			subjects = getSelectSyntaxFromBanweb(node)[:]
 	subjects.append(["CUSTOM","Custom"])
 
 	# account for terms that have been listed before but
 	# have since been removed from banweb
-	import banweb_terms
-	for t in banweb_terms.terms:
-		if not t in termsList:
-			termsList.append(t)
+	try:
+		banweb_terms = importlib.import_module('banweb_terms')
+		unmentioned_terms = filter(lambda t: t not in termsList, banweb_terms.terms)
+		termsList += list(unmentioned_terms)
+	except ModuleNotFoundError as err:
+		# in case the banweb_terms.py file doesn't exist yet
+		pass
 	termsList.sort()
 
 	# save the new listing of terms and subjects
-	writeSelectToFile(termsList, "banweb_terms.py", path, "terms")
-	writeSelectToFile(subjects, "banweb_subjects.py", path, "subjects")
+	writeVarToFile("terms", termsList,   path, "banweb_terms.py")
+	writeVarToFile("subjects", subjects, path, "banweb_subjects.py")
 
 	# only process the terms that the user wants to
 	if (type(parser.semester) == type("")):
@@ -215,12 +214,12 @@ def main(parser):
 			if (t[0] == parser.semester):
 				newtermsList.append(t)
 		termsList = newtermsList
-	print termsList
+	print_verbose(termsList, 2)
 
 	terms = []
 
-	# load the latest three semester available on banweb
-	numLatestSemesters = 3
+	# always reload the latest three semester available on banweb
+	numLatestSemesters = 1
 	latestYear = 0
 	latestSemester = 0
 	latestYearSemester = "201410"
@@ -241,9 +240,11 @@ def main(parser):
 	for t in termsList:
 		semester = t[0]
 		filename = "sem_"+semester+".py"
-		if (os.path.exists(path+filename) and semester not in latestYearSemesters):
+		if (os.path.exists(path+filename)):# and semester not in latestYearSemesters):
 			continue
+		print_verbose(f"Adding semester {semester}", 1)
 		terms.append(copy.copy(getTerm(t, subjects, parser)))
+		time.sleep(5) # don't spam the nice people
 
 	for t in terms:
 		name = t.getPrintedSemester()
@@ -252,29 +253,30 @@ def main(parser):
 		for subj in subjects:
 			classes.append(t.getClasses(subj))
 		filename = "sem_"+t.getSemester()+".py"
-		print_verbose("writing to file "+path+filename)
+		print_verbose("writing to file "+path+filename, 2)
 		try:
 			f = open(path+filename, "w")
 			f.write("name = \""+name+"\"\n")
-			f.write("subjects = "+subjects.__str__()+"\n")
-			f.write("classes = "+classes.__str__())
+			f.write("subjects = "+json.dumps(subjects)+"\n")
+			f.write("classes = "+json.dumps(classes)+"\n")
 			f.close()
-		except IOError as (errno,strerror):
-			print "I/O error({0}): {1}".format(errno, strerror)
+		except IOError as err:
+			print(err)
 
 	banweb_to_php.main(parser)
 
-verbose = False
-def print_verbose(arg):
-	if verbose:
-		print arg
+verbose = 0
+def print_verbose(strval, verbosity):
+	if verbose >= verbosity:
+		print(strval)
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description="Loads current class data from banweb.nmt.edu and saves it to local files for quick access (caching) and readable formats.")
 	parser.add_argument("--semester", type=str, help="choose the semester to load (eg '201430')")
 	parser.add_argument("--subject", type=str, help="choose the subject to load (eg 'CSE')")
 	parser.add_argument("--path", type=str, help="choose the location to save semester files to (must end in a slash, eg '/home/usr/stuff/')")
-	parser.add_argument("-v", action="store_true", dest="verbose", help="Print out verbose text about what is happening")
+	parser.add_argument("-v", action="count", dest="verbose", help="Print out verbose text about what is happening")
+
 	p = parser.parse_args()
-	verbose = p.verbose
+	verbose = 0 if p.verbose is None else p.verbose
 	main(p)

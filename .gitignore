@@ -14,3 +14,9 @@ database_desc.txt
 /scraping/banweb_to_java/target/
 /resources/server_config.ini
 /resources/mysql_config.ini
+*.sublime-project
+*.sublime-workspace
+sftp-config.json
+*.pyc
+scraping/banweb_subjects.py
+scraping/banweb_terms.py
