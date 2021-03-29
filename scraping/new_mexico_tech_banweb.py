@@ -24,7 +24,7 @@ def getSelectSyntaxFromBanweb(selectTag):
 
 def writeVarToFile(varname, varval, path, filename):
 	f = open(path+filename, "w")
-	f.write(f"{varname} = {str(varval)}")
+	f.write("{} = {}".format(varname, str(varval)))
 	f.close()
 
 class classList:
@@ -194,6 +194,8 @@ def main(parser):
 
 	# account for terms that have been listed before but
 	# have since been removed from banweb
+	try: ModuleNotFoundError
+	except NameError: ModuleNotFoundError = ImportError
 	try:
 		banweb_terms = importlib.import_module('banweb_terms')
 		unmentioned_terms = filter(lambda t: t not in termsList, banweb_terms.terms)
@@ -219,7 +221,7 @@ def main(parser):
 	terms = []
 
 	# always reload the latest three semester available on banweb
-	numLatestSemesters = 1
+	numLatestSemesters = 3
 	latestYear = 0
 	latestSemester = 0
 	latestYearSemester = "201410"
@@ -240,9 +242,9 @@ def main(parser):
 	for t in termsList:
 		semester = t[0]
 		filename = "sem_"+semester+".py"
-		if (os.path.exists(path+filename)):# and semester not in latestYearSemesters):
+		if (os.path.exists(path+filename) and semester not in latestYearSemesters):
 			continue
-		print_verbose(f"Adding semester {semester}", 1)
+		print_verbose("Adding semester {}".format(semester), 1)
 		terms.append(copy.copy(getTerm(t, subjects, parser)))
 		time.sleep(5) # don't spam the nice people
 
