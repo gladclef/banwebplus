@@ -137,7 +137,7 @@ function save_custom_class_to_db($a_values, $i_user_id, $sem, $year) {
 			$i_crn++;
 			
 			// check that it doesn't conflict with other types of classes
-			$query_string = "SELECT `crn` FROM `{$maindb}`.`classes WHERE `semester`='[sem]' AND `year`='[year]' AND `crn`='[crn]'";
+			$query_string = "SELECT `crn` FROM `{$maindb}`.`classes` WHERE `semester`='[sem]' AND `year`='[year]' AND `crn`='[crn]'";
 			$query_vars = array("sem"=>$semester_string, "year"=>$realyear, "crn"=>$i_crn);
 			$a_class = db_query($query_string, $query_vars);
 			while ($a_class !== FALSE && count($a_class) > 0) {
