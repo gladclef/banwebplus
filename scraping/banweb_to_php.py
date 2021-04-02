@@ -112,7 +112,7 @@ def main(parser):
         # don't include surrounding brackets '[]'
         termstr = json.dumps(term)
         termstr = termstr[1:-1]
-        fout.write(f"\n\t array({termstr}),")
+        fout.write("\n\t array({}),".format(termstr))
     fout.write("\n);")
     fout.write("\n?>\n")
     
@@ -122,7 +122,7 @@ def main(parser):
 verbose = 0
 def print_verbose(strval, verbosity):
     if verbose >= verbosity:
-        print(strval)
+        print(strval, flush=True)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
