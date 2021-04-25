@@ -217,15 +217,16 @@ class ajax {
 	function email_developer_bugs() {
 		global $global_user;
 		global $feedback_email;
+		global $fqdn;
 		$s_subject = get_post_var("email_subject");
-		$s_body = get_post_var("email_body");
+		$s_body = "From: " . $global_user->get_email() . "\r\n" . get_post_var("email_body");
 		if ($s_subject == "")
 			return json_encode(array(
 				new command("print failure", "Please include a subject in your email.<br />")));
 		if ($s_body == "")
 			return json_encode(array(
 				new command("print failure", "Please include a body in your email.<br />")));
-		mail($feedback_email, "Beanweb Feedback: {$s_subject}", $s_body, "From: ".$global_user->get_email());
+		mail($feedback_email, "Beanweb Feedback: {$s_subject}", $s_body, "From: noreply@{$fqdn}");
 		return json_encode(array(
 			new command("print success", "Thank you for your feedback!<br />")));
 	}

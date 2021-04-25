@@ -23,9 +23,9 @@ def getSelectSyntaxFromBanweb(selectTag):
 	return retval
 
 def writeVarToFile(varname, varval, path, filename):
-	f = open(path+filename, "w")
-	f.write("{} = {}".format(varname, str(varval)))
-	f.close()
+	with open(path+filename, "w") as f:
+		f.write("{} = {}".format(varname, str(varval)))
+		f.close()
 
 class classList:
 	def __init__(self):

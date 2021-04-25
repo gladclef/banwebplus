@@ -271,6 +271,14 @@ $term = loadTerm(getNextTerm());
 while ($term !== NULL) {
 		echo "===============================================================================\n";
 		echo "===============================================================================\n";
+		$year = $term["year"];
+		$semester = $term["semester"];
+		if ($semester == 'spr') {
+			// nothing to do, semester year is the same as the calendar year
+		} else {
+			// semester year is ahead of the calendar year
+			$term["year"] = $year - 1;
+		}
 		echo "...".$term["name"]."\n";
 		echo "...subjects\n";
 		saveSubjects($term);
